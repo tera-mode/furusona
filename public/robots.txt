@@ -1,0 +1,12 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow private pages
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /history
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://furusona.jp/sitemap.xml

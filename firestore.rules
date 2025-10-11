@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ユーザードキュメント
+    match /users/{userId} {
+      // 認証済みで自分のドキュメントのみ読み書き可能
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // 寄付履歴
+    match /donations/{donationId} {
+      // 認証済みで自分の寄付履歴のみ読み書き可能
+      allow read, write: if request.auth != null &&
+        request.auth.uid == resource.data.userId;
+
+      // 新規作成時は自分のuidと一致する場合のみ
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.userId;
+    }
+  }
+}

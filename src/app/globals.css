@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  /* プライマリーカラー - 落ち着いたテラコッタ */
+  --color-primary-50: #faf6f4;
+  --color-primary-100: #f5ede8;
+  --color-primary-200: #e8d4c9;
+  --color-primary-300: #dbb8a6;
+  --color-primary-400: #c99780;
+  --color-primary-500: #b37860;
+  --color-primary-600: #9f6652;
+  --color-primary-700: #835446;
+  --color-primary-800: #6b463d;
+  --color-primary-900: #583a34;
+
+  /* アクセントカラー - 温かみのあるアンバー */
+  --color-accent-50: #fdfaf3;
+  --color-accent-100: #fbf3e1;
+  --color-accent-200: #f5e4bd;
+  --color-accent-300: #eed094;
+  --color-accent-400: #e5b565;
+  --color-accent-500: #d99b43;
+  --color-accent-600: #c17f37;
+  --color-accent-700: #a06230;
+  --color-accent-800: #834f2d;
+  --color-accent-900: #6d4227;
+
+  /* セカンダリーカラー - 柔らかいセージグリーン */
+  --color-secondary-50: #f7f8f6;
+  --color-secondary-100: #eef0ec;
+  --color-secondary-200: #dbe0d6;
+  --color-secondary-300: #c1cab8;
+  --color-secondary-400: #a3af96;
+  --color-secondary-500: #879379;
+  --color-secondary-600: #6d7862;
+  --color-secondary-700: #586251;
+  --color-secondary-800: #495144;
+  --color-secondary-900: #3e4439;
+
+  /* サクセスカラー - マットなオリーブ */
+  --color-success-50: #f6f8f4;
+  --color-success-100: #ebefe4;
+  --color-success-200: #d7dfca;
+  --color-success-300: #bbc8a7;
+  --color-success-400: #9dae81;
+  --color-success-500: #7f9264;
+  --color-success-600: #64754d;
+  --color-success-700: #4f5c3f;
+  --color-success-800: #424b35;
+  --color-success-900: #38402f;
+
+  /* 警告カラー - 渋めのマスタード */
+  --color-warning-50: #fdfaf3;
+  --color-warning-100: #faf3e1;
+  --color-warning-200: #f3e4bd;
+  --color-warning-300: #eace8f;
+  --color-warning-400: #dfb159;
+  --color-warning-500: #d29535;
+  --color-warning-600: #b8772a;
+  --color-warning-700: #965b25;
+  --color-warning-800: #7a4924;
+  --color-warning-900: #663d21;
+}
