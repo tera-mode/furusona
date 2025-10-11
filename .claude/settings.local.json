@@ -20,7 +20,8 @@
       "Bash(npm run build:*)",
       "Bash(git log:*)",
       "Bash(git filter-branch:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(vercel:*)"
     ],
     "deny": [],
     "ask": []

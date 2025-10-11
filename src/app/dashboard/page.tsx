@@ -11,7 +11,7 @@ import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, updateUserData } = useAuth();
   const router = useRouter();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -19,6 +19,8 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [displayedItemCodes, setDisplayedItemCodes] = useState<Set<string>>(new Set());
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const hasInitialLoadCompleted = useRef(false);
@@ -126,6 +128,44 @@ export default function DashboardPage() {
   const totalDonated = donations.reduce((sum, d) => sum + d.productPrice, 0);
   const remainingLimit = user ? Math.max(0, user.calculatedLimit - totalDonated) : 0;
 
+  // 気になるリストを初期化
+  useEffect(() => {
+    if (user && user.preferences.favorites) {
+      setFavorites(new Set(user.preferences.favorites));
+    }
+  }, [user]);
+
+  // 気になるトグル
+  const handleFavoriteToggle = async (itemCode: string) => {
+    if (!user) return;
+
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(itemCode)) {
+      newFavorites.delete(itemCode);
+    } else {
+      newFavorites.add(itemCode);
+    }
+
+    setFavorites(newFavorites);
+
+    // Firestoreに保存
+    try {
+      await updateUserData({
+        preferences: {
+          ...user.preferences,
+          favorites: Array.from(newFavorites),
+        },
+      });
+    } catch (error) {
+      console.error('Error updating favorites:', error);
+    }
+  };
+
+  // フィルター済みの推薦リスト
+  const filteredRecommendations = showFavoritesOnly
+    ? recommendations.filter(rec => favorites.has(rec.itemCode))
+    : recommendations;
+
   useEffect(() => {
     if (!loading && !user) {
       setShowLoginModal(true);
@@ -191,10 +231,28 @@ export default function DashboardPage() {
 
         {/* 推薦セクション */}
         <div className="mb-8">
-          <div className="mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
               あなたへのおすすめ返礼品
             </h2>
+
+            {/* 気になるフィルター */}
+            <button
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                showFavoritesOnly
+                  ? 'bg-pink-500 text-white hover:bg-pink-600'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:border-pink-500'
+              }`}
+            >
+              <span className="text-xl">{showFavoritesOnly ? '♥' : '♡'}</span>
+              <span className="text-sm">気になる{showFavoritesOnly && 'のみ'}</span>
+              {favorites.size > 0 && (
+                <span className="bg-white dark:bg-slate-700 text-pink-500 px-2 py-0.5 rounded-full text-xs font-bold">
+                  {favorites.size}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* エラーメッセージ */}
@@ -228,19 +286,36 @@ export default function DashboardPage() {
           )}
 
           {/* 推薦リスト */}
-          {recommendations.length > 0 && (
+          {filteredRecommendations.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-              {recommendations.map((rec, index) => (
+              {filteredRecommendations.map((rec, index) => (
                 <ProductCard
                   key={`${rec.itemCode}-${index}`}
                   recommendation={rec}
                   userId={user?.uid}
+                  isFavorite={favorites.has(rec.itemCode)}
+                  onFavoriteToggle={handleFavoriteToggle}
                   onDonationAdded={() => {
                     // 寄付履歴に追加されたら、サマリーカードを更新
                     fetchDonations();
                   }}
                 />
               ))}
+            </div>
+          )}
+
+          {/* 気になる商品がない場合 */}
+          {showFavoritesOnly && filteredRecommendations.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-slate-600 dark:text-slate-400 mb-4">
+                気になる商品がまだありません
+              </p>
+              <button
+                onClick={() => setShowFavoritesOnly(false)}
+                className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+              >
+                すべて表示
+              </button>
             </div>
           )}
 
@@ -257,7 +332,7 @@ export default function DashboardPage() {
           </div>
 
           {/* 推薦がない場合 */}
-          {!loadingRecommendations && recommendations.length === 0 && !error && (
+          {!loadingRecommendations && recommendations.length === 0 && !error && !showFavoritesOnly && (
             <div className="text-center py-20">
               <p className="text-slate-600 dark:text-slate-400">
                 AIがおすすめを準備中です...

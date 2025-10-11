@@ -6,16 +6,30 @@ import { useState } from 'react';
 interface ProductCardProps {
   recommendation: Recommendation;
   userId?: string;
+  isFavorite?: boolean;
   onDonationAdded?: () => void;
+  onFavoriteToggle?: (itemCode: string) => void;
 }
 
-export default function ProductCard({ recommendation, userId, onDonationAdded }: ProductCardProps) {
+export default function ProductCard({ recommendation, userId, isFavorite = false, onDonationAdded, onFavoriteToggle }: ProductCardProps) {
   const { product, reason } = recommendation;
   const [adding, setAdding] = useState(false);
+  const [favoriting, setFavoriting] = useState(false);
 
   if (!product) {
     return null;
   }
+
+  const handleToggleFavorite = async () => {
+    if (!userId || !onFavoriteToggle) return;
+
+    setFavoriting(true);
+    try {
+      onFavoriteToggle(product.itemCode);
+    } finally {
+      setFavoriting(false);
+    }
+  };
 
   const handleAddDonation = async () => {
     if (!userId) {
@@ -74,6 +88,22 @@ export default function ProductCard({ recommendation, userId, onDonationAdded }:
           <div className="w-full h-full flex items-center justify-center text-slate-400">
             画像なし
           </div>
+        )}
+
+        {/* 気になるボタン */}
+        {userId && onFavoriteToggle && (
+          <button
+            onClick={handleToggleFavorite}
+            disabled={favoriting}
+            className={`absolute top-3 right-3 p-2 rounded-full shadow-lg transition-all ${
+              isFavorite
+                ? 'bg-pink-500 text-white hover:bg-pink-600'
+                : 'bg-white text-slate-400 hover:text-pink-500 hover:bg-pink-50'
+            } disabled:opacity-50`}
+            title={isFavorite ? '気になるから削除' : '気になるに追加'}
+          >
+            <span className="text-xl">{isFavorite ? '♥' : '♡'}</span>
+          </button>
         )}
       </div>
 

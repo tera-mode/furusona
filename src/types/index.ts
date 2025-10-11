@@ -18,6 +18,7 @@ export interface User {
     allergies?: string[];
     favoriteRegions?: string[];
     pastSelections?: string[];
+    favorites?: string[]; // 気になるリスト (itemCode)
   };
   calculatedLimit: number;
   createdAt: Date;
