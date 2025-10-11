@@ -91,12 +91,17 @@ export default function DashboardPage() {
       const data = await response.json();
       const newRecommendations = data.recommendations;
 
+      // 重複を除外して新しい推薦のみを追加
+      const filteredRecommendations = newRecommendations.filter((rec: Recommendation) =>
+        !displayedItemCodes.has(rec.itemCode)
+      );
+
       // 新しい推薦を追加
-      setRecommendations(prev => [...prev, ...newRecommendations]);
+      setRecommendations(prev => [...prev, ...filteredRecommendations]);
 
       // 表示済みアイテムコードを更新
       const newItemCodes = new Set(displayedItemCodes);
-      newRecommendations.forEach((rec: Recommendation) => {
+      filteredRecommendations.forEach((rec: Recommendation) => {
         if (rec.itemCode) {
           newItemCodes.add(rec.itemCode);
         }
@@ -227,7 +232,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
               {recommendations.map((rec, index) => (
                 <ProductCard
-                  key={rec.itemCode || index}
+                  key={`${rec.itemCode}-${index}`}
                   recommendation={rec}
                   userId={user?.uid}
                   onDonationAdded={() => {
