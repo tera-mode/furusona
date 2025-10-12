@@ -147,8 +147,12 @@ export async function POST(request: NextRequest) {
     // 現在の月を取得
     const currentMonth = new Date().getMonth() + 1;
 
+    // 気になる・興味なしリストを取得
+    const favorites = user.preferences.favorites || [];
+    const dislikes = user.preferences.dislikes || [];
+
     // 簡潔なユーザー情報（トークン削減）
-    const userInfo = `既婚:${user.familyStructure.married ? 1 : 0}|扶養:${user.familyStructure.dependents}|年収:${user.income.annualIncome}|限度額:${user.calculatedLimit}|カテゴリ:${categories.join(',')}|アレルギー:${user.preferences.allergies?.join(',') || 'なし'}|過去選択:${user.preferences.pastSelections?.length || 0}`;
+    const userInfo = `既婚:${user.familyStructure.married ? 1 : 0}|扶養:${user.familyStructure.dependents}|年収:${user.income.annualIncome}|限度額:${user.calculatedLimit}|カテゴリ:${categories.join(',')}|アレルギー:${user.preferences.allergies?.join(',') || 'なし'}|過去選択:${user.preferences.pastSelections?.length || 0}|気になる:${favorites.join(',') || 'なし'}|興味なし:${dislikes.join(',') || 'なし'}`;
 
     const prompt = `ふるさと納税返礼品を9つ選定。現在は${currentMonth}月です。
 
@@ -166,6 +170,7 @@ ${productList}
 6) 過去選択除外
 7) 多様性
 8) 季節性: ${currentMonth}月に旬・適した商品は+5点ボーナス（例: 10月なら栗・さつまいも・柿・秋刀魚など秋の味覚）
+9) 好み反映: 気になるリストの商品と類似する商品(カテゴリ・食材・特徴が似ている)は+10点、興味なしリストの商品と類似する商品は-10点
 
 以下のJSON形式のみで回答してください。説明文は一切不要です:
 {"recommendations":[{"itemCode":"商品コード","reason":"理由(50字以内)","score":95},...]}`;

@@ -83,6 +83,14 @@ export const JUDGMENT_MODULES: JudgmentModule[] = [
     weight: 0.05,
     enabled: true,
   },
+  {
+    id: 'preference_learning',
+    name: 'ユーザー好み学習',
+    description: '気になるリストの商品と類似→+10点、興味なしリストの商品と類似→-10点',
+    priority: 9,
+    weight: 0.10,
+    enabled: true,
+  },
 ];
 
 /**
@@ -129,6 +137,17 @@ export const ALGORITHM_FLOW = {
  * ⚠️ アルゴリズムを変更した場合は必ずここに記録してください
  */
 export const ALGORITHM_CHANGE_LOG = [
+  {
+    date: '2025-10-12',
+    version: '1.4.0',
+    author: 'System',
+    changes: [
+      'ユーザー好み学習機能の実装（気になる・興味なしボタン）',
+      '気になるリストと類似商品に+10点ボーナス',
+      '興味なしリストと類似商品に-10点ペナルティ',
+      'UI/UX改善: 暖色系背景、クリッカブル商品カード、ボタンリネーム',
+    ],
+  },
   {
     date: '2025-10-12',
     version: '1.3.0',

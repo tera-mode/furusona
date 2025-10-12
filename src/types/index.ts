@@ -19,6 +19,7 @@ export interface User {
     favoriteRegions?: string[];
     pastSelections?: string[];
     favorites?: string[]; // 気になるリスト (itemCode)
+    dislikes?: string[]; // 興味なしリスト (itemCode)
   };
   calculatedLimit: number;
   createdAt: Date;

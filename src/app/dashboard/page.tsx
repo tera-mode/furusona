@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [displayedItemCodes, setDisplayedItemCodes] = useState<Set<string>>(new Set());
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [dislikes, setDislikes] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -128,10 +129,15 @@ export default function DashboardPage() {
   const totalDonated = donations.reduce((sum, d) => sum + d.productPrice, 0);
   const remainingLimit = user ? Math.max(0, user.calculatedLimit - totalDonated) : 0;
 
-  // 気になるリストを初期化
+  // 気になる・興味なしリストを初期化
   useEffect(() => {
-    if (user && user.preferences.favorites) {
-      setFavorites(new Set(user.preferences.favorites));
+    if (user) {
+      if (user.preferences.favorites) {
+        setFavorites(new Set(user.preferences.favorites));
+      }
+      if (user.preferences.dislikes) {
+        setDislikes(new Set(user.preferences.dislikes));
+      }
     }
   }, [user]);
 
@@ -140,12 +146,49 @@ export default function DashboardPage() {
     if (!user) return;
 
     const newFavorites = new Set(favorites);
+    const newDislikes = new Set(dislikes);
+
     if (newFavorites.has(itemCode)) {
       newFavorites.delete(itemCode);
     } else {
       newFavorites.add(itemCode);
+      // 気になるに追加する場合は興味なしから削除
+      newDislikes.delete(itemCode);
     }
 
+    setFavorites(newFavorites);
+    setDislikes(newDislikes);
+
+    // Firestoreに保存
+    try {
+      await updateUserData({
+        preferences: {
+          ...user.preferences,
+          favorites: Array.from(newFavorites),
+          dislikes: Array.from(newDislikes),
+        },
+      });
+    } catch (error) {
+      console.error('Error updating favorites:', error);
+    }
+  };
+
+  // 興味なしトグル
+  const handleDislikeToggle = async (itemCode: string) => {
+    if (!user) return;
+
+    const newDislikes = new Set(dislikes);
+    const newFavorites = new Set(favorites);
+
+    if (newDislikes.has(itemCode)) {
+      newDislikes.delete(itemCode);
+    } else {
+      newDislikes.add(itemCode);
+      // 興味なしに追加する場合は気になるから削除
+      newFavorites.delete(itemCode);
+    }
+
+    setDislikes(newDislikes);
     setFavorites(newFavorites);
 
     // Firestoreに保存
@@ -154,10 +197,11 @@ export default function DashboardPage() {
         preferences: {
           ...user.preferences,
           favorites: Array.from(newFavorites),
+          dislikes: Array.from(newDislikes),
         },
       });
     } catch (error) {
-      console.error('Error updating favorites:', error);
+      console.error('Error updating dislikes:', error);
     }
   };
 
@@ -217,7 +261,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-primary-50 dark:bg-slate-900">
       {/* ヘッダー */}
       <Header
         user={user}
@@ -294,7 +338,9 @@ export default function DashboardPage() {
                   recommendation={rec}
                   userId={user?.uid}
                   isFavorite={favorites.has(rec.itemCode)}
+                  isDisliked={dislikes.has(rec.itemCode)}
                   onFavoriteToggle={handleFavoriteToggle}
+                  onDislikeToggle={handleDislikeToggle}
                   onDonationAdded={() => {
                     // 寄付履歴に追加されたら、サマリーカードを更新
                     fetchDonations();
