@@ -19,5 +19,21 @@ service cloud.firestore {
       allow create: if request.auth != null &&
         request.auth.uid == request.resource.data.userId;
     }
+
+    // 商品キャッシュ（検索条件ベース）- 読み取り専用
+    match /productCache/{cacheKey} {
+      // 認証済みユーザーは読み取りのみ可能
+      allow read: if request.auth != null;
+      // 書き込みは禁止（サーバーサイドのみ）
+      allow write: if false;
+    }
+
+    // 商品キャッシュ（個別商品）- 読み取り専用
+    match /cachedProducts/{productId} {
+      // 認証済みユーザーは読み取りのみ可能
+      allow read: if request.auth != null;
+      // 書き込みは禁止（サーバーサイドのみ）
+      allow write: if false;
+    }
   }
 }

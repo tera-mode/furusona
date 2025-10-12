@@ -3,10 +3,42 @@ import Anthropic from '@anthropic-ai/sdk';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { User, RakutenProduct, Recommendation } from '@/types';
+import { ProductCacheService } from '@/lib/product-cache';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+// 推薦結果のキャッシュ（メモリ内、15分間保持）
+const recommendationCache = new Map<string, { data: unknown; timestamp: number }>();
+const CACHE_DURATION = 15 * 60 * 1000; // 15分
+
+function getCacheKey(userId: string, excludeItemCodes: string[]): string {
+  return `${userId}_${excludeItemCodes.sort().join(',')}`;
+}
+
+function getFromCache(key: string) {
+  const cached = recommendationCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  recommendationCache.delete(key);
+  return null;
+}
+
+function setCache(key: string, data: unknown) {
+  recommendationCache.set(key, { data, timestamp: Date.now() });
+
+  // キャッシュのクリーンアップ（古いエントリを削除）
+  if (recommendationCache.size > 100) {
+    const now = Date.now();
+    for (const [k, v] of recommendationCache.entries()) {
+      if (now - v.timestamp >= CACHE_DURATION) {
+        recommendationCache.delete(k);
+      }
+    }
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,6 +50,13 @@ export async function POST(request: NextRequest) {
         { error: 'ユーザーIDが必要です' },
         { status: 400 }
       );
+    }
+
+    // キャッシュをチェック
+    const cacheKey = getCacheKey(userId, excludeItemCodes);
+    const cachedResult = getFromCache(cacheKey);
+    if (cachedResult) {
+      return NextResponse.json(cachedResult);
     }
 
     // 1. Firestoreからユーザー情報を取得
@@ -45,30 +84,41 @@ export async function POST(request: NextRequest) {
     // 推奨額（限度額の1/3）
     const maxPrice = Math.floor(user.calculatedLimit / 3);
 
-    // 複数のカテゴリから商品を取得して候補を増やす
+    const APPLICATION_ID = process.env.RAKUTEN_APPLICATION_ID;
+    const AFFILIATE_ID = process.env.RAKUTEN_AFFILIATE_ID;
+
+    if (!APPLICATION_ID) {
+      return NextResponse.json(
+        { error: 'Rakuten API Application ID is not configured' },
+        { status: 500 }
+      );
+    }
+
+    // 複数のカテゴリから商品を取得して候補を増やす（最大300件）
     let products: RakutenProduct[] = [];
+
+    // ユーザーカテゴリをシャッフル（多様性のため）
     const shuffledCategories = [...categories].sort(() => Math.random() - 0.5);
 
-    // 最大3つのカテゴリから商品を取得（候補を増やすため）
-    for (const category of shuffledCategories.slice(0, 3)) {
+    // 最大10カテゴリから取得（30件 × 10 = 最大300件）
+    // ProductCacheServiceを使用してキャッシュ優先で取得
+    for (const category of shuffledCategories.slice(0, 10)) {
       try {
-        const rakutenUrl = new URL(`${process.env.NEXT_PUBLIC_APP_URL}/api/rakuten`);
-        rakutenUrl.searchParams.set('keyword', category);
-        rakutenUrl.searchParams.set('maxPrice', maxPrice.toString());
-        rakutenUrl.searchParams.set('hits', '30');
+        const fetchedProducts = await ProductCacheService.getProducts(
+          category,
+          APPLICATION_ID,
+          AFFILIATE_ID,
+          maxPrice >= 100 ? maxPrice : undefined,
+          30
+        );
 
-        const rakutenResponse = await fetch(rakutenUrl.toString());
-
-        if (rakutenResponse.ok) {
-          const rakutenData = await rakutenResponse.json();
-          if (rakutenData.products && rakutenData.products.length > 0) {
-            // 重複を避けるため、itemCodeでフィルタリング
-            const existingItemCodes = new Set(products.map(p => p.itemCode));
-            const newProducts = rakutenData.products.filter(
-              (p: RakutenProduct) => !existingItemCodes.has(p.itemCode)
-            );
-            products = [...products, ...newProducts];
-          }
+        if (fetchedProducts.length > 0) {
+          // 重複を避けるため、itemCodeでフィルタリング
+          const existingItemCodes = new Set(products.map(p => p.itemCode));
+          const newProducts = fetchedProducts.filter(
+            (p: RakutenProduct) => !existingItemCodes.has(p.itemCode)
+          );
+          products = [...products, ...newProducts];
         }
       } catch (error) {
         console.error(`Error fetching products for category ${category}:`, error);
@@ -94,56 +144,67 @@ export async function POST(request: NextRequest) {
       `${i}. itemCode: ${p.itemCode} - ${p.itemName} (${p.itemPrice.toLocaleString()}円)`
     ).join('\n');
 
-    const userInfo = `
-【ユーザー情報】
-- 家族構成: ${user.familyStructure.married ? '既婚' : '独身'}、扶養人数: ${user.familyStructure.dependents}人
-- 年収: ${user.income.annualIncome.toLocaleString()}円
-- 限度額: ${user.calculatedLimit.toLocaleString()}円
-- 好きなカテゴリ: ${categories.join(', ')}
-- アレルギー: ${user.preferences.allergies?.join(', ') || 'なし'}
-- 過去の選択: ${user.preferences.pastSelections?.length || 0}件
-`;
+    // 現在の月を取得
+    const currentMonth = new Date().getMonth() + 1;
 
-    const prompt = `あなたはふるさと納税コンシェルジュです。以下の情報からユーザーに最適な返礼品を9つ選んでください。
+    // 簡潔なユーザー情報（トークン削減）
+    const userInfo = `既婚:${user.familyStructure.married ? 1 : 0}|扶養:${user.familyStructure.dependents}|年収:${user.income.annualIncome}|限度額:${user.calculatedLimit}|カテゴリ:${categories.join(',')}|アレルギー:${user.preferences.allergies?.join(',') || 'なし'}|過去選択:${user.preferences.pastSelections?.length || 0}`;
 
-${userInfo}
+    const prompt = `ふるさと納税返礼品を9つ選定。現在は${currentMonth}月です。
 
-【商品リスト】
+ユーザー: ${userInfo}
+
+商品:
 ${productList}
 
-【重要な選定基準】
-1. ユーザーの好みカテゴリに合致すること
-2. アレルギーがある場合は除外すること
-3. 価格が限度額の1/3程度であること
-4. レビューが多く評価が高いこと
-5. 家族構成を考慮すること（家族が多い場合は量が多いもの）
-6. 過去の選択と重複しないこと
-7. バリエーション豊かに選ぶこと（同じような商品を避ける）
+基準:
+1) カテゴリ合致
+2) アレルギー除外
+3) 価格≒限度額/3
+4) 高評価
+5) 家族構成考慮
+6) 過去選択除外
+7) 多様性
+8) 季節性: ${currentMonth}月に旬・適した商品は+5点ボーナス（例: 10月なら栗・さつまいも・柿・秋刀魚など秋の味覚）
 
-【出力形式】
-必ず以下のJSON形式のみで回答してください。説明文やマークダウンは不要です：
-{
-  "recommendations": [
-    { "itemCode": "商品コード1", "reason": "選定理由（50文字以内）", "score": 95 },
-    { "itemCode": "商品コード2", "reason": "選定理由（50文字以内）", "score": 93 },
-    { "itemCode": "商品コード3", "reason": "選定理由（50文字以内）", "score": 91 },
-    { "itemCode": "商品コード4", "reason": "選定理由（50文字以内）", "score": 89 },
-    { "itemCode": "商品コード5", "reason": "選定理由（50文字以内）", "score": 87 },
-    { "itemCode": "商品コード6", "reason": "選定理由（50文字以内）", "score": 85 },
-    { "itemCode": "商品コード7", "reason": "選定理由（50文字以内）", "score": 83 },
-    { "itemCode": "商品コード8", "reason": "選定理由（50文字以内）", "score": 81 },
-    { "itemCode": "商品コード9", "reason": "選定理由（50文字以内）", "score": 79 }
-  ]
-}`;
+以下のJSON形式のみで回答してください。説明文は一切不要です:
+{"recommendations":[{"itemCode":"商品コード","reason":"理由(50字以内)","score":95},...]}`;
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2048,
-      messages: [{
-        role: 'user',
-        content: prompt
-      }]
-    });
+    // Claude APIを呼び出し（リトライ機能付き）
+    let message;
+    let retries = 0;
+    const maxRetries = 3;
+    const retryDelay = 2000; // 2秒
+
+    while (retries < maxRetries) {
+      try {
+        message = await anthropic.messages.create({
+          model: 'claude-3-5-haiku-20241022',
+          max_tokens: 1024,
+          messages: [{
+            role: 'user',
+            content: prompt
+          }]
+        });
+        break; // 成功したらループを抜ける
+      } catch (error) {
+        retries++;
+
+        // 過負荷エラー（529）またはレート制限エラー（429）の場合はリトライ
+        if (error && typeof error === 'object' && 'status' in error && (error.status === 529 || error.status === 429) && retries < maxRetries) {
+          console.log(`Claude API overloaded, retrying in ${retryDelay}ms... (attempt ${retries}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay * retries)); // 指数バックオフ
+          continue;
+        }
+
+        // その他のエラーまたは最大リトライ回数に達した場合は投げる
+        throw error;
+      }
+    }
+
+    if (!message) {
+      throw new Error('Claude APIへのリクエストが失敗しました');
+    }
 
     // Claudeのレスポンスからテキストを抽出
     const responseText = message.content
@@ -151,15 +212,38 @@ ${productList}
       .map((block) => (block as { type: 'text'; text: string }).text)
       .join('');
 
-    // JSONを抽出（マークダウンのコードブロックがある場合も対応）
+    console.log('Claude API Response:', responseText);
+
+    // JSONを抽出（複数のパターンに対応）
     let jsonText = responseText;
+
+    // パターン1: マークダウンのコードブロック
     const jsonMatch = responseText.match(/```json\n?([\s\S]*?)\n?```/) || responseText.match(/```\n?([\s\S]*?)\n?```/);
     if (jsonMatch) {
       jsonText = jsonMatch[1];
+    } else {
+      // パターン2: 中括弧で囲まれたJSON部分を抽出
+      const braceMatch = responseText.match(/\{[\s\S]*"recommendations"[\s\S]*\}/);
+      if (braceMatch) {
+        jsonText = braceMatch[0];
+      }
     }
 
     // JSONをパース
-    const claudeResponse = JSON.parse(jsonText.trim());
+    let claudeResponse;
+    try {
+      claudeResponse = JSON.parse(jsonText.trim());
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.error('Attempted to parse:', jsonText);
+      throw new Error('Claude APIからの応答の解析に失敗しました');
+    }
+
+    if (!claudeResponse.recommendations || !Array.isArray(claudeResponse.recommendations)) {
+      console.error('Invalid response structure:', claudeResponse);
+      throw new Error('Claude APIからの応答形式が不正です');
+    }
+
     const recommendations: Recommendation[] = claudeResponse.recommendations;
 
     // 4. 商品コードでマッチングして完全な情報を返す
@@ -171,19 +255,43 @@ ${productList}
       };
     });
 
-    return NextResponse.json({
+    const result = {
       success: true,
       recommendations: enrichedRecommendations
-    });
+    };
+
+    // 結果をキャッシュに保存
+    setCache(cacheKey, result);
+
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error('Error generating recommendations:', error);
+
+    // エラーの種類に応じたメッセージを返す
+    let errorMessage = '推薦の生成に失敗しました';
+    let statusCode = 500;
+
+    if (error && typeof error === 'object' && 'status' in error) {
+      if (error.status === 529) {
+        errorMessage = 'AI推薦サービスが混雑しています。しばらく待ってから再度お試しください。';
+        statusCode = 503;
+      } else if (error.status === 429) {
+        errorMessage = 'リクエストが多すぎます。少し時間をおいてから再度お試しください。';
+        statusCode = 429;
+      }
+    } else if (error instanceof Error && error.message?.includes('解析に失敗')) {
+      errorMessage = 'AI推薦の応答処理に失敗しました。もう一度お試しください。';
+      statusCode = 500;
+    }
+
     return NextResponse.json(
       {
-        error: '推薦の生成に失敗しました',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        error: errorMessage,
+        details: error instanceof Error ? error.message : 'Unknown error',
+        retryable: error && typeof error === 'object' && 'status' in error && (error.status === 529 || error.status === 429)
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }

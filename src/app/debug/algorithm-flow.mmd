@@ -1,0 +1,74 @@
+%% レコメンドアルゴリズムフロー図
+%% ⚠️ このファイルを更新した場合は、algorithm-config.ts も確認してください
+
+graph TD
+    Start([開始]) --> UserInput[ユーザー入力取得<br/>年収・家族構成・好みカテゴリ<br/>アレルギー情報]
+
+    UserInput --> LimitCalc[限度額計算<br/>年収と家族構成から<br/>寄付限度額を算出]
+
+    LimitCalc --> ProductFetch[返礼品候補取得<br/>ユーザーカテゴリのみ<br/>最大10カテゴリ × 30件]
+
+    ProductFetch --> CacheCheck{Firestore<br/>キャッシュ有効?}
+    CacheCheck -->|Yes| FromCache[Firestoreから取得<br/>7日以内のデータ]
+    CacheCheck -->|No| FromAPI[楽天APIから取得<br/>新規データ取得]
+
+    FromCache --> MergeProducts[商品候補統合<br/>最大300件]
+    FromAPI --> SaveCache[Firestoreに保存<br/>検索条件ハッシュキー]
+    SaveCache --> MergeProducts
+
+    MergeProducts --> ExcludeFilter[除外フィルタ適用<br/>過去選択商品を除外]
+
+    ExcludeFilter --> ClaudePrompt[Claude AIプロンプト生成<br/>ユーザー情報 + 商品リスト<br/>+ 判定基準 + 現在の月]
+
+    ClaudePrompt --> ClaudeAPI{Claude API<br/>呼び出し}
+    ClaudeAPI -->|成功| ParseResponse[レスポンス解析<br/>JSON抽出]
+    ClaudeAPI -->|失敗| RetryCheck{リトライ<br/>可能?}
+
+    RetryCheck -->|Yes<br/>3回まで| WaitRetry[指数バックオフ待機<br/>2秒 → 4秒 → 6秒]
+    WaitRetry --> ClaudeAPI
+    RetryCheck -->|No| ErrorReturn[エラー返却<br/>ユーザーフレンドリーな<br/>メッセージ]
+
+    ParseResponse --> ScoreCalc[スコアリング実行<br/>8つの判定モジュール]
+
+    ScoreCalc --> Module1[1. カテゴリ合致度<br/>重み: 25%]
+    ScoreCalc --> Module2[2. 価格適合度<br/>重み: 20%]
+    ScoreCalc --> Module3[3. レビュー評価<br/>重み: 20%]
+    ScoreCalc --> Module4[4. 家族構成適合度<br/>重み: 15%]
+    ScoreCalc --> Module5[5. アレルギー除外<br/>重み: 10%]
+    ScoreCalc --> Module6[6. 過去選択除外<br/>重み: 5%]
+    ScoreCalc --> Module7[7. 多様性スコア<br/>重み: 5%]
+    ScoreCalc --> Module8[8. 季節性スコア<br/>AI判断で+5点ボーナス]
+
+    Module1 --> WeightedScore[加重スコア計算<br/>各モジュールの重みを適用]
+    Module2 --> WeightedScore
+    Module3 --> WeightedScore
+    Module4 --> WeightedScore
+    Module5 --> WeightedScore
+    Module6 --> WeightedScore
+    Module7 --> WeightedScore
+    Module8 --> WeightedScore
+
+    WeightedScore --> Ranking[ランキング生成<br/>スコア降順でソート<br/>上位9件選定]
+
+    Ranking --> EnrichData[データ拡充<br/>商品詳細情報を付与<br/>推薦理由を追加]
+
+    EnrichData --> CacheResult[結果をキャッシュ<br/>15分間有効]
+
+    CacheResult --> Result([推薦結果出力<br/>9件の返礼品 +<br/>推薦理由 + スコア])
+
+    ErrorReturn --> End([終了])
+    Result --> End
+
+    style Start fill:#e1f5e1
+    style End fill:#ffe1e1
+    style ClaudeAPI fill:#fff4e1
+    style Result fill:#e1f5e1
+    style ErrorReturn fill:#ffe1e1
+    style Module1 fill:#e1e8ff
+    style Module2 fill:#e1e8ff
+    style Module3 fill:#e1e8ff
+    style Module4 fill:#e1e8ff
+    style Module5 fill:#e1e8ff
+    style Module6 fill:#e1e8ff
+    style Module7 fill:#e1e8ff
+    style Module8 fill:#e1e8ff

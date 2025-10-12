@@ -49,12 +49,45 @@ export interface RakutenProduct {
   reviewAverage: number;
 }
 
+// Cached Product (Firestore用)
+export interface CachedProduct {
+  itemCode: string;
+  itemName: string;
+  itemPrice: number;
+  itemUrl: string;
+  affiliateUrl: string;
+  imageUrl: string;
+  shopName: string;
+  reviewCount: number;
+  reviewAverage: number;
+  category: string;
+  isNew: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Claude Recommendation
 export interface Recommendation {
   itemCode: string;
   reason: string;
   score: number;
   product?: RakutenProduct;
+  isDiscovery?: boolean; // 新しい発見フラグ
+}
+
+// Product with Score (推薦スコア計算用)
+export interface ProductWithScore extends RakutenProduct {
+  claudeScore: number;
+  totalScore: number;
+  isNew: boolean;
+  isDiscovery?: boolean;
+  scoreBreakdown?: {
+    baseScore: number;
+    categoryMatchScore: number;
+    newProductBonus: number;
+    seasonalBonus: number;
+    randomBonus: number;
+  };
 }
 
 // Auth Context

@@ -89,22 +89,6 @@ export default function ProductCard({ recommendation, userId, isFavorite = false
             画像なし
           </div>
         )}
-
-        {/* 気になるボタン */}
-        {userId && onFavoriteToggle && (
-          <button
-            onClick={handleToggleFavorite}
-            disabled={favoriting}
-            className={`absolute top-3 right-3 p-2 rounded-full shadow-lg transition-all ${
-              isFavorite
-                ? 'bg-pink-500 text-white hover:bg-pink-600'
-                : 'bg-white text-slate-400 hover:text-pink-500 hover:bg-pink-50'
-            } disabled:opacity-50`}
-            title={isFavorite ? '気になるから削除' : '気になるに追加'}
-          >
-            <span className="text-xl">{isFavorite ? '♥' : '♡'}</span>
-          </button>
-        )}
       </div>
 
       {/* 商品情報 */}
@@ -115,11 +99,29 @@ export default function ProductCard({ recommendation, userId, isFavorite = false
         </h3>
 
         {/* 価格 */}
-        <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-            {product.itemPrice.toLocaleString()}
-          </span>
-          <span className="text-sm text-slate-600 dark:text-slate-400">円</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+              {product.itemPrice.toLocaleString()}
+            </span>
+            <span className="text-sm text-slate-600 dark:text-slate-400">円</span>
+          </div>
+
+          {/* 気になるボタン */}
+          {userId && onFavoriteToggle && (
+            <button
+              onClick={handleToggleFavorite}
+              disabled={favoriting}
+              className={`p-2 rounded-full transition-all ${
+                isFavorite
+                  ? 'bg-pink-500 text-white hover:bg-pink-600'
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-600'
+              } disabled:opacity-50`}
+              title={isFavorite ? '気になるから削除' : '気になるに追加'}
+            >
+              <span className="text-xl">{isFavorite ? '♥' : '♡'}</span>
+            </button>
+          )}
         </div>
 
         {/* ショップ名 */}

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { RakutenProduct } from '@/types';
+import { ProductCacheService } from '@/lib/product-cache';
 
-const RAKUTEN_API_ENDPOINT = 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706';
 const APPLICATION_ID = process.env.RAKUTEN_APPLICATION_ID;
 const AFFILIATE_ID = process.env.RAKUTEN_AFFILIATE_ID;
 
@@ -9,8 +8,9 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const keyword = searchParams.get('keyword') || '肉';
-    const maxPrice = searchParams.get('maxPrice') || '50000';
+    const maxPrice = searchParams.get('maxPrice');
     const hits = searchParams.get('hits') || '30';
+    const sort = searchParams.get('sort') || '-reviewCount';
 
     if (!APPLICATION_ID) {
       return NextResponse.json(
@@ -19,73 +19,103 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 楽天APIのパラメータを構築
-    const params = new URLSearchParams({
-      applicationId: APPLICATION_ID,
-      keyword: `${keyword} ふるさと納税`,
-      hits: hits,
-      sort: '-reviewCount', // レビュー数の多い順
-      imageFlag: '1', // 画像URLを全て取得
-    });
+    const maxPriceNum = maxPrice ? parseInt(maxPrice) : undefined;
+    const hitsNum = parseInt(hits);
 
-    // 価格上限を設定（100円以上の場合のみ）
-    if (parseInt(maxPrice) >= 100) {
-      params.append('maxPrice', maxPrice);
-    }
+    // 1. まずFirestoreキャッシュをチェック
+    const cachedProducts = await ProductCacheService.getProductsBySearchCondition(
+      keyword,
+      maxPriceNum,
+      sort,
+      hitsNum
+    );
 
-    // アフィリエイトIDを設定（存在する場合のみ）
-    if (AFFILIATE_ID && AFFILIATE_ID.trim() !== '') {
-      params.append('affiliateId', AFFILIATE_ID);
-    }
+    let products = cachedProducts;
+    let fromCache = false;
 
-    // 楽天APIを呼び出し
-    const apiUrl = `${RAKUTEN_API_ENDPOINT}?${params.toString()}`;
-    console.log('Rakuten API URL:', apiUrl);
+    if (cachedProducts && cachedProducts.length > 0) {
+      // キャッシュヒット
+      fromCache = true;
+      console.log(`Cache HIT for keyword: ${keyword}`);
+    } else {
+      // キャッシュミス - 楽天APIから取得
+      console.log(`Cache MISS for keyword: ${keyword}, fetching from Rakuten API`);
 
-    const response = await fetch(apiUrl);
+      const RAKUTEN_API_ENDPOINT = 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706';
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Rakuten API error:', response.status, errorText);
-      throw new Error(`Rakuten API error: ${response.status} ${response.statusText} - ${errorText}`);
-    }
+      const params = new URLSearchParams({
+        applicationId: APPLICATION_ID,
+        keyword: `${keyword} ふるさと納税`,
+        hits: hitsNum.toString(),
+        sort: sort,
+        imageFlag: '1',
+      });
 
-    const data = await response.json();
-
-    // 高解像度画像URLを取得するヘルパー関数
-    const getHighResImageUrl = (url: string): string => {
-      if (!url) return '';
-      return url.replace(/_ex=\d+x\d+/, '_ex=600x600');
-    };
-
-    // データを整形
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const products: RakutenProduct[] = data.Items.map((item: any) => {
-      // 画像URLの優先順位: 中 > 小、高解像度版に変換
-      let imageUrl = '';
-      if (item.Item.mediumImageUrls?.[0]?.imageUrl) {
-        imageUrl = getHighResImageUrl(item.Item.mediumImageUrls[0].imageUrl);
-      } else if (item.Item.smallImageUrls?.[0]?.imageUrl) {
-        imageUrl = getHighResImageUrl(item.Item.smallImageUrls[0].imageUrl);
+      if (maxPriceNum && maxPriceNum >= 100) {
+        params.append('maxPrice', maxPriceNum.toString());
       }
 
-      return {
-        itemCode: item.Item.itemCode,
-        itemName: item.Item.itemName,
-        itemPrice: item.Item.itemPrice,
-        itemUrl: item.Item.itemUrl,
-        affiliateUrl: item.Item.affiliateUrl || item.Item.itemUrl,
-        imageUrl,
-        shopName: item.Item.shopName,
-        reviewCount: item.Item.reviewCount || 0,
-        reviewAverage: item.Item.reviewAverage || 0,
+      if (AFFILIATE_ID && AFFILIATE_ID.trim() !== '') {
+        params.append('affiliateId', AFFILIATE_ID);
+      }
+
+      const apiUrl = `${RAKUTEN_API_ENDPOINT}?${params.toString()}`;
+      const response = await fetch(apiUrl);
+
+      if (!response.ok) {
+        throw new Error(`Rakuten API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // 高解像度画像URLを取得するヘルパー関数
+      const getHighResImageUrl = (url: string): string => {
+        if (!url) return '';
+        return url.replace(/_ex=\d+x\d+/, '_ex=600x600');
       };
-    });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      products = data.Items.map((item: any) => {
+        let imageUrl = '';
+        if (item.Item.mediumImageUrls?.[0]?.imageUrl) {
+          imageUrl = getHighResImageUrl(item.Item.mediumImageUrls[0].imageUrl);
+        } else if (item.Item.smallImageUrls?.[0]?.imageUrl) {
+          imageUrl = getHighResImageUrl(item.Item.smallImageUrls[0].imageUrl);
+        }
+
+        return {
+          itemCode: item.Item.itemCode,
+          itemName: item.Item.itemName,
+          itemPrice: item.Item.itemPrice,
+          itemUrl: item.Item.itemUrl,
+          affiliateUrl: item.Item.affiliateUrl || item.Item.itemUrl,
+          imageUrl,
+          shopName: item.Item.shopName,
+          reviewCount: item.Item.reviewCount || 0,
+          reviewAverage: item.Item.reviewAverage || 0,
+        };
+      });
+
+      // Firestoreにキャッシュ保存
+      if (products && products.length > 0) {
+        await ProductCacheService.saveProductsBySearchCondition(
+          keyword,
+          products,
+          maxPriceNum,
+          sort,
+          hitsNum
+        );
+      }
+    }
+
+    // productsがnullの場合は空配列を返す
+    const finalProducts = products || [];
 
     return NextResponse.json({
       success: true,
-      count: products.length,
-      products,
+      count: finalProducts.length,
+      products: finalProducts,
+      fromCache,
     });
 
   } catch (error) {
