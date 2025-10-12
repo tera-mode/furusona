@@ -25,6 +25,8 @@ export default function DashboardPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const hasInitialLoadCompleted = useRef(false);
+  const displayedItemCodesRef = useRef<Set<string>>(new Set());
+  const isFetchingRef = useRef(false);
 
   const fetchDonations = async () => {
     if (!user) return;
@@ -59,12 +61,21 @@ export default function DashboardPage() {
   const fetchRecommendations = useCallback(async (excludeItemCodes?: string[], isInitialLoad = false) => {
     if (!user) return;
 
+    // 既に取得中の場合はスキップ（連続呼び出し防止）
+    if (isFetchingRef.current) {
+      console.log('Already fetching recommendations, skipping...');
+      return;
+    }
+
+    isFetchingRef.current = true;
     setLoadingRecommendations(true);
     if (isInitialLoad) {
       setError(null);
     }
 
     try {
+      console.log('🔵 Fetching recommendations...', { isInitialLoad, excludeCount: excludeItemCodes?.length || 0 });
+
       const response = await fetch('/api/recommendations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,8 +85,11 @@ export default function DashboardPage() {
         }),
       });
 
+      console.log('🔵 API Response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.log('🔴 API Error:', errorData);
 
         // 返礼品が見つからない場合の特別な処理
         if (errorData.error === '返礼品が見つかりませんでした') {
@@ -92,38 +106,55 @@ export default function DashboardPage() {
       }
 
       const data = await response.json();
+      console.log('🔵 API Response data:', data);
+      console.log('🔵 Recommendations received:', data.recommendations?.length || 0);
+
       const newRecommendations = data.recommendations;
 
-      // 重複を除外して新しい推薦のみを追加
+      if (!newRecommendations || !Array.isArray(newRecommendations)) {
+        console.log('🔴 Invalid recommendations format:', newRecommendations);
+        throw new Error('推薦データの形式が不正です');
+      }
+
+      // 重複を除外して新しい推薦のみを追加（refを使用）
       const filteredRecommendations = newRecommendations.filter((rec: Recommendation) =>
-        !displayedItemCodes.has(rec.itemCode)
+        !displayedItemCodesRef.current.has(rec.itemCode)
       );
 
-      // 新しい推薦を追加
-      setRecommendations(prev => [...prev, ...filteredRecommendations]);
+      console.log('🔵 Filtered recommendations:', filteredRecommendations.length);
+      console.log('🔵 Sample recommendation:', filteredRecommendations[0]);
 
-      // 表示済みアイテムコードを更新
-      const newItemCodes = new Set(displayedItemCodes);
+      // 新しい推薦を追加
+      setRecommendations(prev => {
+        const updated = [...prev, ...filteredRecommendations];
+        console.log('🔵 Total recommendations after update:', updated.length);
+        return updated;
+      });
+
+      // 表示済みアイテムコードを更新（refとstateの両方）
       filteredRecommendations.forEach((rec: Recommendation) => {
         if (rec.itemCode) {
-          newItemCodes.add(rec.itemCode);
+          displayedItemCodesRef.current.add(rec.itemCode);
         }
       });
-      setDisplayedItemCodes(newItemCodes);
+      setDisplayedItemCodes(new Set(displayedItemCodesRef.current));
 
       // 初回ロードが完了したことを記録
       if (isInitialLoad) {
         hasInitialLoadCompleted.current = true;
+        console.log('🔵 Initial load completed');
       }
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
+      console.error('🔴 Error fetching recommendations:', error);
       if (isInitialLoad) {
         setError(error instanceof Error ? error.message : '推薦の取得に失敗しました');
       }
     } finally {
       setLoadingRecommendations(false);
+      isFetchingRef.current = false;
+      console.log('🔵 Fetch complete, loading=false, fetching=false');
     }
-  }, [user, displayedItemCodes]);
+  }, [user]);
 
   // 合計寄付額を計算（今年のみ）
   const totalDonated = donations.reduce((sum, d) => sum + d.productPrice, 0);
@@ -210,19 +241,49 @@ export default function DashboardPage() {
     ? recommendations.filter(rec => favorites.has(rec.itemCode))
     : recommendations;
 
+  // プロフィール変更検知用のref
+  const prevUserUpdatedAtRef = useRef<Date | null>(null);
+
   useEffect(() => {
+    console.log('🟡 useEffect triggered', { loading, hasUser: !!user, recommendationsCount: recommendations.length });
+
     if (!loading && !user) {
+      console.log('🟡 No user, showing login modal');
       setShowLoginModal(true);
     } else if (user && user.calculatedLimit === 0) {
+      console.log('🟡 No calculated limit, redirecting to profile');
       // 限度額が設定されていない場合はプロフィール設定へ
       router.push('/profile');
     } else if (user) {
+      console.log('🟡 User found, checking recommendations');
+      // プロフィールが更新された場合（updatedAtが変更された場合）、推薦をリセット
+      const currentUpdatedAt = user.updatedAt instanceof Date ? user.updatedAt.getTime() :
+                               typeof user.updatedAt === 'number' ? user.updatedAt : null;
+      const prevUpdatedAt = prevUserUpdatedAtRef.current instanceof Date ? prevUserUpdatedAtRef.current.getTime() :
+                           typeof prevUserUpdatedAtRef.current === 'number' ? prevUserUpdatedAtRef.current : null;
+
+      if (prevUpdatedAt && currentUpdatedAt && currentUpdatedAt > prevUpdatedAt && recommendations.length > 0) {
+        // プロフィールが更新されたので、推薦をクリアして再取得
+        console.log('🟡 Profile updated, resetting recommendations');
+        setRecommendations([]);
+        setDisplayedItemCodes(new Set());
+        displayedItemCodesRef.current = new Set();
+        hasInitialLoadCompleted.current = false;
+        isFetchingRef.current = false; // リセット時はフラグもクリア
+        fetchRecommendations([], true);
+      } else if (recommendations.length === 0 && !isFetchingRef.current) {
+        // 初回ロード（取得中でない場合のみ）
+        console.log('🟡 No recommendations, fetching initial load');
+        fetchRecommendations([], true);
+      } else {
+        console.log('🟡 Skipping fetch:', { recommendationsLength: recommendations.length, isFetching: isFetchingRef.current });
+      }
+
       // 寄付履歴を取得
       fetchDonations();
-      // 自動的に推薦を取得（初回ロードフラグを渡す）
-      if (recommendations.length === 0) {
-        fetchRecommendations([], true);
-      }
+
+      // 現在のupdatedAtを保存
+      prevUserUpdatedAtRef.current = user.updatedAt;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading, router]);
@@ -234,9 +295,9 @@ export default function DashboardPage() {
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !loadingRecommendations) {
+        if (entries[0].isIntersecting && !isFetchingRef.current) {
           // スクロールが最下部に到達したら、表示済みアイテムを除外して新しい推薦を取得
-          const excludeCodes = Array.from(displayedItemCodes);
+          const excludeCodes = Array.from(displayedItemCodesRef.current);
           fetchRecommendations(excludeCodes);
         }
       },
@@ -250,7 +311,7 @@ export default function DashboardPage() {
         observerRef.current.disconnect();
       }
     };
-  }, [user, loadingRecommendations, displayedItemCodes, fetchRecommendations, recommendations.length]);
+  }, [user, fetchRecommendations, recommendations.length]);
 
   if (loading) {
     return (

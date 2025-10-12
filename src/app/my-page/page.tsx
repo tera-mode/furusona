@@ -97,9 +97,10 @@ export default function MyPage() {
           {/* ログアウト */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-primary-100 dark:border-primary-800 hover:border-accent-300 dark:hover:border-accent-600 transition-colors">
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (confirm('ログアウトしますか？')) {
-                  signOut();
+                  await signOut();
+                  router.push('/');
                 }
               }}
               className="w-full p-6 text-left"
