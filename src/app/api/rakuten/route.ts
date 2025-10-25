@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ProductCacheService } from '@/lib/product-cache';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 const APPLICATION_ID = process.env.RAKUTEN_APPLICATION_ID;
 const AFFILIATE_ID = process.env.RAKUTEN_AFFILIATE_ID;
 

@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb } from '@/lib/firebase-admin';
 import { User, RakutenProduct, Recommendation } from '@/types';
 import { ProductCacheService } from '@/lib/product-cache';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 // APIキーの確認
 if (!process.env.GEMINI_API_KEY) {
@@ -64,17 +66,28 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Firestoreからユーザー情報を取得
-    const userRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userRef);
+    const userDoc = await adminDb.collection('users').doc(userId).get();
 
-    if (!userDoc.exists()) {
+    if (!userDoc.exists) {
       return NextResponse.json(
         { error: 'ユーザーが見つかりません' },
         { status: 404 }
       );
     }
 
-    const user = userDoc.data() as User;
+    const userData = userDoc.data();
+    if (!userData) {
+      return NextResponse.json(
+        { error: 'ユーザーデータが取得できません' },
+        { status: 404 }
+      );
+    }
+
+    const user = {
+      ...userData,
+      createdAt: userData.createdAt?.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt),
+      updatedAt: userData.updatedAt?.toDate ? userData.updatedAt.toDate() : new Date(userData.updatedAt),
+    } as User;
 
     // キャッシュをチェック（ユーザー情報取得後、updatedAtを含めて）
     const cacheKey = getCacheKey(userId, excludeItemCodes, user.updatedAt);

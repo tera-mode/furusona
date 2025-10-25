@@ -1,16 +1,4 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  query,
-  where,
-  Timestamp,
-  orderBy,
-  limit as firestoreLimit
-} from 'firebase/firestore';
-import { db } from './firebase';
+import { adminDb } from './firebase-admin';
 import { CachedProduct, RakutenProduct } from '@/types';
 
 const CACHE_DURATION_DAYS = 7;
@@ -49,15 +37,18 @@ export class ProductCacheService {
   ): Promise<RakutenProduct[] | null> {
     try {
       const cacheKey = generateCacheKey(keyword, maxPrice, sort, hits);
-      const cacheRef = doc(db, PRODUCT_CACHE_COLLECTION, cacheKey);
-      const cacheDoc = await getDoc(cacheRef);
+      const cacheDoc = await adminDb.collection(PRODUCT_CACHE_COLLECTION).doc(cacheKey).get();
 
-      if (!cacheDoc.exists()) {
+      if (!cacheDoc.exists) {
         return null;
       }
 
       const cacheData = cacheDoc.data();
-      const updatedAt = cacheData.updatedAt.toDate();
+      if (!cacheData) {
+        return null;
+      }
+
+      const updatedAt = cacheData.updatedAt?.toDate ? cacheData.updatedAt.toDate() : new Date(cacheData.updatedAt);
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - CACHE_DURATION_DAYS);
 
@@ -87,16 +78,16 @@ export class ProductCacheService {
   ): Promise<void> {
     try {
       const cacheKey = generateCacheKey(keyword, maxPrice, sort, hits);
-      const cacheRef = doc(db, PRODUCT_CACHE_COLLECTION, cacheKey);
+      const now = new Date();
 
-      await setDoc(cacheRef, {
+      await adminDb.collection(PRODUCT_CACHE_COLLECTION).doc(cacheKey).set({
         keyword,
         maxPrice: maxPrice || null,
         sort: sort || '-reviewCount',
         hits: hits || 30,
         products,
-        updatedAt: Timestamp.now(),
-        createdAt: Timestamp.now(),
+        updatedAt: now,
+        createdAt: now,
       });
 
       console.log(`Saved ${products.length} products to cache with key: ${cacheKey}`);
@@ -115,21 +106,18 @@ export class ProductCacheService {
     limitCount: number = 30
   ): Promise<RakutenProduct[]> {
     try {
-      const productsRef = collection(db, PRODUCTS_COLLECTION);
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - CACHE_DURATION_DAYS);
 
       // クエリを構築
-      const q = query(
-        productsRef,
-        where('category', '==', category),
-        where('updatedAt', '>', Timestamp.fromDate(sevenDaysAgo)),
-        orderBy('updatedAt', 'desc'),
-        orderBy('reviewCount', 'desc'),
-        firestoreLimit(limitCount)
-      );
+      const querySnapshot = await adminDb.collection(PRODUCTS_COLLECTION)
+        .where('category', '==', category)
+        .where('updatedAt', '>', sevenDaysAgo)
+        .orderBy('updatedAt', 'desc')
+        .orderBy('reviewCount', 'desc')
+        .limit(limitCount)
+        .get();
 
-      const querySnapshot = await getDocs(q);
       const products: RakutenProduct[] = [];
 
       querySnapshot.forEach((doc) => {
@@ -169,35 +157,37 @@ export class ProductCacheService {
     category: string
   ): Promise<void> {
     try {
-      const productRef = doc(db, PRODUCTS_COLLECTION, product.itemCode);
-      const existingDoc = await getDoc(productRef);
+      const existingDoc = await adminDb.collection(PRODUCTS_COLLECTION).doc(product.itemCode).get();
 
       const now = new Date();
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - NEW_PRODUCT_THRESHOLD_DAYS);
 
-      // 既存のドキュメントがある場合、createdAtを保持（Timestampの場合はそのまま使用）
-      let createdAtValue: Timestamp;
-      if (existingDoc.exists()) {
+      // 既存のドキュメントがある場合、createdAtを保持
+      let createdAtValue: Date;
+      if (existingDoc.exists) {
         const existingData = existingDoc.data();
-        // Firestoreから取得したデータはすでにTimestamp型
-        createdAtValue = existingData.createdAt;
+        if (existingData) {
+          createdAtValue = existingData.createdAt?.toDate ? existingData.createdAt.toDate() : new Date(existingData.createdAt);
+        } else {
+          createdAtValue = now;
+        }
       } else {
         // 新規作成の場合は現在時刻
-        createdAtValue = Timestamp.now();
+        createdAtValue = now;
       }
 
       const cachedProduct = {
         ...product,
         category,
-        isNew: existingDoc.exists()
+        isNew: existingDoc.exists
           ? (existingDoc.data() as CachedProduct).isNew
           : now > thirtyDaysAgo,
         createdAt: createdAtValue,
-        updatedAt: Timestamp.now(),
+        updatedAt: now,
       };
 
-      await setDoc(productRef, cachedProduct);
+      await adminDb.collection(PRODUCTS_COLLECTION).doc(product.itemCode).set(cachedProduct);
     } catch (error) {
       console.error('Error saving product to cache:', error);
       throw error;
@@ -229,18 +219,15 @@ export class ProductCacheService {
    */
   static async isCacheValid(category: string): Promise<boolean> {
     try {
-      const productsRef = collection(db, PRODUCTS_COLLECTION);
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - CACHE_DURATION_DAYS);
 
-      const q = query(
-        productsRef,
-        where('category', '==', category),
-        where('updatedAt', '>', Timestamp.fromDate(sevenDaysAgo)),
-        firestoreLimit(1)
-      );
+      const querySnapshot = await adminDb.collection(PRODUCTS_COLLECTION)
+        .where('category', '==', category)
+        .where('updatedAt', '>', sevenDaysAgo)
+        .limit(1)
+        .get();
 
-      const querySnapshot = await getDocs(q);
       return !querySnapshot.empty;
     } catch (error) {
       console.error('Error checking cache validity:', error);
@@ -253,17 +240,14 @@ export class ProductCacheService {
    */
   static async getCachedProductCount(category: string): Promise<number> {
     try {
-      const productsRef = collection(db, PRODUCTS_COLLECTION);
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - CACHE_DURATION_DAYS);
 
-      const q = query(
-        productsRef,
-        where('category', '==', category),
-        where('updatedAt', '>', Timestamp.fromDate(sevenDaysAgo))
-      );
+      const querySnapshot = await adminDb.collection(PRODUCTS_COLLECTION)
+        .where('category', '==', category)
+        .where('updatedAt', '>', sevenDaysAgo)
+        .get();
 
-      const querySnapshot = await getDocs(q);
       return querySnapshot.size;
     } catch (error) {
       console.error('Error getting cached product count:', error);
