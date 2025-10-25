@@ -37,6 +37,20 @@ export interface Donation {
   year: number;
 }
 
+// Viewed Product History
+export interface ViewedProduct {
+  id?: string;
+  userId: string;
+  itemCode: string;
+  itemName: string;
+  itemPrice: number;
+  itemUrl: string;
+  affiliateUrl: string;
+  imageUrl: string;
+  shopName: string;
+  viewedAt: Date;
+}
+
 // Rakuten Product
 export interface RakutenProduct {
   itemCode: string;

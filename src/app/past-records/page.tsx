@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import LoginModal from '@/components/auth/LoginModal';
 import Header from '@/components/Header';
-import { Donation } from '@/types';
+import { Donation, ViewedProduct } from '@/types';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -30,8 +30,9 @@ export default function PastRecordsPage() {
     productUrl: '',
   });
 
-  // 閲覧履歴関連（TODO: 実装予定）
-  // const [viewedProducts] = useState<unknown[]>([]);
+  // 閲覧履歴関連
+  const [viewedProducts, setViewedProducts] = useState<ViewedProduct[]>([]);
+  const [loadingViewed, setLoadingViewed] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -39,6 +40,8 @@ export default function PastRecordsPage() {
     } else if (user) {
       if (activeTab === 'donations') {
         fetchDonations();
+      } else if (activeTab === 'viewed') {
+        fetchViewedProducts();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,6 +77,24 @@ export default function PastRecordsPage() {
       console.error('Error fetching donations:', error);
     } finally {
       setLoadingDonations(false);
+    }
+  };
+
+  const fetchViewedProducts = async () => {
+    if (!user) return;
+
+    setLoadingViewed(true);
+    try {
+      const response = await fetch(`/api/viewed-products?userId=${user.uid}&limit=50`);
+      if (!response.ok) {
+        throw new Error('閲覧履歴の取得に失敗しました');
+      }
+      const data = await response.json();
+      setViewedProducts(data.viewedProducts || []);
+    } catch (error) {
+      console.error('Error fetching viewed products:', error);
+    } finally {
+      setLoadingViewed(false);
     }
   };
 
@@ -328,20 +349,106 @@ export default function PastRecordsPage() {
 
         {/* 閲覧履歴タブ */}
         {activeTab === 'viewed' && (
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-12 text-center">
-            <div className="text-6xl mb-4">👀</div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
-              閲覧履歴機能（準備中）
-            </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
-              ダッシュボードで閲覧した返礼品の履歴を確認できる機能を準備中です。
-            </p>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-            >
-              ダッシュボードに戻る
-            </button>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm overflow-hidden">
+            {loadingViewed ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-slate-600 dark:text-slate-400">読み込み中...</div>
+              </div>
+            ) : viewedProducts.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50 dark:bg-slate-700">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        閲覧日時
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        商品画像
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        返礼品名
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        価格
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        リンク
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                    {viewedProducts.map((viewed) => (
+                      <tr key={viewed.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">
+                          {new Date(viewed.viewedAt).toLocaleString('ja-JP', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <a
+                            href={viewed.affiliateUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block w-16 h-16"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={viewed.imageUrl}
+                              alt={viewed.itemName}
+                              className="w-full h-full object-contain bg-slate-100 dark:bg-slate-700 rounded"
+                              loading="lazy"
+                            />
+                          </a>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-900 dark:text-slate-100">
+                          <a
+                            href={viewed.affiliateUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                          >
+                            {viewed.itemName}
+                          </a>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-slate-900 dark:text-slate-100">
+                          {viewed.itemPrice.toLocaleString()}円
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                          <a
+                            href={viewed.affiliateUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:text-blue-600"
+                          >
+                            詳細
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">👀</div>
+                <p className="text-slate-600 dark:text-slate-400 mb-4">
+                  閲覧履歴はまだありません
+                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                  ダッシュボードで返礼品をクリックすると、ここに履歴が表示されます
+                </p>
+                <button
+                  onClick={() => router.push('/dashboard')}
+                  className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                >
+                  ダッシュボードに戻る
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>

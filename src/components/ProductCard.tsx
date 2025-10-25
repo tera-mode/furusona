@@ -53,6 +53,30 @@ export default function ProductCard({
     }
   };
 
+  const handleRecordView = async () => {
+    if (!userId) return;
+
+    try {
+      await fetch('/api/viewed-products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          itemCode: product.itemCode,
+          itemName: product.itemName,
+          itemPrice: product.itemPrice,
+          itemUrl: product.itemUrl,
+          affiliateUrl: product.affiliateUrl,
+          imageUrl: product.imageUrl,
+          shopName: product.shopName,
+        }),
+      });
+    } catch (error) {
+      console.error('Error recording view:', error);
+      // エラーがあってもユーザー体験を阻害しないため、エラーは握りつぶす
+    }
+  };
+
   const handleAddDonation = async () => {
     if (!userId) {
       alert('ログインが必要です');
@@ -101,6 +125,7 @@ export default function ProductCard({
         href={product.affiliateUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleRecordView}
         className="block relative aspect-square bg-slate-100 dark:bg-slate-700 hover:opacity-90 transition-opacity"
       >
         {product.imageUrl ? (
@@ -125,6 +150,7 @@ export default function ProductCard({
           href={product.affiliateUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleRecordView}
           className="block"
         >
           <h3 className="font-semibold text-slate-900 dark:text-slate-100 line-clamp-2 min-h-[3rem] hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer">
@@ -213,6 +239,7 @@ export default function ProductCard({
             href={product.affiliateUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleRecordView}
             className="block w-full bg-primary-500 hover:bg-primary-600 text-white text-center py-3 rounded-lg font-semibold transition-colors"
           >
             この返礼品を見る
