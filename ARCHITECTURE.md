@@ -26,7 +26,7 @@
 
 ### 外部API
 - **楽天市場API** - 返礼品データ取得
-- **Anthropic Claude API** - AI推薦エンジン
+- **Google Gemini API** - AI推薦エンジン
 
 ### デプロイ
 - **Vercel** - ホスティング（推奨）
@@ -214,9 +214,10 @@ AI推薦を取得
 
 ### 2. AI推薦ロジック (`src/app/api/recommendations/route.ts`)
 1. ユーザーの好みカテゴリからランダム選択
-2. 楽天APIで該当商品を30件取得（限度額の1/3程度の価格帯）
-3. Claude APIに商品リストとユーザー情報を渡す
-4. AIが3つの最適商品を選定（スコア付き）
+2. 楽天APIで該当商品を最大300件取得（限度額の1/3程度の価格帯）
+3. サーバー側で事前スコアリング（レビュー、価格適合度、カテゴリ）を行い上位50件に絞る
+4. Gemini APIに商品リストとユーザー情報を渡す
+5. AIが9つの最適商品を選定（スコア付き、季節性・好み学習を考慮）
 
 ### 3. 認証フロー (`src/hooks/useAuth.tsx`)
 - Firebase Auth でセッション管理
@@ -258,8 +259,8 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 RAKUTEN_APPLICATION_ID=
 RAKUTEN_AFFILIATE_ID=
 
-# Anthropic
-ANTHROPIC_API_KEY=
+# Google Gemini
+GEMINI_API_KEY=
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -273,9 +274,10 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
    - 1秒1リクエスト
    - hits パラメータは最大30
 
-2. **Claude API**
+2. **Gemini API**
    - 使用量に応じて課金
-   - モデル: `claude-sonnet-4-20250514`
+   - モデル: `gemini-1.5-flash`
+   - 料金: 入力$0.075/1M tokens、出力$0.30/1M tokens
 
 3. **Firestore**
    - 複合インデックスが必要（`firestore.indexes.json`）

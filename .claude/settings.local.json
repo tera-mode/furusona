@@ -21,7 +21,9 @@
       "Bash(git log:*)",
       "Bash(git filter-branch:*)",
       "Bash(git checkout:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(move:*)",
+      "Bash(node test-gemini.js)"
     ],
     "deny": [],
     "ask": []

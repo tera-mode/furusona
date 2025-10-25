@@ -48,10 +48,9 @@ firebase deploy --only firestore
 3. アフィリエイトID取得（任意）
 4. `.env.local` に設定
 
-### Anthropic Claude API
-1. [Anthropic Console](https://console.anthropic.com/) でアカウント作成
-2. APIキーを取得
-3. `.env.local` に設定
+### Google Gemini API
+1. [Google AI Studio](https://aistudio.google.com/app/apikey) でAPIキーを取得
+2. `.env.local` に設定
 
 ---
 
@@ -171,9 +170,9 @@ firebase deploy --only hosting
 firebase deploy --only firestore:indexes
 ```
 
-### 問題: Claude APIで推薦が取得できない
+### 問題: Gemini APIで推薦が取得できない
 **原因1:** APIキーが無効
-**解決:** `.env.local` の `ANTHROPIC_API_KEY` を確認
+**解決:** `.env.local` の `GEMINI_API_KEY` を確認
 
 **原因2:** レスポンスパース失敗
 **解決:** `src/app/api/recommendations/route.ts` のプロンプトを確認

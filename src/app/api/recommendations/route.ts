@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { User, RakutenProduct, Recommendation } from '@/types';
 import { ProductCacheService } from '@/lib/product-cache';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+// APIキーの確認
+if (!process.env.GEMINI_API_KEY) {
+  console.error('❌ GEMINI_API_KEY is not set in environment variables');
+} else {
+  console.log('✅ GEMINI_API_KEY is set');
+}
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+// Gemini 2.5 Flash Lite を使用（より高速・低コスト）
+const model = genAI.getGenerativeModel({
+  model: 'gemini-2.5-flash-lite',
 });
 
 // 推薦結果のキャッシュ（メモリ内、15分間保持）
@@ -178,11 +188,11 @@ export async function POST(request: NextRequest) {
       return { ...p, preScore: score };
     });
 
-    // スコア順にソートして上位50件のみをClaude APIに送信（コスト削減）
+    // スコア順にソートして上位20件のみをGemini APIに送信（プロンプト短縮）
     const topProducts = scoredProducts
       .filter(p => p.preScore > 0)
       .sort((a, b) => b.preScore - a.preScore)
-      .slice(0, 50);
+      .slice(0, 20);
 
     if (topProducts.length === 0) {
       return NextResponse.json(
@@ -191,64 +201,68 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Claude APIにユーザー情報と商品リストを渡して推薦を取得（50件のみ）
+    // 3. Gemini APIに商品リストを渡して推薦を取得
+    // 超短縮プロンプト
     const productList = topProducts.map((p, i) =>
-      `${i}. ${String(p.itemCode)}|${p.itemName}|${p.itemPrice}円`
+      `${i}:${String(p.itemCode)}|${p.itemName.slice(0, 30)}|¥${p.itemPrice}`
     ).join('\n');
 
-    // 現在の月を取得
-    const currentMonth = new Date().getMonth() + 1;
-
-    // 気になる・興味なしリストを取得
-    const favorites = user.preferences.favorites || [];
-    const dislikes = user.preferences.dislikes || [];
-
-    // 簡潔なユーザー情報（トークン削減）
-    const userInfo = `既婚:${user.familyStructure.married ? 1 : 0}|扶養:${user.familyStructure.dependents}|年収:${user.income.annualIncome}|限度額:${user.calculatedLimit}|カテゴリ:${categories.join(',')}|アレルギー:${user.preferences.allergies?.join(',') || 'なし'}|過去選択:${user.preferences.pastSelections?.length || 0}|気になる:${favorites.join(',') || 'なし'}|興味なし:${dislikes.join(',') || 'なし'}`;
-
-    const prompt = `返礼品9つ選定。月:${currentMonth}
-
-U:${userInfo}
+    const prompt = `以下の商品から9つ選びJSON形式のみで回答。説明文不要。
 
 商品:
 ${productList}
 
-評価:
-1)季節性(${currentMonth}月旬)+5
-2)好み類似+10/嫌い類似-10
-3)多様性
-4)家族構成
+家族:${user.familyStructure.married?'既婚':'独身'},扶養${user.familyStructure.dependents}人
+好み:${categories.join(',')}
 
-JSON:{"recommendations":[{"itemCode":"コード","reason":"30字以内","score":90},...]}`;
+{"recommendations":[{"itemCode":"コード","reason":"理由25字","score":85},...]}`;
 
     console.log('=== Prompt Info ===');
     console.log(`Prompt length: ${prompt.length} characters`);
     console.log(`Products filtered: ${products.length} -> ${topProducts.length}`);
     console.log('===================');
 
-    // Claude APIを呼び出し（リトライ機能付き）
-    let message;
+    // Gemini APIを呼び出し（リトライ機能付き）
+    let result;
     let retries = 0;
     const maxRetries = 3;
     const retryDelay = 2000; // 2秒
 
     while (retries < maxRetries) {
       try {
-        message = await anthropic.messages.create({
-          model: 'claude-3-5-haiku-20241022',
-          max_tokens: 1024,
-          messages: [{
-            role: 'user',
-            content: prompt
-          }]
+        result = await model.generateContent({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            maxOutputTokens: 8192,
+            temperature: 0.7,
+            responseMimeType: 'application/json',
+          },
+          safetySettings: [
+            {
+              category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+              threshold: HarmBlockThreshold.BLOCK_NONE,
+            },
+            {
+              category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+              threshold: HarmBlockThreshold.BLOCK_NONE,
+            },
+            {
+              category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+              threshold: HarmBlockThreshold.BLOCK_NONE,
+            },
+            {
+              category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+              threshold: HarmBlockThreshold.BLOCK_NONE,
+            },
+          ],
         });
         break; // 成功したらループを抜ける
       } catch (error) {
         retries++;
 
-        // 過負荷エラー（529）またはレート制限エラー（429）の場合はリトライ
-        if (error && typeof error === 'object' && 'status' in error && (error.status === 529 || error.status === 429) && retries < maxRetries) {
-          console.log(`Claude API overloaded, retrying in ${retryDelay}ms... (attempt ${retries}/${maxRetries})`);
+        // レート制限エラーや過負荷の場合はリトライ
+        if (retries < maxRetries) {
+          console.log(`Gemini API error, retrying in ${retryDelay}ms... (attempt ${retries}/${maxRetries})`);
           await new Promise(resolve => setTimeout(resolve, retryDelay * retries)); // 指数バックオフ
           continue;
         }
@@ -258,34 +272,40 @@ JSON:{"recommendations":[{"itemCode":"コード","reason":"30字以内","score":
       }
     }
 
-    if (!message) {
-      throw new Error('Claude APIへのリクエストが失敗しました');
+    if (!result) {
+      throw new Error('Gemini APIへのリクエストが失敗しました');
     }
 
-    // トークン使用量をログ出力
-    const usage = message.usage;
-    const inputTokens = usage.input_tokens;
-    const outputTokens = usage.output_tokens;
-    const inputCost = (inputTokens / 1_000_000) * 0.25; // $0.25 per 1M tokens
-    const outputCost = (outputTokens / 1_000_000) * 1.25; // $1.25 per 1M tokens
+    // トークン使用量をログ出力（Gemini 2.5 Flash料金）
+    const usage = result.response.usageMetadata;
+    const inputTokens = usage?.promptTokenCount || 0;
+    const outputTokens = usage?.candidatesTokenCount || 0;
+    const inputCost = (inputTokens / 1_000_000) * 0.075; // $0.075 per 1M input tokens
+    const outputCost = (outputTokens / 1_000_000) * 0.30; // $0.30 per 1M output tokens
     const totalCost = inputCost + outputCost;
 
-    console.log('=== Claude API Usage ===');
+    console.log('=== Gemini API Usage ===');
     console.log(`Input tokens: ${inputTokens}`);
     console.log(`Output tokens: ${outputTokens}`);
     console.log(`Input cost: $${inputCost.toFixed(6)}`);
     console.log(`Output cost: $${outputCost.toFixed(6)}`);
     console.log(`Total cost: $${totalCost.toFixed(6)}`);
-    console.log(`Products sent to Claude: ${topProducts.length}`);
+    console.log(`Products sent to Gemini: ${topProducts.length}`);
     console.log('========================');
 
-    // Claudeのレスポンスからテキストを抽出
-    const responseText = message.content
-      .filter((block) => block.type === 'text')
-      .map((block) => (block as { type: 'text'; text: string }).text)
-      .join('');
+    // Geminiのレスポンスをデバッグ
+    console.log('Full response object:', JSON.stringify(result.response, null, 2));
 
-    console.log('Claude API Response:', responseText);
+    // レスポンスがブロックされていないか確認
+    if (result.response.promptFeedback?.blockReason) {
+      console.error('Response blocked:', result.response.promptFeedback.blockReason);
+      throw new Error(`Gemini APIがブロックしました: ${result.response.promptFeedback.blockReason}`);
+    }
+
+    // Geminiのレスポンスからテキストを抽出
+    const responseText = result.response.text();
+
+    console.log('Gemini API Response:', responseText);
 
     // JSONを抽出（複数のパターンに対応）
     let jsonText = responseText;
@@ -303,25 +323,25 @@ JSON:{"recommendations":[{"itemCode":"コード","reason":"30字以内","score":
     }
 
     // JSONをパース
-    let claudeResponse;
+    let apiResponse;
     try {
-      claudeResponse = JSON.parse(jsonText.trim());
+      apiResponse = JSON.parse(jsonText.trim());
     } catch (parseError) {
       console.error('JSON Parse Error:', parseError);
       console.error('Attempted to parse:', jsonText);
-      throw new Error('Claude APIからの応答の解析に失敗しました');
+      throw new Error('Gemini APIからの応答の解析に失敗しました');
     }
 
-    if (!claudeResponse.recommendations || !Array.isArray(claudeResponse.recommendations)) {
-      console.error('Invalid response structure:', claudeResponse);
-      throw new Error('Claude APIからの応答形式が不正です');
+    if (!apiResponse.recommendations || !Array.isArray(apiResponse.recommendations)) {
+      console.error('Invalid response structure:', apiResponse);
+      throw new Error('Gemini APIからの応答形式が不正です');
     }
 
-    const recommendations: Recommendation[] = claudeResponse.recommendations;
+    const recommendations: Recommendation[] = apiResponse.recommendations;
 
     // 4. 商品コードでマッチングして完全な情報を返す
     console.log('=== Product Matching ===');
-    console.log(`Total recommendations from Claude: ${recommendations.length}`);
+    console.log(`Total recommendations from Gemini: ${recommendations.length}`);
     console.log(`Available products: ${topProducts.length}`);
 
     const enrichedRecommendations = recommendations.map(rec => {
@@ -340,15 +360,15 @@ JSON:{"recommendations":[{"itemCode":"コード","reason":"30字以内","score":
     console.log(`Enriched recommendations: ${enrichedRecommendations.length}`);
     console.log('========================');
 
-    const result = {
+    const responseData = {
       success: true,
       recommendations: enrichedRecommendations
     };
 
     // 結果をキャッシュに保存
-    setCache(cacheKey, result);
+    setCache(cacheKey, responseData);
 
-    return NextResponse.json(result);
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error('Error generating recommendations:', error);
