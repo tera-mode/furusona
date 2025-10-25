@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   description: "AIがあなたにぴったりのふるさと納税返礼品を提案。年収・家族構成から限度額を自動計算し、最適な返礼品を3つ推薦します。",
   keywords: ["ふるさと納税", "返礼品", "AI推薦", "限度額計算", "パーソナライズ"],
   authors: [{ name: "ふるそな" }],
+  icons: {
+    icon: "/img/furusona-fav.png",
+    apple: "/img/furusona-fav.png",
+  },
   openGraph: {
     title: "ふるそな - ふるさと納税パーソナライズ推薦",
     description: "AIがあなたにぴったりのふるさと納税返礼品を提案。年収・家族構成から限度額を自動計算し、最適な返礼品を3つ推薦します。",

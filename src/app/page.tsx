@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
 import LoginModal from '@/components/auth/LoginModal';
+import Image from 'next/image';
 
 export default function HomePage() {
   const router = useRouter();
@@ -34,7 +35,14 @@ export default function HomePage() {
       {/* ヘッダー */}
       <header className="bg-white dark:bg-slate-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-600">ふるそな</h1>
+          <Image
+            src="/img/furusona-logo.png"
+            alt="ふるそな"
+            width={180}
+            height={60}
+            priority
+            className="h-10 w-auto"
+          />
           <button
             onClick={() => setShowLoginModal(true)}
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"

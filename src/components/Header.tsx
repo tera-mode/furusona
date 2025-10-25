@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { User } from '@/types';
+import Image from 'next/image';
 
 interface HeaderProps {
   user: User | null;
@@ -18,9 +19,16 @@ export default function Header({ user, calculatedLimit = 0, totalDonated = 0, re
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         {/* 上部: ロゴとナビゲーション */}
         <div className="flex justify-between items-center mb-3">
-          <h1 className="text-2xl font-bold text-primary-600 cursor-pointer" onClick={() => router.push('/dashboard')}>
-            ふるそな
-          </h1>
+          <div className="cursor-pointer" onClick={() => router.push('/dashboard')}>
+            <Image
+              src="/img/furusona-logo-small.png"
+              alt="ふるそな"
+              width={240}
+              height={80}
+              priority
+              className="h-10 sm:h-14 md:h-16 w-auto"
+            />
+          </div>
 
           {user && (
             <div className="flex items-center gap-2 sm:gap-3">
