@@ -5,11 +5,92 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
 import LoginModal from '@/components/auth/LoginModal';
 import Image from 'next/image';
+import Script from 'next/script';
 
 export default function HomePage() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // 構造化データ
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'LAIV LLC',
+    legalName: '合同会社LAIV',
+    url: 'https://furusona.jp',
+    logo: 'https://furusona.jp/img/furusona-logo.png',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      url: 'https://www.laiv.jp',
+    },
+    sameAs: [
+      'https://www.laiv.jp',
+    ],
+  };
+
+  const webSiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'ふるそな',
+    url: 'https://furusona.jp',
+    description: 'もう12月に慌てない。AIがあなた専属でふるさと納税をサポート',
+    publisher: {
+      '@type': 'Organization',
+      name: 'LAIV LLC',
+    },
+  };
+
+  const softwareAppSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'ふるそな',
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'JPY',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '5',
+      ratingCount: '1',
+    },
+    description: 'AIがあなた専属でふるさと納税をサポート。限度額の管理から、旬の食材の通知まで。',
+  };
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: '本当に無料で使えますか？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'はい、完全無料でご利用いただけます。クレジットカードの登録も不要です。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '利用に必要なものは？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'メールアドレスもしくはGoogle認証による会員登録が必要です。お預かりした個人情報は厳重に管理し、第三者に提供することはありません。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'どの自治体の返礼品に対応していますか？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '全国すべての自治体の返礼品に対応しています。楽天ふるさと納税の返礼品からお選びいただけます。',
+        },
+      },
+    ],
+  };
 
   useEffect(() => {
     if (!loading && user) {
@@ -31,9 +112,32 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900">
-      {/* ヘッダー */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50">
+    <>
+      {/* 構造化データ（SEO） */}
+      <Script
+        id="organization-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <Script
+        id="website-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
+      />
+      <Script
+        id="software-app-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
+      />
+      <Script
+        id="faq-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
+      <div className="min-h-screen bg-white dark:bg-slate-900">
+        {/* ヘッダー */}
+        <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50">
         <div className="max-w-[800px] mx-auto px-4 py-4 flex justify-between items-center">
           <Image
             src="/img/furusona-logo-small.png"
@@ -391,6 +495,7 @@ export default function HomePage() {
         onClose={() => setShowLoginModal(false)}
         canClose={true}
       />
-    </div>
+      </div>
+    </>
   );
 }

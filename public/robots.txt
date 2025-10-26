@@ -5,7 +5,10 @@ Allow: /
 # Disallow private pages
 Disallow: /dashboard
 Disallow: /profile
+Disallow: /my-page
+Disallow: /past-records
 Disallow: /history
+Disallow: /debug
 Disallow: /api/
 
 # Sitemap
