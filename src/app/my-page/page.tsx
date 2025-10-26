@@ -4,17 +4,62 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import LoginModal from '@/components/auth/LoginModal';
+import Header from '@/components/Header';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Donation } from '@/types';
 
 export default function MyPage() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [donations, setDonations] = useState<Donation[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
       setShowLoginModal(true);
     }
   }, [user, loading]);
+
+  // 寄付履歴を取得
+  useEffect(() => {
+    const fetchDonations = async () => {
+      if (!user) return;
+
+      try {
+        const currentYear = new Date().getFullYear();
+        const donationsRef = collection(db, 'donations');
+        const q = query(
+          donationsRef,
+          where('userId', '==', user.uid),
+          where('year', '==', currentYear),
+          orderBy('donatedAt', 'desc')
+        );
+
+        const querySnapshot = await getDocs(q);
+        const donationsList: Donation[] = [];
+
+        querySnapshot.forEach((doc) => {
+          donationsList.push({
+            id: doc.id,
+            ...doc.data(),
+            donatedAt: doc.data().donatedAt.toDate(),
+          } as Donation);
+        });
+
+        setDonations(donationsList);
+      } catch (error) {
+        console.error('Error fetching donations:', error);
+      }
+    };
+
+    fetchDonations();
+  }, [user]);
+
+  // 寄付済み金額と残りの限度額を計算
+  const totalDonated = donations.reduce((sum, donation) => sum + donation.productPrice, 0);
+  const calculatedLimit = user?.calculatedLimit || 0;
+  const remainingLimit = calculatedLimit > 0 ? Math.max(0, calculatedLimit - totalDonated) : 0;
 
   if (loading) {
     return (
@@ -26,24 +71,13 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      {/* ヘッダー */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-primary-100 dark:border-primary-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-primary-600 cursor-pointer" onClick={() => router.push('/')}>
-              ふるそな
-            </h1>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="text-sm text-primary-600 hover:text-primary-700 transition-colors"
-              >
-                ダッシュボード
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* 共通ヘッダー */}
+      <Header
+        user={user}
+        calculatedLimit={calculatedLimit}
+        totalDonated={totalDonated}
+        remainingLimit={remainingLimit}
+      />
 
       {/* メインコンテンツ */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

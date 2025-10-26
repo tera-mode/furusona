@@ -24,7 +24,9 @@
       "Bash(vercel:*)",
       "Bash(move:*)",
       "Bash(node test-gemini.js)",
-      "Bash(firebase deploy:*)"
+      "Bash(firebase deploy:*)",
+      "WebFetch(domain:event.rakuten.co.jp)",
+      "WebFetch(domain:webservice.rakuten.co.jp)"
     ],
     "deny": [],
     "ask": []

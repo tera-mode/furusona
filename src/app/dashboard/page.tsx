@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [dislikes, setDislikes] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [showDislikesOnly, setShowDislikesOnly] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const hasInitialLoadCompleted = useRef(false);
@@ -237,6 +238,8 @@ export default function DashboardPage() {
   // フィルター済みの推薦リスト
   const filteredRecommendations = showFavoritesOnly
     ? recommendations.filter(rec => favorites.has(rec.itemCode))
+    : showDislikesOnly
+    ? recommendations.filter(rec => dislikes.has(rec.itemCode))
     : recommendations;
 
   // プロフィール変更検知用のref
@@ -333,28 +336,55 @@ export default function DashboardPage() {
 
         {/* 推薦セクション */}
         <div className="mb-8">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
               あなたへのおすすめ返礼品
             </h2>
 
-            {/* 気になるフィルター */}
-            <button
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                showFavoritesOnly
-                  ? 'bg-pink-500 text-white hover:bg-pink-600'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:border-pink-500'
-              }`}
-            >
-              <span className="text-xl">{showFavoritesOnly ? '♥' : '♡'}</span>
-              <span className="text-sm">気になる{showFavoritesOnly && 'のみ'}</span>
-              {favorites.size > 0 && (
-                <span className="bg-white dark:bg-slate-700 text-pink-500 px-2 py-0.5 rounded-full text-xs font-bold">
-                  {favorites.size}
-                </span>
-              )}
-            </button>
+            {/* フィルターボタングループ */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* 気になるフィルター */}
+              <button
+                onClick={() => {
+                  setShowFavoritesOnly(!showFavoritesOnly);
+                  if (!showFavoritesOnly) setShowDislikesOnly(false);
+                }}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition-colors text-sm ${
+                  showFavoritesOnly
+                    ? 'bg-pink-500 text-white hover:bg-pink-600'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:border-pink-500'
+                }`}
+              >
+                <span className="text-lg">{showFavoritesOnly ? '♥' : '♡'}</span>
+                <span>気になる{showFavoritesOnly && 'のみ'}</span>
+                {favorites.size > 0 && (
+                  <span className="bg-white dark:bg-slate-700 text-pink-500 px-2 py-0.5 rounded-full text-xs font-bold">
+                    {favorites.size}
+                  </span>
+                )}
+              </button>
+
+              {/* 興味なしフィルター */}
+              <button
+                onClick={() => {
+                  setShowDislikesOnly(!showDislikesOnly);
+                  if (!showDislikesOnly) setShowFavoritesOnly(false);
+                }}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition-colors text-sm ${
+                  showDislikesOnly
+                    ? 'bg-slate-400 text-white hover:bg-slate-500'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:border-slate-500'
+                }`}
+              >
+                <span className="text-lg">{showDislikesOnly ? '▲' : '△'}</span>
+                <span>興味なし{showDislikesOnly && 'のみ'}</span>
+                {dislikes.size > 0 && (
+                  <span className="bg-white dark:bg-slate-700 text-slate-500 px-2 py-0.5 rounded-full text-xs font-bold">
+                    {dislikes.size}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* エラーメッセージ */}
