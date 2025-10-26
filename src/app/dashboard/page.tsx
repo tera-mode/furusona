@@ -343,27 +343,6 @@ export default function DashboardPage() {
 
             {/* フィルターボタングループ */}
             <div className="flex flex-wrap items-center gap-2">
-              {/* 気になるフィルター */}
-              <button
-                onClick={() => {
-                  setShowFavoritesOnly(!showFavoritesOnly);
-                  if (!showFavoritesOnly) setShowDislikesOnly(false);
-                }}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition-colors text-sm ${
-                  showFavoritesOnly
-                    ? 'bg-pink-500 text-white hover:bg-pink-600'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:border-pink-500'
-                }`}
-              >
-                <span className="text-lg">{showFavoritesOnly ? '♥' : '♡'}</span>
-                <span>気になる{showFavoritesOnly && 'のみ'}</span>
-                {favorites.size > 0 && (
-                  <span className="bg-white dark:bg-slate-700 text-pink-500 px-2 py-0.5 rounded-full text-xs font-bold">
-                    {favorites.size}
-                  </span>
-                )}
-              </button>
-
               {/* 興味なしフィルター */}
               <button
                 onClick={() => {
@@ -381,6 +360,27 @@ export default function DashboardPage() {
                 {dislikes.size > 0 && (
                   <span className="bg-white dark:bg-slate-700 text-slate-500 px-2 py-0.5 rounded-full text-xs font-bold">
                     {dislikes.size}
+                  </span>
+                )}
+              </button>
+
+              {/* 気になるフィルター */}
+              <button
+                onClick={() => {
+                  setShowFavoritesOnly(!showFavoritesOnly);
+                  if (!showFavoritesOnly) setShowDislikesOnly(false);
+                }}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition-colors text-sm ${
+                  showFavoritesOnly
+                    ? 'bg-pink-500 text-white hover:bg-pink-600'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:border-pink-500'
+                }`}
+              >
+                <span className="text-lg">{showFavoritesOnly ? '♥' : '♡'}</span>
+                <span>気になる{showFavoritesOnly && 'のみ'}</span>
+                {favorites.size > 0 && (
+                  <span className="bg-white dark:bg-slate-700 text-pink-500 px-2 py-0.5 rounded-full text-xs font-bold">
+                    {favorites.size}
                   </span>
                 )}
               </button>

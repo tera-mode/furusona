@@ -66,8 +66,8 @@ export default function Header({ user, calculatedLimit = 0, totalDonated = 0, re
         {/* 下部: サマリー情報 */}
         {user && (
           <div className="border-t border-primary-100 dark:border-primary-800 pt-3">
-            {calculatedLimit && calculatedLimit > 0 ? (
-              <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {calculatedLimit && calculatedLimit > 0 ? (
                 <div className="flex flex-wrap items-center gap-4 text-xs">
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-slate-600 dark:text-slate-400">限度額</span>
@@ -88,25 +88,25 @@ export default function Header({ user, calculatedLimit = 0, totalDonated = 0, re
                     </span>
                   </div>
                 </div>
-                <button
-                  onClick={() => router.push('/profile')}
-                  className="text-xs px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors font-medium"
-                >
-                  カテゴリ変更
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-600 dark:text-slate-400">💡</span>
-                <button
-                  onClick={() => router.push('/profile')}
-                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors"
-                >
-                  限度額を計算する
-                </button>
-                <span className="text-slate-600 dark:text-slate-400">と、より正確なおすすめが得られます</span>
-              </div>
-            )}
+              ) : (
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-slate-600 dark:text-slate-400">💡</span>
+                  <button
+                    onClick={() => router.push('/profile')}
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors"
+                  >
+                    限度額を計算する
+                  </button>
+                  <span className="text-slate-600 dark:text-slate-400">と、より正確なおすすめが得られます</span>
+                </div>
+              )}
+              <button
+                onClick={() => router.push('/profile')}
+                className="text-xs px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors font-medium"
+              >
+                カテゴリ変更
+              </button>
+            </div>
           </div>
         )}
       </div>
