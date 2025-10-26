@@ -3,17 +3,24 @@ import "./globals.css";
 import { AuthProvider } from "@/hooks/useAuth";
 
 export const metadata: Metadata = {
-  title: "ふるそな - もう12月に慌てない。AIがあなた専属でふるさと納税をサポート",
-  description: "限度額の管理から、旬の食材の通知まで。AIがあなたの好みに合わせた返礼品を、最適なタイミングでお届けします。完全無料・クレジットカード登録不要。",
+  title: "ふるそな - ふるさと納税おすすめ診断・限度額シミュレーション【無料】",
+  description: "もう12月に慌てない！AIがあなたにぴったりの返礼品を診断。限度額計算から楽天ふるさと納税の選び方まで完全サポート。確定申告・ワンストップ特例も簡単。完全無料。",
   keywords: [
     "ふるさと納税",
+    "おすすめ",
     "返礼品",
-    "AI推薦",
+    "診断",
+    "選び方",
     "限度額計算",
+    "シミュレーション",
+    "AI推薦",
     "パーソナライズ",
     "楽天ふるさと納税",
-    "旬の食材",
-    "通知",
+    "確定申告",
+    "ワンストップ特例",
+    "牛肉",
+    "海鮮",
+    "日用品",
     "無料",
     "12月",
   ],
@@ -29,8 +36,8 @@ export const metadata: Metadata = {
     apple: "/img/furusona-fav.png",
   },
   openGraph: {
-    title: "ふるそな - もう12月に慌てない。AIがあなた専属でふるさと納税をサポート",
-    description: "限度額の管理から、旬の食材の通知まで。AIがあなたの好みに合わせた返礼品を、最適なタイミングでお届けします。完全無料。",
+    title: "ふるそな - ふるさと納税おすすめ診断・限度額シミュレーション【無料】",
+    description: "もう12月に慌てない！AIがあなたにぴったりの返礼品を診断。限度額計算から楽天ふるさと納税の選び方まで完全サポート。完全無料。",
     url: "https://furusona.jp",
     siteName: "ふるそな",
     locale: "ja_JP",
@@ -46,8 +53,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ふるそな - もう12月に慌てない。AIがあなた専属でふるさと納税をサポート",
-    description: "限度額の管理から、旬の食材の通知まで。完全無料でAIがサポート。",
+    title: "ふるそな - ふるさと納税おすすめ診断【無料】",
+    description: "AIがあなたにぴったりの返礼品を診断。限度額計算・確定申告サポートも。完全無料。",
     images: ["/img/furusona-logo.png"],
   },
   robots: {

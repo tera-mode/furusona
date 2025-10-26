@@ -89,6 +89,22 @@ export default function HomePage() {
           text: '全国すべての自治体の返礼品に対応しています。楽天ふるさと納税の返礼品からお選びいただけます。',
         },
       },
+      {
+        '@type': 'Question',
+        name: '確定申告は必要ですか？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '寄付先が5自治体以内の場合、ワンストップ特例制度を利用すれば確定申告不要です。6自治体以上の場合や、他の理由で確定申告が必要な方は、ふるさと納税の控除も確定申告で行います。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'どんな返礼品がおすすめですか？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '人気の返礼品は、牛肉（黒毛和牛・宮崎牛など）、海鮮（カニ・いくら・海鮮セット）、お米、日用品（トイレットペーパー・ティッシュ）などです。AIがあなたの家族構成や好みに合わせて最適な返礼品を診断します。',
+        },
+      },
     ],
   };
 
@@ -183,12 +199,12 @@ export default function HomePage() {
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4 leading-tight">
             もう、12月に慌てない。<br />
-            <span className="text-primary-600 dark:text-primary-400">AIがあなた専属で</span><br />
-            ふるさと納税をサポート
+            <span className="text-primary-600 dark:text-primary-400">AIがあなたにおすすめの</span><br />
+            ふるさと納税を診断
           </h1>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-            限度額の管理から、旬の食材の通知まで。<br />
-            あなたの好みに合わせた返礼品を、AIが最適なタイミングでお届けします
+            限度額シミュレーションから返礼品の選び方、確定申告まで。<br />
+            楽天ふるさと納税の中から、あなたにぴったりの返礼品をAIが診断します
           </p>
           <button
             onClick={() => setShowLoginModal(true)}
@@ -268,13 +284,13 @@ export default function HomePage() {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
                 <span className="text-2xl sm:text-3xl mr-2">🧑‍💼</span>
-                AIパーソナライズ推薦
+                AIおすすめ診断
               </h3>
               <h4 className="text-lg sm:text-xl font-bold text-primary-600 dark:text-primary-400 mb-3">
-                あなた好みの返礼品を自動提案
+                あなたにぴったりの返礼品を診断
               </h4>
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                好みの入力やフリーワードのAIへの指示だけで、AIがあなたにぴったりの返礼品を自動で推薦。膨大な返礼品の中から、あなたが本当に欲しいものを見つけ出します。
+                好みのカテゴリー（牛肉・海鮮・日用品など）を選ぶだけで、AIがあなたにおすすめの返礼品を自動で診断。楽天ふるさと納税の膨大な商品から、本当に欲しいものを見つけ出します。
               </p>
             </div>
 
@@ -285,13 +301,13 @@ export default function HomePage() {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
                 <span className="text-2xl sm:text-3xl mr-2">📊</span>
-                かんたん限度額計算
+                限度額シミュレーション
               </h3>
               <h4 className="text-lg sm:text-xl font-bold text-primary-600 dark:text-primary-400 mb-3">
                 残りいくら使えるか一目瞭然
               </h4>
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                年収と家族構成を入力するだけで、自動で限度額を計算。今年いくら使っていて、残りいくら使えるのかをリアルタイムで把握できます。
+                年収と家族構成を入力するだけで、限度額を自動シミュレーション。今年いくら寄付していて、残りいくら使えるのかをリアルタイムで把握。確定申告やワンストップ特例の手続きも簡単です。
               </p>
             </div>
 
@@ -429,6 +445,28 @@ export default function HomePage() {
               </summary>
               <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
                 全国すべての自治体の返礼品に対応しています。楽天ふるさと納税の返礼品からお選びいただけます。
+              </p>
+            </details>
+
+            {/* FAQ4 */}
+            <details className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 group">
+              <summary className="font-bold text-slate-900 dark:text-slate-100 cursor-pointer list-none flex items-center justify-between">
+                <span className="text-base sm:text-lg">確定申告は必要ですか？</span>
+                <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                寄付先が5自治体以内の場合、ワンストップ特例制度を利用すれば確定申告不要です。6自治体以上の場合や、他の理由で確定申告が必要な方は、ふるさと納税の控除も確定申告で行います。
+              </p>
+            </details>
+
+            {/* FAQ5 */}
+            <details className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 group">
+              <summary className="font-bold text-slate-900 dark:text-slate-100 cursor-pointer list-none flex items-center justify-between">
+                <span className="text-base sm:text-lg">どんな返礼品がおすすめですか？</span>
+                <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                人気の返礼品は、牛肉（黒毛和牛・宮崎牛など）、海鮮（カニ・いくら・海鮮セット）、お米、日用品（トイレットペーパー・ティッシュ）などです。AIが あなたの家族構成や好みに合わせて最適な返礼品を診断します。
               </p>
             </details>
           </div>
