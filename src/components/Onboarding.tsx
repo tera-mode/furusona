@@ -401,9 +401,8 @@ export default function Onboarding({ onComplete, onSkip }: OnboardingProps) {
                     <p>以下の情報をお届けします：</p>
                     <ul className="list-none space-y-1 ml-2">
                       <li>🎁 季節に合わせた旬の返礼品おすすめ情報</li>
-                      <li>💰 残りの限度額リマインダー（年末前）</li>
+                      <li>💰 残りの限度額リマインダー</li>
                       <li>✨ 新着返礼品や人気ランキング情報</li>
-                      <li>🎯 あなた好みの返礼品が入荷したときの通知</li>
                     </ul>
                     <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
                       ※ いつでも配信停止できます
