@@ -20,13 +20,23 @@ export default function Header({ user, calculatedLimit = 0, totalDonated = 0, re
         {/* 上部: ロゴとナビゲーション */}
         <div className="flex justify-between items-center mb-3">
           <div className="cursor-pointer" onClick={() => router.push('/dashboard')}>
+            {/* ライトモード用ロゴ */}
             <Image
               src="/img/furusona-logo-small.png"
               alt="ふるそな"
               width={240}
               height={80}
               priority
-              className="h-10 sm:h-14 md:h-16 w-auto"
+              className="h-10 sm:h-14 md:h-16 w-auto dark:hidden"
+            />
+            {/* ダークモード用ロゴ */}
+            <Image
+              src="/img/furusona-logo-white-small.png"
+              alt="ふるそな"
+              width={240}
+              height={80}
+              priority
+              className="h-10 sm:h-14 md:h-16 w-auto hidden dark:block"
             />
           </div>
 
