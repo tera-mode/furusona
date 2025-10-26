@@ -9,11 +9,23 @@ if (!admin.apps.length) {
   // Only initialize if all required credentials are present
   if (projectId && clientEmail && privateKey) {
     try {
+      // Format private key to handle various input formats
+      let formattedPrivateKey = privateKey;
+
+      // Remove surrounding quotes if present
+      formattedPrivateKey = formattedPrivateKey.replace(/^["']|["']$/g, '');
+
+      // Replace literal \n with actual newlines
+      formattedPrivateKey = formattedPrivateKey.replace(/\\n/g, '\n');
+
+      // Trim any extra whitespace
+      formattedPrivateKey = formattedPrivateKey.trim();
+
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId,
           clientEmail,
-          privateKey: privateKey.replace(/\\n/g, '\n'),
+          privateKey: formattedPrivateKey,
         }),
       });
       console.log('✅ Firebase Admin initialized successfully');
