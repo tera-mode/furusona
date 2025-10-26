@@ -94,6 +94,39 @@ export default function MyPage() {
             </button>
           </div>
 
+          {/* 利用規約・プライバシーポリシー */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-primary-100 dark:border-primary-800">
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
+              法的文書
+            </h3>
+            <div className="space-y-2">
+              <a
+                href="https://www.laiv.jp/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors"
+              >
+                <span>📄</span>
+                <span>利用規約</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+              <a
+                href="https://www.laiv.jp/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-blue-500 hover:text-blue-600 transition-colors"
+              >
+                <span>🔒</span>
+                <span>プライバシーポリシー</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
           {/* ログアウト */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-primary-100 dark:border-primary-800 hover:border-accent-300 dark:hover:border-accent-600 transition-colors">
             <button

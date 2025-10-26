@@ -16,6 +16,7 @@ export default function LoginModal({ isOpen, onClose, canClose = false, initialM
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const { signInWithEmail, signUpWithEmail, signInWithGoogle } = useAuth();
 
@@ -26,6 +27,13 @@ export default function LoginModal({ isOpen, onClose, canClose = false, initialM
     setLoading(true);
     setError(null);
 
+    // 新規登録時に利用規約への同意を確認
+    if (mode === 'signup' && !agreedToTerms) {
+      setError('利用規約とプライバシーポリシーに同意してください');
+      setLoading(false);
+      return;
+    }
+
     try {
       if (mode === 'signin') {
         await signInWithEmail(email, password);
@@ -34,8 +42,11 @@ export default function LoginModal({ isOpen, onClose, canClose = false, initialM
       }
       if (onClose) onClose();
     } catch (error: unknown) {
-      const firebaseError = error as { code?: string };
-      setError(getErrorMessage(firebaseError.code || ''));
+      // Firebaseエラーオブジェクトから code を取得
+      const errorCode = (error && typeof error === 'object' && 'code' in error)
+        ? (error as { code: string }).code
+        : '';
+      setError(getErrorMessage(errorCode));
     } finally {
       setLoading(false);
     }
@@ -45,12 +56,22 @@ export default function LoginModal({ isOpen, onClose, canClose = false, initialM
     setLoading(true);
     setError(null);
 
+    // 新規登録時に利用規約への同意を確認
+    if (mode === 'signup' && !agreedToTerms) {
+      setError('利用規約とプライバシーポリシーに同意してください');
+      setLoading(false);
+      return;
+    }
+
     try {
       await signInWithGoogle();
       if (onClose) onClose();
     } catch (error: unknown) {
-      const firebaseError = error as { code?: string };
-      setError(getErrorMessage(firebaseError.code || ''));
+      // Firebaseエラーオブジェクトから code を取得
+      const errorCode = (error && typeof error === 'object' && 'code' in error)
+        ? (error as { code: string }).code
+        : '';
+      setError(getErrorMessage(errorCode));
     } finally {
       setLoading(false);
     }
@@ -165,6 +186,40 @@ export default function LoginModal({ isOpen, onClose, canClose = false, initialM
             />
           </div>
 
+          {/* 利用規約の同意（新規登録時のみ） */}
+          {mode === 'signup' && (
+            <div>
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="mt-1 w-4 h-4 text-blue-600 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-xs text-slate-600 dark:text-slate-400">
+                  <a
+                    href="https://www.laiv.jp/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-600 underline"
+                  >
+                    利用規約
+                  </a>
+                  および
+                  <a
+                    href="https://www.laiv.jp/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-600 underline"
+                  >
+                    プライバシーポリシー
+                  </a>
+                  に同意します
+                </span>
+              </label>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
@@ -189,13 +244,6 @@ export default function LoginModal({ isOpen, onClose, canClose = false, initialM
             }
           </button>
         </div>
-
-        {/* 利用規約（新規登録時） */}
-        {mode === 'signup' && (
-          <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-4">
-            新規登録により、利用規約とプライバシーポリシーに同意したものとみなします
-          </p>
-        )}
 
         {/* 閉じるボタン（canClose時のみ） */}
         {canClose && (

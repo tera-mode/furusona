@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, query, where, getDocs, addDoc, updateDoc, doc, Timestamp, limit, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb } from '@/lib/firebase-admin';
 
 // POST /api/viewed-products - 閲覧履歴を記録
 export async function POST(req: NextRequest) {
@@ -17,20 +16,19 @@ export async function POST(req: NextRequest) {
     }
 
     // 同じ商品の閲覧履歴が既に存在するか確認
-    const viewedProductsRef = collection(db, 'viewedProducts');
-    const q = query(
-      viewedProductsRef,
-      where('userId', '==', userId),
-      where('itemCode', '==', itemCode),
-      limit(1)
-    );
-    const existingQuery = await getDocs(q);
+    const existingQuery = await adminDb.collection('viewedProducts')
+      .where('userId', '==', userId)
+      .where('itemCode', '==', itemCode)
+      .limit(1)
+      .get();
+
+    const now = new Date();
 
     if (!existingQuery.empty) {
       // 既存の閲覧履歴を更新（viewedAtを最新に）
       const docId = existingQuery.docs[0].id;
-      await updateDoc(doc(db, 'viewedProducts', docId), {
-        viewedAt: Timestamp.now(),
+      await adminDb.collection('viewedProducts').doc(docId).update({
+        viewedAt: now,
       });
 
       return NextResponse.json({
@@ -41,7 +39,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 新規閲覧履歴を作成
-    const docRef = await addDoc(viewedProductsRef, {
+    const docRef = await adminDb.collection('viewedProducts').add({
       userId,
       itemCode,
       itemName,
@@ -50,7 +48,7 @@ export async function POST(req: NextRequest) {
       affiliateUrl,
       imageUrl,
       shopName,
-      viewedAt: Timestamp.now(),
+      viewedAt: now,
     });
 
     return NextResponse.json({
@@ -81,14 +79,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const viewedProductsRef = collection(db, 'viewedProducts');
-    const q = query(
-      viewedProductsRef,
-      where('userId', '==', userId),
-      orderBy('viewedAt', 'desc'),
-      limit(limitCount)
-    );
-    const snapshot = await getDocs(q);
+    const snapshot = await adminDb.collection('viewedProducts')
+      .where('userId', '==', userId)
+      .orderBy('viewedAt', 'desc')
+      .limit(limitCount)
+      .get();
 
     const viewedProducts = snapshot.docs.map((document) => {
       const data = document.data();
