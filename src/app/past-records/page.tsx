@@ -142,7 +142,7 @@ export default function PastRecordsPage() {
 
   // 合計寄付額を計算（今年のみ）
   const totalDonated = donations.reduce((sum, d) => sum + d.productPrice, 0);
-  const remainingLimit = user ? Math.max(0, user.calculatedLimit - totalDonated) : 0;
+  const remainingLimit = user && user.calculatedLimit ? Math.max(0, user.calculatedLimit - totalDonated) : 0;
 
   if (loading) {
     return (

@@ -25,7 +25,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-      return { ...userSnap.data() } as User;
+      const userData = userSnap.data();
+      return {
+        ...userData,
+        createdAt: userData.createdAt?.toDate?.() || new Date(),
+        updatedAt: userData.updatedAt?.toDate?.() || new Date()
+      } as User;
     }
 
     const newUser: User = {
@@ -33,22 +38,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: firebaseUser.email!,
       displayName: firebaseUser.displayName || undefined,
       photoURL: firebaseUser.photoURL || undefined,
-      familyStructure: {
-        married: false,
-        dependents: 0
-      },
-      income: {
-        annualIncome: 0,
-        socialInsurance: undefined,
-        mortgageDeduction: undefined
-      },
+      familyStructure: {},
+      income: {},
       preferences: {
         categories: [],
         allergies: [],
         favoriteRegions: [],
-        pastSelections: []
+        pastSelections: [],
+        favorites: [],
+        dislikes: []
       },
-      calculatedLimit: 0,
+      newsletter: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -57,20 +57,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userData: Record<string, unknown> = {
       uid: firebaseUser.uid,
       email: firebaseUser.email!,
-      familyStructure: {
-        married: false,
-        dependents: 0
-      },
-      income: {
-        annualIncome: 0
-      },
+      familyStructure: {},
+      income: {},
       preferences: {
         categories: [],
         allergies: [],
         favoriteRegions: [],
-        pastSelections: []
+        pastSelections: [],
+        favorites: [],
+        dislikes: []
       },
-      calculatedLimit: 0,
+      newsletter: false,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };

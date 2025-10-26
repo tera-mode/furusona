@@ -54,26 +54,41 @@ export default function Header({ user, calculatedLimit = 0, totalDonated = 0, re
         </div>
 
         {/* 下部: サマリー情報 */}
-        {user && calculatedLimit > 0 && (
-          <div className="flex flex-wrap items-center gap-4 text-xs border-t border-primary-100 dark:border-primary-800 pt-3">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-slate-600 dark:text-slate-400">限度額</span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">
-                {calculatedLimit.toLocaleString()}円
-              </span>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-slate-600 dark:text-slate-400">寄付済</span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">
-                {totalDonated.toLocaleString()}円
-              </span>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-slate-600 dark:text-slate-400">残り</span>
-              <span className="text-lg font-bold text-warning-600 dark:text-warning-400">
-                {remainingLimit.toLocaleString()}円
-              </span>
-            </div>
+        {user && (
+          <div className="border-t border-primary-100 dark:border-primary-800 pt-3">
+            {calculatedLimit && calculatedLimit > 0 ? (
+              <div className="flex flex-wrap items-center gap-4 text-xs">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-slate-600 dark:text-slate-400">限度額</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">
+                    {calculatedLimit.toLocaleString()}円
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-slate-600 dark:text-slate-400">寄付済</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">
+                    {totalDonated.toLocaleString()}円
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-slate-600 dark:text-slate-400">残り</span>
+                  <span className="text-lg font-bold text-warning-600 dark:text-warning-400">
+                    {remainingLimit.toLocaleString()}円
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-slate-600 dark:text-slate-400">💡</span>
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors"
+                >
+                  限度額を計算する
+                </button>
+                <span className="text-slate-600 dark:text-slate-400">と、より正確なおすすめが得られます</span>
+              </div>
+            )}
           </div>
         )}
       </div>

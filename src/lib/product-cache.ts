@@ -268,9 +268,12 @@ export class ProductCacheService {
     try {
       const RAKUTEN_API_ENDPOINT = 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706';
 
+      // キーワード検索のみを使用（genreIdは一旦使わない）
+      // 楽天市場のジャンルIDはふるさと納税専用ではないため、
+      // キーワード検索の方が正確な結果が得られる
       const params = new URLSearchParams({
         applicationId,
-        keyword: `${category} ふるさと納税`,
+        keyword: `ふるさと納税 ${category}`,
         hits: hits.toString(),
         sort: '-reviewCount',
         imageFlag: '1',
@@ -285,6 +288,7 @@ export class ProductCacheService {
       }
 
       const apiUrl = `${RAKUTEN_API_ENDPOINT}?${params.toString()}`;
+      console.log(`Fetching from Rakuten API: ${apiUrl}`);
       const response = await fetch(apiUrl);
 
       if (!response.ok) {

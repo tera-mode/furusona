@@ -18,7 +18,6 @@ export default function DashboardPage() {
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
-  const [displayedItemCodes, setDisplayedItemCodes] = useState<Set<string>>(new Set());
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [dislikes, setDislikes] = useState<Set<string>>(new Set());
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -131,13 +130,12 @@ export default function DashboardPage() {
         return updated;
       });
 
-      // 表示済みアイテムコードを更新（refとstateの両方）
+      // 表示済みアイテムコードを更新（refのみ使用）
       filteredRecommendations.forEach((rec: Recommendation) => {
         if (rec.itemCode) {
           displayedItemCodesRef.current.add(rec.itemCode);
         }
       });
-      setDisplayedItemCodes(new Set(displayedItemCodesRef.current));
 
       // 初回ロードが完了したことを記録
       if (isInitialLoad) {
@@ -158,7 +156,7 @@ export default function DashboardPage() {
 
   // 合計寄付額を計算（今年のみ）
   const totalDonated = donations.reduce((sum, d) => sum + d.productPrice, 0);
-  const remainingLimit = user ? Math.max(0, user.calculatedLimit - totalDonated) : 0;
+  const remainingLimit = user && user.calculatedLimit ? Math.max(0, user.calculatedLimit - totalDonated) : 0;
 
   // 気になる・興味なしリストを初期化
   useEffect(() => {
@@ -266,7 +264,6 @@ export default function DashboardPage() {
         // プロフィールが更新されたので、推薦をクリアして再取得
         console.log('🟡 Profile updated, resetting recommendations');
         setRecommendations([]);
-        setDisplayedItemCodes(new Set());
         displayedItemCodesRef.current = new Set();
         hasInitialLoadCompleted.current = false;
         isFetchingRef.current = false; // リセット時はフラグもクリア

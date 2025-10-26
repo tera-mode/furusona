@@ -5,35 +5,27 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import LoginModal from '@/components/auth/LoginModal';
 import Header from '@/components/Header';
-
-const CATEGORY_OPTIONS = [
-  '肉',
-  '魚介',
-  'フルーツ',
-  '米',
-  'お酒',
-  'スイーツ',
-  '加工品',
-  '工芸品',
-  '日用品',
-  '旅行券',
-];
+import Onboarding, { OnboardingData } from '@/components/Onboarding';
+import { CATEGORIES } from '@/lib/categoryMapping';
 
 export default function ProfilePage() {
   const { user, loading, updateUserData } = useAuth();
   const router = useRouter();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
 
   // フォーム状態
   const [annualIncome, setAnnualIncome] = useState('');
-  const [married, setMarried] = useState(false);
-  const [dependents, setDependents] = useState('0');
+  const [married, setMarried] = useState<boolean | undefined>(undefined);
+  const [dependents, setDependents] = useState('');
   const [socialInsurance, setSocialInsurance] = useState('');
   const [mortgageDeduction, setMortgageDeduction] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
   const [allergies, setAllergies] = useState('');
   const [favoriteRegions, setFavoriteRegions] = useState('');
+  const [customRequest, setCustomRequest] = useState('');
+  const [newsletter, setNewsletter] = useState(false);
 
   // 計算結果
   const [calculatedLimit, setCalculatedLimit] = useState(0);
@@ -43,18 +35,25 @@ export default function ProfilePage() {
     if (!loading && !user) {
       setShowLoginModal(true);
     } else if (user) {
-      // ユーザーデータから初期値を設定
-      // 年収は円で保存されているので、万円に変換して表示
-      const annualIncomeInManYen = user.income.annualIncome ? Math.floor(user.income.annualIncome / 10000) : 0;
-      setAnnualIncome(annualIncomeInManYen > 0 ? annualIncomeInManYen.toString() : '');
-      setMarried(user.familyStructure.married || false);
-      setDependents(user.familyStructure.dependents?.toString() || '0');
-      setSocialInsurance(user.income.socialInsurance?.toString() || '');
-      setMortgageDeduction(user.income.mortgageDeduction?.toString() || '');
-      setCategories(user.preferences.categories || []);
-      setAllergies(user.preferences.allergies?.join(', ') || '');
-      setFavoriteRegions(user.preferences.favoriteRegions?.join(', ') || '');
-      setCalculatedLimit(user.calculatedLimit || 0);
+      // 新規ユーザー判定：カテゴリが未選択の場合
+      const isNew = !user.preferences.categories || user.preferences.categories.length === 0;
+      setIsNewUser(isNew);
+
+      if (!isNew) {
+        // 既存ユーザーデータから初期値を設定
+        const annualIncomeInManYen = user.income.annualIncome ? Math.floor(user.income.annualIncome / 10000) : 0;
+        setAnnualIncome(annualIncomeInManYen > 0 ? annualIncomeInManYen.toString() : '');
+        setMarried(user.familyStructure.married);
+        setDependents(user.familyStructure.dependents?.toString() || '');
+        setSocialInsurance(user.income.socialInsurance?.toString() || '');
+        setMortgageDeduction(user.income.mortgageDeduction?.toString() || '');
+        setCategories(user.preferences.categories || []);
+        setAllergies(user.preferences.allergies?.join(', ') || '');
+        setFavoriteRegions(user.preferences.favoriteRegions?.join(', ') || '');
+        setCustomRequest(user.preferences.customRequest || '');
+        setNewsletter(user.newsletter || false);
+        setCalculatedLimit(user.calculatedLimit || 0);
+      }
     }
   }, [user, loading]);
 
@@ -90,6 +89,74 @@ export default function ProfilePage() {
     }
   };
 
+  const handleOnboardingComplete = async (data: OnboardingData) => {
+    if (!user) return;
+
+    setSaving(true);
+    try {
+      // Firestoreはundefinedを受け付けないので、オプショナルフィールドを適切に処理
+      const incomeData: {
+        annualIncome?: number;
+        socialInsurance?: number;
+        mortgageDeduction?: number;
+      } = {};
+
+      if (data.annualIncome) {
+        incomeData.annualIncome = data.annualIncome;
+      }
+
+      if (data.socialInsurance) {
+        incomeData.socialInsurance = data.socialInsurance;
+      }
+
+      if (data.mortgageDeduction) {
+        incomeData.mortgageDeduction = data.mortgageDeduction;
+      }
+
+      const familyStructureData: {
+        married?: boolean;
+        dependents?: number;
+      } = {};
+
+      if (data.married !== undefined) {
+        familyStructureData.married = data.married;
+      }
+
+      if (data.dependents !== undefined) {
+        familyStructureData.dependents = data.dependents;
+      }
+
+      await updateUserData({
+        familyStructure: familyStructureData,
+        income: incomeData,
+        preferences: {
+          categories: data.categories,
+          allergies: data.allergies,
+          favoriteRegions: data.favoriteRegions,
+          customRequest: data.customRequest,
+          pastSelections: user.preferences.pastSelections || [],
+          favorites: user.preferences.favorites || [],
+          dislikes: user.preferences.dislikes || [],
+        },
+        calculatedLimit: data.calculatedLimit,
+        newsletter: data.newsletter,
+        updatedAt: new Date(),
+      });
+
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleOnboardingSkip = async () => {
+    // カテゴリのみ選択済みの状態でスキップ
+    router.push('/dashboard');
+  };
+
   const handleSaveProfile = async () => {
     if (!user) return;
 
@@ -98,24 +165,18 @@ export default function ProfilePage() {
       return;
     }
 
-    if (calculatedLimit === 0) {
-      alert('限度額を計算してください');
-      return;
-    }
-
     setSaving(true);
     try {
-      // 年収は万円単位で入力されるので、円に変換
-      const annualIncomeInYen = Number(annualIncome) * 10000;
-
       // Firestoreはundefinedを受け付けないので、オプショナルフィールドを適切に処理
       const incomeData: {
-        annualIncome: number;
+        annualIncome?: number;
         socialInsurance?: number;
         mortgageDeduction?: number;
-      } = {
-        annualIncome: annualIncomeInYen,
-      };
+      } = {};
+
+      if (annualIncome && annualIncome.trim() !== '') {
+        incomeData.annualIncome = Number(annualIncome) * 10000;
+      }
 
       if (socialInsurance && socialInsurance.trim() !== '') {
         incomeData.socialInsurance = Number(socialInsurance);
@@ -125,19 +186,33 @@ export default function ProfilePage() {
         incomeData.mortgageDeduction = Number(mortgageDeduction);
       }
 
+      const familyStructureData: {
+        married?: boolean;
+        dependents?: number;
+      } = {};
+
+      if (married !== undefined) {
+        familyStructureData.married = married;
+      }
+
+      if (dependents && dependents.trim() !== '') {
+        familyStructureData.dependents = Number(dependents);
+      }
+
       await updateUserData({
-        familyStructure: {
-          married,
-          dependents: Number(dependents),
-        },
+        familyStructure: familyStructureData,
         income: incomeData,
         preferences: {
           categories,
           allergies: allergies ? allergies.split(',').map(a => a.trim()) : [],
           favoriteRegions: favoriteRegions ? favoriteRegions.split(',').map(r => r.trim()) : [],
+          customRequest: customRequest,
           pastSelections: user.preferences.pastSelections || [],
+          favorites: user.preferences.favorites || [],
+          dislikes: user.preferences.dislikes || [],
         },
-        calculatedLimit,
+        calculatedLimit: calculatedLimit > 0 ? calculatedLimit : undefined,
+        newsletter: newsletter,
         updatedAt: new Date(),
       });
 
@@ -159,7 +234,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) {
+  if (loading || isNewUser === null) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-slate-600">読み込み中...</div>
@@ -167,6 +242,24 @@ export default function ProfilePage() {
     );
   }
 
+  // 新規ユーザーの場合、オンボーディングを表示
+  if (isNewUser === true) {
+    return (
+      <>
+        <Onboarding
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingSkip}
+        />
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={() => router.push('/')}
+          canClose={false}
+        />
+      </>
+    );
+  }
+
+  // 既存ユーザーの編集画面
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* ヘッダー */}
@@ -190,8 +283,11 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  年収（万円）
+                  年収（万円）<span className="text-slate-400">（任意）</span>
                 </label>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  💡 ヒント: 源泉徴収票の「支払金額」をご入力ください
+                </p>
                 <input
                   type="number"
                   value={annualIncome}
@@ -203,13 +299,13 @@ export default function ProfilePage() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  婚姻状況
+                  婚姻状況 <span className="text-slate-400">（任意）</span>
                 </label>
                 <div className="flex gap-4">
                   <label className="flex items-center">
                     <input
                       type="radio"
-                      checked={!married}
+                      checked={married === false}
                       onChange={() => setMarried(false)}
                       className="mr-2"
                     />
@@ -218,7 +314,7 @@ export default function ProfilePage() {
                   <label className="flex items-center">
                     <input
                       type="radio"
-                      checked={married}
+                      checked={married === true}
                       onChange={() => setMarried(true)}
                       className="mr-2"
                     />
@@ -229,7 +325,7 @@ export default function ProfilePage() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  扶養人数
+                  扶養人数 <span className="text-slate-400">（任意）</span>
                 </label>
                 <input
                   type="number"
@@ -237,6 +333,7 @@ export default function ProfilePage() {
                   onChange={(e) => setDependents(e.target.value)}
                   min="0"
                   className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-100"
+                  placeholder="0"
                 />
               </div>
 
@@ -265,13 +362,15 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <button
-                onClick={handleCalculateLimit}
-                disabled={calculating || !annualIncome}
-                className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {calculating ? '計算中...' : '限度額を計算'}
-              </button>
+              {annualIncome && (
+                <button
+                  onClick={handleCalculateLimit}
+                  disabled={calculating}
+                  className="w-full bg-accent-500 hover:bg-accent-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {calculating ? '計算中...' : '💰 限度額を計算する'}
+                </button>
+              )}
 
               {calculatedLimit > 0 && (
                 <div className="bg-accent-50 dark:bg-accent-900/20 border border-accent-200 dark:border-accent-700 rounded-lg p-4">
@@ -300,20 +399,23 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  好きなカテゴリ（複数選択可）
+                  好きなカテゴリ（複数選択可、最低1つ必須）
                 </label>
-                <div className="flex flex-wrap gap-2">
-                  {CATEGORY_OPTIONS.map((category) => (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {CATEGORIES.map((category) => (
                     <button
-                      key={category}
-                      onClick={() => toggleCategory(category)}
-                      className={`px-4 py-2 rounded-lg border transition-colors ${
-                        categories.includes(category)
-                          ? 'bg-primary-500 text-white border-primary-500'
-                          : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-primary-500'
+                      key={category.id}
+                      onClick={() => toggleCategory(category.id)}
+                      className={`p-3 rounded-lg border-2 transition-all text-left ${
+                        categories.includes(category.id)
+                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                          : 'border-slate-200 dark:border-slate-700 hover:border-primary-300'
                       }`}
                     >
-                      {category}
+                      <div className="text-2xl mb-1">{category.emoji}</div>
+                      <div className="text-xs font-medium text-slate-900 dark:text-slate-100">
+                        {category.displayName}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -344,16 +446,51 @@ export default function ProfilePage() {
                   placeholder="例: 北海道, 沖縄, 九州"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  カスタムリクエスト（任意）
+                </label>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  AIレコメンドで考慮してほしい条件を自由に入力してください
+                </p>
+                <textarea
+                  value={customRequest}
+                  onChange={(e) => setCustomRequest(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-100 resize-none"
+                  placeholder="例: 子供が喜ぶもの、健康志向のもの、大容量がいい"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newsletter}
+                    onChange={(e) => setNewsletter(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-primary-600 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500"
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">
+                      お得な情報をメールで受け取る
+                    </div>
+                    <div className="text-xs text-slate-600 dark:text-slate-400">
+                      季節のおすすめや限度額リマインダーなどをお届けします
+                    </div>
+                  </div>
+                </label>
+              </div>
             </div>
           </section>
 
           {/* 保存ボタン */}
           <button
             onClick={handleSaveProfile}
-            disabled={saving || categories.length === 0 || calculatedLimit === 0}
+            disabled={saving || categories.length === 0}
             className="w-full bg-success-500 hover:bg-success-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {saving ? '保存中...' : 'プロファイルを保存してダッシュボードへ'}
+            {saving ? '保存中...' : 'プロファイルを保存'}
           </button>
         </div>
       </main>

@@ -14,7 +14,8 @@ export default function HomePage() {
   useEffect(() => {
     if (!loading && user) {
       // ユーザーがログイン済みの場合、プロフィール設定または ダッシュボードへリダイレクト
-      if (user.calculatedLimit > 0) {
+      // カテゴリが設定されている場合はダッシュボードへ、未設定ならプロフィール設定へ
+      if (user.preferences.categories && user.preferences.categories.length > 0) {
         router.push('/dashboard');
       } else {
         router.push('/profile');

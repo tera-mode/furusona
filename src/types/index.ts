@@ -5,11 +5,11 @@ export interface User {
   displayName?: string;
   photoURL?: string;
   familyStructure: {
-    married: boolean;
-    dependents: number;
+    married?: boolean;
+    dependents?: number;
   };
   income: {
-    annualIncome: number;
+    annualIncome?: number;
     socialInsurance?: number;
     mortgageDeduction?: number;
   };
@@ -17,11 +17,13 @@ export interface User {
     categories: string[];
     allergies?: string[];
     favoriteRegions?: string[];
+    customRequest?: string; // カスタムリクエスト（自由入力）
     pastSelections?: string[];
     favorites?: string[]; // 気になるリスト (itemCode)
     dislikes?: string[]; // 興味なしリスト (itemCode)
   };
-  calculatedLimit: number;
+  calculatedLimit?: number;
+  newsletter?: boolean; // メルマガ購読
   createdAt: Date;
   updatedAt: Date;
 }
