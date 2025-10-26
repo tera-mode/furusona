@@ -286,7 +286,7 @@ export default function DashboardPage() {
       prevUserUpdatedAtRef.current = user.updatedAt;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loading, router]);
+  }, [user, loading]);
 
   // 無限スクロール用のIntersection Observer
   useEffect(() => {
