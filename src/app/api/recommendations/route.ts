@@ -3,6 +3,7 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/ge
 import { adminDb } from '@/lib/firebase-admin';
 import { User, RakutenProduct, Recommendation } from '@/types';
 import { ProductCacheService } from '@/lib/product-cache';
+import { getCategoryById } from '@/lib/categoryMapping';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -98,16 +99,17 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. ユーザーの好みカテゴリから楽天APIで返礼品を取得
-    const categories = user.preferences.categories;
+    // カテゴリが未選択の場合、デフォルトカテゴリを使用
+    let categories = user.preferences.categories;
     if (!categories || categories.length === 0) {
-      return NextResponse.json(
-        { error: 'カテゴリが設定されていません' },
-        { status: 400 }
-      );
+      console.log('⚠️ No categories set, using default popular categories');
+      categories = ['meat', 'seafood', 'fruits', 'rice', 'sweets'];
     }
 
     // 推奨額（限度額の1/3）
-    const maxPrice = Math.floor(user.calculatedLimit / 3);
+    // 限度額が未設定の場合、デフォルトで50,000円を上限とする
+    const calculatedLimit = user.calculatedLimit || 150000; // デフォルト15万円
+    const maxPrice = Math.floor(calculatedLimit / 3);
 
     const APPLICATION_ID = process.env.RAKUTEN_APPLICATION_ID;
     const AFFILIATE_ID = process.env.RAKUTEN_AFFILIATE_ID;
@@ -127,10 +129,19 @@ export async function POST(request: NextRequest) {
 
     // 最大10カテゴリから取得（30件 × 10 = 最大300件）
     // ProductCacheServiceを使用してキャッシュ優先で取得
-    for (const category of shuffledCategories.slice(0, 10)) {
+    for (const categoryId of shuffledCategories.slice(0, 10)) {
       try {
+        // カテゴリ情報を取得
+        const categoryInfo = getCategoryById(categoryId);
+
+        // カテゴリのキーワードリストから最初のキーワードを使用
+        // より具体的な検索のため
+        const searchKeyword = categoryInfo?.rakutenKeywords?.[0] || categoryInfo?.displayName || categoryId;
+
+        console.log(`Fetching products for category: ${categoryId}, keyword: ${searchKeyword}`);
+
         const fetchedProducts = await ProductCacheService.getProducts(
-          category,
+          searchKeyword,
           APPLICATION_ID,
           AFFILIATE_ID,
           maxPrice >= 100 ? maxPrice : undefined,
@@ -138,15 +149,18 @@ export async function POST(request: NextRequest) {
         );
 
         if (fetchedProducts.length > 0) {
+          console.log(`Retrieved ${fetchedProducts.length} products for ${searchKeyword}`);
           // 重複を避けるため、itemCodeでフィルタリング
           const existingItemCodes = new Set(products.map(p => p.itemCode));
           const newProducts = fetchedProducts.filter(
             (p: RakutenProduct) => !existingItemCodes.has(p.itemCode)
           );
           products = [...products, ...newProducts];
+        } else {
+          console.log(`No products found for ${searchKeyword}`);
         }
       } catch (error) {
-        console.error(`Error fetching products for category ${category}:`, error);
+        console.error(`Error fetching products for category ${categoryId}:`, error);
         // エラーが発生しても次のカテゴリを試す
         continue;
       }
@@ -157,7 +171,13 @@ export async function POST(request: NextRequest) {
       products = products.filter(p => !excludeItemCodes.includes(p.itemCode));
     }
 
+    console.log(`Total products retrieved: ${products.length}`);
+
     if (!products || products.length === 0) {
+      console.error('No products found for any category');
+      console.error('User categories:', categories);
+      console.error('Max price:', maxPrice);
+
       return NextResponse.json(
         { error: '返礼品が見つかりませんでした' },
         { status: 404 }
@@ -175,7 +195,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 2. 価格適合度 (0-20点)
-      const idealPrice = user.calculatedLimit / 3;
+      const idealPrice = calculatedLimit / 3;
       const priceDiff = Math.abs(p.itemPrice - idealPrice) / idealPrice;
       score += Math.max(0, 20 - priceDiff * 20);
 
@@ -216,8 +236,8 @@ export async function POST(request: NextRequest) {
 
     // 3. Gemini APIに商品リストを渡して推薦を取得
     // 超短縮プロンプト
-    const productList = topProducts.map((p, i) =>
-      `${i}:${String(p.itemCode)}|${p.itemName.slice(0, 30)}|¥${p.itemPrice}`
+    const productList = topProducts.map((p) =>
+      `ID:${String(p.itemCode)}|${p.itemName.slice(0, 30)}|¥${p.itemPrice}`
     ).join('\n');
 
     const prompt = `以下の商品から9つ選びJSON形式のみで回答。説明文不要。
@@ -228,7 +248,8 @@ ${productList}
 家族:${user.familyStructure.married?'既婚':'独身'},扶養${user.familyStructure.dependents}人
 好み:${categories.join(',')}
 
-{"recommendations":[{"itemCode":"コード","reason":"理由25字","score":85},...]}`;
+itemCodeはID:の後の完全な文字列を使用。
+{"recommendations":[{"itemCode":"f132039-musashino:10000198","reason":"理由25字","score":85},...]}`;
 
     console.log('=== Prompt Info ===');
     console.log(`Prompt length: ${prompt.length} characters`);
