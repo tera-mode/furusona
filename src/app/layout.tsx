@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/hooks/useAuth";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
   title: "ふるそな - ふるさと納税おすすめ診断・限度額シミュレーション【無料】",
@@ -82,6 +83,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className="antialiased bg-slate-50 dark:bg-slate-900">
+        <GoogleAnalytics />
         <AuthProvider>
           {children}
         </AuthProvider>
