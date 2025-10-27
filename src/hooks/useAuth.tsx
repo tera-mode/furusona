@@ -87,9 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      const userData = await createUserDocument(result.user);
-      setUser(userData);
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChangedが自動的にユーザー情報を設定します
     } catch (error) {
       console.error('Error signing in:', error);
       throw error;
@@ -99,8 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUpWithEmail = async (email: string, password: string) => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      const userData = await createUserDocument(result.user);
-      setUser(userData);
+      // 新規ユーザーの場合はドキュメントを作成
+      await createUserDocument(result.user);
+      // onAuthStateChangedが自動的にユーザー情報を設定します
     } catch (error) {
       console.error('Error signing up:', error);
       throw error;
@@ -111,8 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      const userData = await createUserDocument(result.user);
-      setUser(userData);
+      // ユーザードキュメントを作成または取得
+      await createUserDocument(result.user);
+      // onAuthStateChangedが自動的にユーザー情報を設定します
     } catch (error) {
       console.error('Error signing in with Google:', error);
       throw error;

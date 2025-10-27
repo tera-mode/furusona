@@ -34,6 +34,9 @@ export default function PastRecordsPage() {
   const [viewedProducts, setViewedProducts] = useState<ViewedProduct[]>([]);
   const [loadingViewed, setLoadingViewed] = useState(false);
 
+  // 削除関連
+  const [deleting, setDeleting] = useState<string | null>(null);
+
   useEffect(() => {
     if (!loading && !user) {
       setShowLoginModal(true);
@@ -103,8 +106,8 @@ export default function PastRecordsPage() {
 
     if (!user) return;
 
-    if (!formData.productName || !formData.productPrice || !formData.productUrl) {
-      alert('すべての項目を入力してください');
+    if (!formData.productName || !formData.productPrice) {
+      alert('返礼品名（または自治体名）と寄付額は必須です');
       return;
     }
 
@@ -117,7 +120,7 @@ export default function PastRecordsPage() {
           userId: user.uid,
           productName: formData.productName,
           productPrice: Number(formData.productPrice),
-          productUrl: formData.productUrl,
+          productUrl: formData.productUrl || '-',
           year: new Date().getFullYear(),
         }),
       });
@@ -137,6 +140,35 @@ export default function PastRecordsPage() {
       alert(error instanceof Error ? error.message : '寄付の追加に失敗しました');
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleDeleteDonation = async (donationId: string) => {
+    if (!user) return;
+
+    if (!confirm('この寄付履歴を削除してもよろしいですか？')) {
+      return;
+    }
+
+    setDeleting(donationId);
+    try {
+      const response = await fetch(`/api/donations?id=${donationId}&userId=${user.uid}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '寄付履歴の削除に失敗しました');
+      }
+
+      alert('寄付履歴を削除しました');
+      // 寄付履歴を再取得
+      fetchDonations();
+    } catch (error) {
+      console.error('Error deleting donation:', error);
+      alert(error instanceof Error ? error.message : '寄付履歴の削除に失敗しました');
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -197,16 +229,6 @@ export default function PastRecordsPage() {
         {/* 今年の寄付タブ */}
         {activeTab === 'donations' && (
           <>
-            {/* 追加ボタン */}
-            <div className="mb-8 flex justify-end">
-              <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-              >
-                {showAddForm ? 'キャンセル' : '今年の寄付を追加'}
-              </button>
-            </div>
-
             {/* 手動追加フォーム */}
             {showAddForm && (
               <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 mb-8">
@@ -216,14 +238,14 @@ export default function PastRecordsPage() {
                 <form onSubmit={handleAddDonation} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      返礼品名 *
+                      返礼品名または自治体名 *
                     </label>
                     <input
                       type="text"
                       value={formData.productName}
                       onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-100"
-                      placeholder="例: 北海道産 いくら醤油漬け 500g"
+                      placeholder="例: 北海道産 いくら醤油漬け 500g、または 北海道〇〇市"
                       required
                     />
                   </div>
@@ -243,7 +265,7 @@ export default function PastRecordsPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      返礼品URL *
+                      返礼品URL（任意）
                     </label>
                     <input
                       type="url"
@@ -251,8 +273,10 @@ export default function PastRecordsPage() {
                       onChange={(e) => setFormData({ ...formData, productUrl: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-100"
                       placeholder="例: https://example.com/product/123"
-                      required
                     />
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      他サイトで寄付した場合は、そのページのURLを入力できます
+                    </p>
                   </div>
                   <button
                     type="submit"
@@ -288,6 +312,9 @@ export default function PastRecordsPage() {
                         <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                           リンク
                         </th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                          操作
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -303,14 +330,27 @@ export default function PastRecordsPage() {
                             {donation.productPrice.toLocaleString()}円
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
-                            <a
-                              href={donation.productUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:text-blue-600"
+                            {donation.productUrl && donation.productUrl !== '-' ? (
+                              <a
+                                href={donation.productUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:text-blue-600"
+                              >
+                                詳細
+                              </a>
+                            ) : (
+                              <span className="text-slate-400 dark:text-slate-500">-</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                            <button
+                              onClick={() => donation.id && handleDeleteDonation(donation.id)}
+                              disabled={deleting === donation.id || !donation.id}
+                              className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
                             >
-                              詳細
-                            </a>
+                              {deleting === donation.id ? '削除中...' : '削除'}
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -330,6 +370,16 @@ export default function PastRecordsPage() {
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* 追加ボタン */}
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+              >
+                {showAddForm ? 'キャンセル' : '今年の寄付を追加'}
+              </button>
             </div>
 
             {/* 注意事項 */}

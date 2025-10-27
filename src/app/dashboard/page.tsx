@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const hasInitialLoadCompleted = useRef(false);
   const displayedItemCodesRef = useRef<Set<string>>(new Set());
   const isFetchingRef = useRef(false);
+  const hasRedirectedToProfile = useRef(false);
 
   const fetchDonations = async () => {
     if (!user) return;
@@ -246,16 +247,26 @@ export default function DashboardPage() {
   const prevUserUpdatedAtRef = useRef<Date | null>(null);
 
   useEffect(() => {
-    console.log('🟡 useEffect triggered', { loading, hasUser: !!user, recommendationsCount: recommendations.length });
+    console.log('🟡 useEffect triggered', {
+      loading,
+      hasUser: !!user,
+      calculatedLimit: user?.calculatedLimit,
+      recommendationsCount: recommendations.length
+    });
 
     if (!loading && !user) {
       console.log('🟡 No user, showing login modal');
       setShowLoginModal(true);
-    } else if (user && user.calculatedLimit === 0) {
-      console.log('🟡 No calculated limit, redirecting to profile');
-      // 限度額が設定されていない場合はプロフィール設定へ
+    } else if (user && typeof user.calculatedLimit !== 'number' && !hasRedirectedToProfile.current) {
+      console.log('🟡 No calculated limit, redirecting to profile', { calculatedLimit: user.calculatedLimit, type: typeof user.calculatedLimit });
+      // 限度額が計算されていない場合はプロフィール設定へ
+      hasRedirectedToProfile.current = true;
       router.push('/profile');
     } else if (user) {
+      // 限度額が計算されている場合はリダイレクトフラグをリセット
+      if (typeof user.calculatedLimit === 'number') {
+        hasRedirectedToProfile.current = false;
+      }
       console.log('🟡 User found, checking recommendations');
       // プロフィールが更新された場合（updatedAtが変更された場合）、推薦をリセット
       const currentUpdatedAt = user.updatedAt instanceof Date ? user.updatedAt.getTime() :

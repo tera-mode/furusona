@@ -211,7 +211,7 @@ export default function ProfilePage() {
           favorites: user.preferences.favorites || [],
           dislikes: user.preferences.dislikes || [],
         },
-        calculatedLimit: calculatedLimit > 0 ? calculatedLimit : undefined,
+        calculatedLimit: calculatedLimit >= 0 ? calculatedLimit : undefined,
         newsletter: newsletter,
         updatedAt: new Date(),
       });
