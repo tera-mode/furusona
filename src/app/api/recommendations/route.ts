@@ -27,8 +27,10 @@ const recommendationCache = new Map<string, { data: unknown; timestamp: number }
 const CACHE_DURATION = 15 * 60 * 1000; // 15分
 
 function getCacheKey(userId: string, excludeItemCodes: string[], userUpdatedAt?: Date | number): string {
-  const timestamp = userUpdatedAt instanceof Date ? userUpdatedAt.getTime() : userUpdatedAt || 0;
-  return `${userId}_${timestamp}_${excludeItemCodes.sort().join(',')}`;
+  const timestampMs = userUpdatedAt instanceof Date ? userUpdatedAt.getTime() : userUpdatedAt || 0;
+  // ミリ秒を秒に変換して丸める（微小な時間差を吸収）
+  const timestampSec = Math.floor(timestampMs / 1000);
+  return `${userId}_${timestampSec}_${excludeItemCodes.sort().join(',')}`;
 }
 
 function getFromCache(key: string) {
@@ -89,6 +91,10 @@ export async function POST(request: NextRequest) {
       createdAt: userData.createdAt?.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt),
       updatedAt: userData.updatedAt?.toDate ? userData.updatedAt.toDate() : new Date(userData.updatedAt),
     } as User;
+
+    // デバッグ：Firestoreから取得したカテゴリを確認
+    console.log('📊 User categories from Firestore:', user.preferences.categories);
+    console.log('📊 User updatedAt:', user.updatedAt);
 
     // キャッシュをチェック（ユーザー情報取得後、updatedAtを含めて）
     const cacheKey = getCacheKey(userId, excludeItemCodes, user.updatedAt);

@@ -280,7 +280,7 @@ export default function HomePage() {
                 機能 1
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                <span className="text-2xl sm:text-3xl mr-2">🧑‍💼</span>
+                <span className="text-2xl sm:text-3xl mr-2">👌</span>
                 AIおすすめ診断
               </h3>
               <h4 className="text-lg sm:text-xl font-bold text-primary-600 dark:text-primary-400 mb-3">

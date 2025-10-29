@@ -96,10 +96,6 @@ export default function MyPage() {
                 <span className="text-sm text-slate-600 dark:text-slate-400 w-24">メールアドレス</span>
                 <span className="text-sm text-slate-900 dark:text-slate-100">{user?.email}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-slate-600 dark:text-slate-400 w-24">ユーザーID</span>
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">{user?.uid}</span>
-              </div>
             </div>
           </div>
 
@@ -130,9 +126,6 @@ export default function MyPage() {
 
           {/* 利用規約・プライバシーポリシー */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-primary-100 dark:border-primary-800">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              法的文書
-            </h3>
             <div className="space-y-2">
               <a
                 href="https://www.laiv.jp/terms"
@@ -154,6 +147,18 @@ export default function MyPage() {
               >
                 <span>🔒</span>
                 <span>プライバシーポリシー</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+              <a
+                href="https://www.laiv.jp/contact/service"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 transition-colors"
+              >
+                <span>💬</span>
+                <span>お問い合わせ</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>

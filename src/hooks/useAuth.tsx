@@ -131,7 +131,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUserData = async (data: Partial<User>) => {
-    if (!user) return;
+    if (!user) {
+      console.error('❌ updateUserData: No user logged in');
+      return;
+    }
+
+    console.log('🔄 updateUserData called with data:', JSON.stringify(data, null, 2));
 
     try {
       const userRef = doc(db, 'users', user.uid);
@@ -139,14 +144,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // undefinedフィールドを再帰的に除去
       const cleanData = removeUndefinedFields(data);
 
-      await updateDoc(userRef, {
+      console.log('🧹 Clean data after removing undefined:', JSON.stringify(cleanData, null, 2));
+
+      // setDocをmerge: trueで使用して、確実に更新する
+      console.log('📝 Writing to Firestore...');
+      await setDoc(userRef, {
         ...cleanData,
         updatedAt: serverTimestamp()
-      });
+      }, { merge: true });
+      console.log('✅ Firestore write completed');
+
+      // 書き込みが完全にコミットされるまで少し待機
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       setUser(prev => prev ? { ...prev, ...data, updatedAt: new Date() } : null);
+      console.log('✅ Local user state updated');
     } catch (error) {
-      console.error('Error updating user data:', error);
+      console.error('❌ Error updating user data:', error);
+      if (error instanceof Error) {
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error stack:', error.stack);
+      }
       throw error;
     }
   };
@@ -177,7 +195,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshUserData = async () => {
-    if (!user) return;
+    if (!user) {
+      console.error('❌ refreshUserData: No user logged in');
+      return;
+    }
+
+    console.log('🔄 Refreshing user data from Firestore...');
 
     try {
       const userRef = doc(db, 'users', user.uid);
@@ -185,15 +208,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        console.log('✅ Fresh data from Firestore:', JSON.stringify(userData, null, 2));
+        console.log('📂 Fresh categories:', userData.preferences?.categories);
+
         setUser(prev => prev ? {
           ...prev,
           ...userData,
           createdAt: userData.createdAt?.toDate?.() || new Date(),
           updatedAt: userData.updatedAt?.toDate?.() || new Date()
         } as User : null);
+        console.log('✅ Local user state refreshed');
+      } else {
+        console.error('❌ User document does not exist');
       }
     } catch (error) {
-      console.error('Error refreshing user data:', error);
+      console.error('❌ Error refreshing user data:', error);
     }
   };
 

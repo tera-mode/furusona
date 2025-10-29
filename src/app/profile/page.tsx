@@ -9,7 +9,7 @@ import Onboarding, { OnboardingData } from '@/components/Onboarding';
 import { CATEGORIES } from '@/lib/categoryMapping';
 
 export default function ProfilePage() {
-  const { user, loading, updateUserData } = useAuth();
+  const { user, loading, updateUserData, refreshUserData } = useAuth();
   const router = useRouter();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -140,8 +140,10 @@ export default function ProfilePage() {
         },
         calculatedLimit: data.calculatedLimit,
         newsletter: data.newsletter,
-        updatedAt: new Date(),
       });
+
+      // Firestoreから最新のupdatedAtを取得
+      await refreshUserData();
 
       router.push('/dashboard');
     } catch (error) {
@@ -199,7 +201,7 @@ export default function ProfilePage() {
         familyStructureData.dependents = Number(dependents);
       }
 
-      await updateUserData({
+      const updateData = {
         familyStructure: familyStructureData,
         income: incomeData,
         preferences: {
@@ -213,8 +215,15 @@ export default function ProfilePage() {
         },
         calculatedLimit: calculatedLimit >= 0 ? calculatedLimit : undefined,
         newsletter: newsletter,
-        updatedAt: new Date(),
-      });
+      };
+
+      console.log('💾 Saving profile with categories:', categories);
+      console.log('💾 Full update data:', JSON.stringify(updateData, null, 2));
+
+      await updateUserData(updateData);
+
+      // Firestoreから最新のupdatedAtを取得
+      await refreshUserData();
 
       alert('プロファイルを保存しました');
       router.push('/dashboard');
