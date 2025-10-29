@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import LoginModal from '@/components/auth/LoginModal';
 import Header from '@/components/Header';
 import Onboarding, { OnboardingData } from '@/components/Onboarding';
-import { CATEGORIES } from '@/lib/categoryMapping';
+import { CATEGORIES, migrateLegacyCategory } from '@/lib/categoryMapping';
 
 export default function ProfilePage() {
   const { user, loading, updateUserData, refreshUserData } = useAuth();
@@ -47,7 +47,35 @@ export default function ProfilePage() {
         setDependents(user.familyStructure.dependents?.toString() || '');
         setSocialInsurance(user.income.socialInsurance?.toString() || '');
         setMortgageDeduction(user.income.mortgageDeduction?.toString() || '');
-        setCategories(user.preferences.categories || []);
+
+        // 旧カテゴリを新カテゴリIDに変換
+        const migratedCategories = (user.preferences.categories || [])
+          .map(cat => migrateLegacyCategory(cat))
+          .filter((cat, index, self) => self.indexOf(cat) === index); // 重複削除
+
+        console.log('📂 Original categories:', user.preferences.categories);
+        console.log('📂 Migrated categories:', migratedCategories);
+
+        setCategories(migratedCategories);
+
+        // 旧カテゴリが含まれている場合、自動的にFirestoreをクリーンアップ
+        const hasLegacyCategories = user.preferences.categories.some(cat =>
+          cat !== migrateLegacyCategory(cat)
+        );
+
+        if (hasLegacyCategories) {
+          console.log('🧹 Cleaning up legacy categories in Firestore...');
+          updateUserData({
+            preferences: {
+              ...user.preferences,
+              categories: migratedCategories,
+            },
+          }).then(() => {
+            console.log('✅ Legacy categories cleaned up');
+          }).catch(err => {
+            console.error('❌ Failed to clean up legacy categories:', err);
+          });
+        }
         setAllergies(user.preferences.allergies?.join(', ') || '');
         setFavoriteRegions(user.preferences.favoriteRegions?.join(', ') || '');
         setCustomRequest(user.preferences.customRequest || '');
