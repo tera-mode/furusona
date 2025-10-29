@@ -203,7 +203,7 @@ export default function HomePage() {
             ふるさと納税を診断
           </h1>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-            限度額シミュレーションから返礼品の選び方、確定申告まで。<br />
+            限度額シミュレーションから返礼品の選び方まで。<br />
             楽天ふるさと納税の中から、あなたにぴったりの返礼品をAIが診断します
           </p>
           <button
@@ -224,9 +224,6 @@ export default function HomePage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 dark:text-slate-100 mb-4">
             こんなお悩み、ありませんか？
           </h2>
-          <p className="text-sm sm:text-base text-center text-slate-600 dark:text-slate-400 mb-8 sm:mb-12">
-            実際、ふるさと納税利用者の約30%～50%が12月に駆け込みで利用しています
-          </p>
           <div className="space-y-4">
             {/* 課題1 */}
             <div className="bg-white dark:bg-slate-700 rounded-xl p-6 shadow-sm">
@@ -307,7 +304,7 @@ export default function HomePage() {
                 残りいくら使えるか一目瞭然
               </h4>
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                年収と家族構成を入力するだけで、限度額を自動シミュレーション。今年いくら寄付していて、残りいくら使えるのかをリアルタイムで把握。確定申告やワンストップ特例の手続きも簡単です。
+                年収と家族構成を入力するだけで、限度額を自動シミュレーション。今年いくら寄付していて、残りいくら使えるのかをリアルタイムで把握。
               </p>
             </div>
 
@@ -324,7 +321,7 @@ export default function HomePage() {
                 もう買い逃しなし
               </h4>
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                旬の食材が出る時期に、メールでお知らせ。さくらんぼは6月、シャインマスカットは9月など、最高のタイミングで返礼品を選べます。
+                旬の食材が出る時期に、メールでお知らせ。ズワイガニは12月、シャインマスカットは9月など、最高のタイミングで返礼品を選べます。
               </p>
             </div>
           </div>
@@ -422,7 +419,7 @@ export default function HomePage() {
                 <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                はい、完全無料でご利用いただけます。クレジットカードの登録も不要です。
+                はい、完全無料でご利用いただけます。
               </p>
             </details>
 
@@ -466,7 +463,7 @@ export default function HomePage() {
                 <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                人気の返礼品は、牛肉（黒毛和牛・宮崎牛など）、海鮮（カニ・いくら・海鮮セット）、お米、日用品（トイレットペーパー・ティッシュ）などです。AIが あなたの家族構成や好みに合わせて最適な返礼品を診断します。
+                人気の返礼品は、牛肉（黒毛和牛・宮崎牛など）、海鮮（カニ・いくら・海鮮セット）、お米、日用品（トイレットペーパー・ティッシュ）などです。AIが 好みに合わせて最適な返礼品を診断します。
               </p>
             </details>
           </div>
