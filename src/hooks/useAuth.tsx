@@ -146,12 +146,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log('🧹 Clean data after removing undefined:', JSON.stringify(cleanData, null, 2));
 
-      // setDocをmerge: trueで使用して、確実に更新する
+      // updateDocを使用してフィールドパスで指定（配列の完全置き換えを保証）
       console.log('📝 Writing to Firestore...');
-      await setDoc(userRef, {
-        ...cleanData,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+
+      // cleanDataをフラット化してFirestoreのフィールドパスに変換
+      const updateFields: Record<string, unknown> = {};
+
+      // トップレベルフィールド
+      if (cleanData.familyStructure !== undefined) {
+        updateFields.familyStructure = cleanData.familyStructure;
+      }
+      if (cleanData.income !== undefined) {
+        updateFields.income = cleanData.income;
+      }
+      if (cleanData.preferences !== undefined) {
+        updateFields.preferences = cleanData.preferences;
+      }
+      if (cleanData.calculatedLimit !== undefined) {
+        updateFields.calculatedLimit = cleanData.calculatedLimit;
+      }
+      if (cleanData.newsletter !== undefined) {
+        updateFields.newsletter = cleanData.newsletter;
+      }
+
+      updateFields.updatedAt = serverTimestamp();
+
+      await updateDoc(userRef, updateFields);
       console.log('✅ Firestore write completed');
 
       // 書き込みが完全にコミットされるまで少し待機
