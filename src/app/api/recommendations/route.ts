@@ -92,8 +92,9 @@ export async function POST(request: NextRequest) {
       updatedAt: userData.updatedAt?.toDate ? userData.updatedAt.toDate() : new Date(userData.updatedAt),
     } as User;
 
-    // デバッグ：Firestoreから取得したカテゴリを確認
+    // デバッグ：Firestoreから取得したカテゴリとカスタムリクエストを確認
     console.log('📊 User categories from Firestore:', user.preferences.categories);
+    console.log('📊 User customRequest:', user.preferences.customRequest);
     console.log('📊 User updatedAt:', user.updatedAt);
 
     // キャッシュをチェック（ユーザー情報取得後、updatedAtを含めて）
@@ -133,21 +134,61 @@ export async function POST(request: NextRequest) {
     // ユーザーカテゴリをシャッフル（多様性のため）
     const shuffledCategories = [...categories].sort(() => Math.random() - 0.5);
 
-    // 最大10カテゴリから取得（30件 × 10 = 最大300件）
-    // ProductCacheServiceを使用してキャッシュ優先で取得
-    for (const categoryId of shuffledCategories.slice(0, 10)) {
+    // カスタムリクエストがある場合、追加の検索キーワードとして利用
+    const customRequest = user.preferences.customRequest?.trim();
+    const searchTargets: Array<{ type: 'category' | 'custom', id: string, keyword: string }> = [];
+
+    // カテゴリベースの検索ターゲット
+    // 各カテゴリから複数キーワードを使用して多様性を確保（特にうなぎ・惣菜など複合カテゴリ対策）
+    let targetSlots = 10; // 最大検索ターゲット数
+
+    for (const categoryId of shuffledCategories) {
+      if (targetSlots <= 0) break;
+
+      const categoryInfo = getCategoryById(categoryId);
+      if (!categoryInfo) continue;
+
+      // キーワードが複数ある場合、ランダムに1-2個選択して多様性を確保
+      const keywords = categoryInfo.rakutenKeywords || [categoryInfo.displayName || categoryId];
+
+      // 複合カテゴリ（キーワードが3個以上）の場合は2つのキーワードを使用
+      const keywordsToUse = keywords.length >= 3
+        ? [...keywords].sort(() => Math.random() - 0.5).slice(0, 2)
+        : [keywords[0]];
+
+      for (const keyword of keywordsToUse) {
+        if (targetSlots <= 0) break;
+        searchTargets.push({ type: 'category', id: categoryId, keyword });
+        targetSlots--;
+      }
+    }
+
+    // カスタムリクエストがある場合、1つの検索ターゲットとして追加
+    if (customRequest && customRequest.length > 0 && targetSlots > 0) {
+      searchTargets.push({ type: 'custom', id: 'customRequest', keyword: customRequest });
+      console.log(`🎯 Custom request detected: "${customRequest}"`);
+      targetSlots--;
+    }
+
+    // 検索ターゲットのサマリーをログ出力
+    console.log('📋 Search targets summary:');
+    const targetSummary = searchTargets.reduce((acc, t) => {
+      if (!acc[t.id]) acc[t.id] = [];
+      acc[t.id].push(t.keyword);
+      return acc;
+    }, {} as Record<string, string[]>);
+    Object.entries(targetSummary).forEach(([id, keywords]) => {
+      console.log(`  - ${id}: [${keywords.join(', ')}]`);
+    });
+
+    // 検索ターゲットから商品を取得
+    // 複数キーワードを使う場合は件数を調整（多様性を保つため）
+    for (const target of searchTargets) {
       try {
-        // カテゴリ情報を取得
-        const categoryInfo = getCategoryById(categoryId);
-
-        // カテゴリのキーワードリストから最初のキーワードを使用
-        // より具体的な検索のため
-        const searchKeyword = categoryInfo?.rakutenKeywords?.[0] || categoryInfo?.displayName || categoryId;
-
-        console.log(`Fetching products for category: ${categoryId}, keyword: ${searchKeyword}`);
+        console.log(`Fetching products for ${target.type}: ${target.id}, keyword: ${target.keyword}`);
 
         const fetchedProducts = await ProductCacheService.getProducts(
-          searchKeyword,
+          target.keyword,
           APPLICATION_ID,
           AFFILIATE_ID,
           maxPrice >= 100 ? maxPrice : undefined,
@@ -155,7 +196,7 @@ export async function POST(request: NextRequest) {
         );
 
         if (fetchedProducts.length > 0) {
-          console.log(`Retrieved ${fetchedProducts.length} products for ${searchKeyword}`);
+          console.log(`Retrieved ${fetchedProducts.length} products for ${target.keyword}`);
           // 重複を避けるため、itemCodeでフィルタリング
           const existingItemCodes = new Set(products.map(p => p.itemCode));
           const newProducts = fetchedProducts.filter(
@@ -163,11 +204,11 @@ export async function POST(request: NextRequest) {
           );
           products = [...products, ...newProducts];
         } else {
-          console.log(`No products found for ${searchKeyword}`);
+          console.log(`No products found for ${target.keyword}`);
         }
       } catch (error) {
-        console.error(`Error fetching products for category ${categoryId}:`, error);
-        // エラーが発生しても次のカテゴリを試す
+        console.error(`Error fetching products for ${target.type} ${target.id}:`, error);
+        // エラーが発生しても次のターゲットを試す
         continue;
       }
     }
@@ -188,6 +229,28 @@ export async function POST(request: NextRequest) {
         { error: '返礼品が見つかりませんでした' },
         { status: 404 }
       );
+    }
+
+    // 検索キーワードごとに商品を分類（カテゴリバランスのため）
+    const productsByKeyword = new Map<string, RakutenProduct[]>();
+
+    for (const target of searchTargets) {
+      const keywordProducts: RakutenProduct[] = [];
+
+      for (const product of products) {
+        const productNameLower = product.itemName.toLowerCase();
+        const keywordLower = target.keyword.toLowerCase();
+
+        // キーワードが商品名に含まれる、または同じターゲットから取得された商品
+        if (productNameLower.includes(keywordLower) ||
+            productNameLower.includes(target.keyword)) {
+          keywordProducts.push(product);
+        }
+      }
+
+      if (keywordProducts.length > 0) {
+        productsByKeyword.set(target.keyword, keywordProducts);
+      }
     }
 
     // サーバー側で事前フィルタリング・スコアリング（コスト削減のため）
@@ -214,7 +277,20 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // 4. アレルギー除外 (該当なら0点)
+      // 4. カスタムリクエスト合致度 (0-15点)
+      if (customRequest && customRequest.length > 0) {
+        // カスタムリクエストを単語に分割してマッチング
+        const customKeywords = customRequest.toLowerCase().split(/[\s　,、]+/).filter(k => k.length > 0);
+        for (const keyword of customKeywords) {
+          if (productNameLower.includes(keyword)) {
+            score += 15;
+            console.log(`🎯 Custom keyword match: "${keyword}" in "${p.itemName}"`);
+            break;
+          }
+        }
+      }
+
+      // 5. アレルギー除外 (該当なら0点)
       if (user.preferences.allergies && user.preferences.allergies.length > 0) {
         for (const allergen of user.preferences.allergies) {
           if (productNameLower.includes(allergen.toLowerCase())) {
@@ -227,24 +303,64 @@ export async function POST(request: NextRequest) {
       return { ...p, preScore: score };
     });
 
-    // スコア順にソートして上位20件のみをGemini APIに送信（プロンプト短縮）
-    const topProducts = scoredProducts
-      .filter(p => p.preScore > 0)
-      .sort((a, b) => b.preScore - a.preScore)
-      .slice(0, 20);
+    // カテゴリバランスを保ちながら上位20件を選択
+    // 各検索キーワードから均等に選ぶ（うなぎだらけを防ぐ）
+    const topProducts: (RakutenProduct & { preScore: number })[] = [];
+    const productsPerKeyword = Math.max(1, Math.floor(20 / searchTargets.length));
 
-    if (topProducts.length === 0) {
+    console.log(`🎯 Selecting ${productsPerKeyword} products per keyword for balance`);
+
+    // 各キーワードから上位商品を選択
+    for (const target of searchTargets) {
+      const keywordProducts = productsByKeyword.get(target.keyword) || [];
+
+      // そのキーワードに関連する商品をスコア順にソート
+      const scoredKeywordProducts = keywordProducts
+        .map(p => scoredProducts.find(sp => sp.itemCode === p.itemCode))
+        .filter((p): p is RakutenProduct & { preScore: number } => p !== undefined && p.preScore > 0)
+        .sort((a, b) => b.preScore - a.preScore);
+
+      // 上位N件を追加
+      const selectedFromKeyword = scoredKeywordProducts.slice(0, productsPerKeyword);
+      topProducts.push(...selectedFromKeyword);
+
+      console.log(`  - ${target.keyword}: ${selectedFromKeyword.length} products selected (from ${scoredKeywordProducts.length} available)`);
+    }
+
+    // まだ20件に満たない場合、残りをスコア順で補充
+    if (topProducts.length < 20) {
+      const alreadySelected = new Set(topProducts.map(p => p.itemCode));
+      const remaining = scoredProducts
+        .filter(p => p.preScore > 0 && !alreadySelected.has(p.itemCode))
+        .sort((a, b) => b.preScore - a.preScore)
+        .slice(0, 20 - topProducts.length);
+
+      topProducts.push(...remaining);
+      console.log(`  + Added ${remaining.length} additional products to reach 20`);
+    }
+
+    // 20件を超えている場合は上位20件に絞る
+    const finalTopProducts = topProducts.slice(0, 20);
+
+    if (finalTopProducts.length === 0) {
       return NextResponse.json(
         { error: '条件に合う返礼品が見つかりませんでした' },
         { status: 404 }
       );
     }
 
+    console.log(`✅ Final selection: ${finalTopProducts.length} products with category balance`);
+
     // 3. Gemini APIに商品リストを渡して推薦を取得
     // 超短縮プロンプト
-    const productList = topProducts.map((p) =>
+    const productList = finalTopProducts.map((p) =>
       `ID:${String(p.itemCode)}|${p.itemName.slice(0, 30)}|¥${p.itemPrice}`
     ).join('\n');
+
+    // カスタムリクエストをプロンプトに含める
+    const customRequestPrompt = customRequest && customRequest.length > 0
+      ? `\n特別リクエスト:「${customRequest}」に合う商品を優先`
+      : '';
 
     const prompt = `以下の商品から9つ選びJSON形式のみで回答。説明文不要。
 
@@ -252,14 +368,17 @@ export async function POST(request: NextRequest) {
 ${productList}
 
 家族:${user.familyStructure.married?'既婚':'独身'},扶養${user.familyStructure.dependents}人
-好み:${categories.join(',')}
+好み:${categories.join(',')}${customRequestPrompt}
 
 itemCodeはID:の後の完全な文字列を使用。
 {"recommendations":[{"itemCode":"f132039-musashino:10000198","reason":"理由25字","score":85},...]}`;
 
     console.log('=== Prompt Info ===');
     console.log(`Prompt length: ${prompt.length} characters`);
-    console.log(`Products filtered: ${products.length} -> ${topProducts.length}`);
+    console.log(`Products filtered: ${products.length} -> ${finalTopProducts.length}`);
+    if (customRequest) {
+      console.log(`Custom request: "${customRequest}"`);
+    }
     console.log('===================');
 
     // Gemini APIを呼び出し（リトライ機能付き）
@@ -330,7 +449,7 @@ itemCodeはID:の後の完全な文字列を使用。
     console.log(`Input cost: $${inputCost.toFixed(6)}`);
     console.log(`Output cost: $${outputCost.toFixed(6)}`);
     console.log(`Total cost: $${totalCost.toFixed(6)}`);
-    console.log(`Products sent to Gemini: ${topProducts.length}`);
+    console.log(`Products sent to Gemini: ${finalTopProducts.length}`);
     console.log('========================');
 
     // Geminiのレスポンスをデバッグ
@@ -362,6 +481,12 @@ itemCodeはID:の後の完全な文字列を使用。
       }
     }
 
+    // JSONクリーンアップ（Geminiが生成する不正なパターンを修正）
+    // パターン1: "score":785","score": のような重複したscoreフィールドを修正
+    jsonText = jsonText.replace(/"score":\s*\d+"\s*,\s*"score":\s*(\d+)/g, '"score":$1');
+    // パターン2: 数値の後の余分な引用符を削除 ("score":785" -> "score":785)
+    jsonText = jsonText.replace(/"score":\s*(\d+)"/g, '"score":$1');
+
     // JSONをパース
     let apiResponse;
     try {
@@ -369,7 +494,16 @@ itemCodeはID:の後の完全な文字列を使用。
     } catch (parseError) {
       console.error('JSON Parse Error:', parseError);
       console.error('Attempted to parse:', jsonText);
-      throw new Error('Gemini APIからの応答の解析に失敗しました');
+
+      // 最後の試行: より寛容なクリーンアップ
+      try {
+        // 全ての重複フィールドを削除する試み
+        const cleanedJson = jsonText.replace(/("[^"]+"\s*:\s*[^,}]+)\s*,\s*("\1)/g, '$1');
+        apiResponse = JSON.parse(cleanedJson.trim());
+        console.log('✅ JSON parsed after additional cleanup');
+      } catch (secondError) {
+        throw new Error('Gemini APIからの応答の解析に失敗しました');
+      }
     }
 
     if (!apiResponse.recommendations || !Array.isArray(apiResponse.recommendations)) {
@@ -382,14 +516,14 @@ itemCodeはID:の後の完全な文字列を使用。
     // 4. 商品コードでマッチングして完全な情報を返す
     console.log('=== Product Matching ===');
     console.log(`Total recommendations from Gemini: ${recommendations.length}`);
-    console.log(`Available products: ${topProducts.length}`);
+    console.log(`Available products: ${finalTopProducts.length}`);
 
     const enrichedRecommendations = recommendations.map(rec => {
       // 型を統一して比較（両方とも文字列に変換）
-      const product = topProducts.find(p => String(p.itemCode) === String(rec.itemCode));
+      const product = finalTopProducts.find(p => String(p.itemCode) === String(rec.itemCode));
       if (!product) {
         console.log(`⚠️ Product not found for itemCode: ${rec.itemCode}`);
-        console.log(`Available itemCodes sample:`, topProducts.slice(0, 5).map(p => String(p.itemCode)));
+        console.log(`Available itemCodes sample:`, finalTopProducts.slice(0, 5).map(p => String(p.itemCode)));
       }
       return {
         ...rec,
