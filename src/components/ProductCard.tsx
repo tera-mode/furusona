@@ -26,6 +26,8 @@ export default function ProductCard({
   const [adding, setAdding] = useState(false);
   const [favoriting, setFavoriting] = useState(false);
   const [disliking, setDisliking] = useState(false);
+  const [showDonationModal, setShowDonationModal] = useState(false);
+  const [donationDate, setDonationDate] = useState(new Date().toISOString().split('T')[0]);
 
   if (!product) {
     return null;
@@ -77,16 +79,15 @@ export default function ProductCard({
     }
   };
 
-  const handleAddDonation = async () => {
+  const handleOpenDonationModal = () => {
     if (!userId) {
       alert('ログインが必要です');
       return;
     }
+    setShowDonationModal(true);
+  };
 
-    if (!confirm(`「${product.itemName}」を寄付履歴に追加しますか？`)) {
-      return;
-    }
-
+  const handleAddDonation = async () => {
     setAdding(true);
     try {
       const response = await fetch('/api/donations', {
@@ -98,6 +99,7 @@ export default function ProductCard({
           productPrice: product.itemPrice,
           productUrl: product.affiliateUrl || product.itemUrl,
           itemCode: product.itemCode,
+          donatedAt: donationDate, // 選択した寄付日を送信
         }),
       });
 
@@ -106,7 +108,10 @@ export default function ProductCard({
         throw new Error(errorData.error || '寄付履歴の追加に失敗しました');
       }
 
-      alert('寄付履歴に追加しました');
+      const donationYear = new Date(donationDate).getFullYear();
+      alert(`${donationYear}年の寄付として追加しました`);
+      setShowDonationModal(false);
+      setDonationDate(new Date().toISOString().split('T')[0]); // リセット
       if (onDonationAdded) {
         onDonationAdded();
       }
@@ -246,15 +251,82 @@ export default function ProductCard({
           </a>
           {userId && (
             <button
-              onClick={handleAddDonation}
+              onClick={handleOpenDonationModal}
               disabled={adding}
               className="w-full bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
             >
-              {adding ? '追加中...' : '購入済みに変更'}
+              購入済みに変更
             </button>
           )}
         </div>
       </div>
+
+      {/* 寄付追加モーダル */}
+      {showDonationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+              寄付履歴に追加
+            </h3>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  返礼品名
+                </label>
+                <div className="text-slate-900 dark:text-slate-100 text-sm bg-slate-50 dark:bg-slate-700 p-3 rounded-lg">
+                  {product.itemName}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  金額
+                </label>
+                <div className="text-slate-900 dark:text-slate-100 font-semibold bg-slate-50 dark:bg-slate-700 p-3 rounded-lg">
+                  ¥{product.itemPrice.toLocaleString()}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  寄付日 *
+                </label>
+                <input
+                  type="date"
+                  value={donationDate}
+                  onChange={(e) => setDonationDate(e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-100"
+                  required
+                />
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  実際に寄付を行った日付を選択してください
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDonationModal(false);
+                  setDonationDate(new Date().toISOString().split('T')[0]);
+                }}
+                disabled={adding}
+                className="flex-1 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleAddDonation}
+                disabled={adding}
+                className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {adding ? '追加中...' : '追加する'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
