@@ -23,6 +23,9 @@ export interface User {
     dislikes?: string[]; // 興味なしリスト (itemCode)
   };
   calculatedLimit?: number;
+  limitHistory?: { // 年度別限度額履歴
+    [year: string]: number; // { "2025": 150000, "2024": 120000 }
+  };
   newsletter?: boolean; // メルマガ購読
   createdAt: Date;
   updatedAt: Date;
@@ -35,8 +38,10 @@ export interface Donation {
   productName: string;
   productPrice: number;
   productUrl: string;
-  donatedAt: Date;
-  year: number;
+  itemCode?: string;     // 商品コード（任意）
+  donatedAt: Date;       // 実際の寄付日（ユーザー指定可能）
+  createdAt: Date;       // 記録作成日（システム自動）
+  year: number;          // 寄付年度（donatedAtから自動計算）
 }
 
 // Viewed Product History

@@ -17,17 +17,27 @@ export default function PastRecordsPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('donations');
 
+  // 年度選択
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
+  const [availableYears, setAvailableYears] = useState<number[]>([currentYear]);
+
   // 寄付履歴関連
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loadingDonations, setLoadingDonations] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [adding, setAdding] = useState(false);
 
-  // 手動追加フォームの状態
+  // 編集関連
+  const [editingDonation, setEditingDonation] = useState<Donation | null>(null);
+  const [editing, setEditing] = useState(false);
+
+  // 手動追加・編集フォームの状態
   const [formData, setFormData] = useState({
     productName: '',
     productPrice: '',
     productUrl: '',
+    donatedAt: new Date().toISOString().split('T')[0], // YYYY-MM-DD形式
   });
 
   // 閲覧履歴関連
@@ -42,25 +52,56 @@ export default function PastRecordsPage() {
       setShowLoginModal(true);
     } else if (user) {
       if (activeTab === 'donations') {
+        fetchAvailableYears();
         fetchDonations();
       } else if (activeTab === 'viewed') {
         fetchViewedProducts();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loading, activeTab]);
+  }, [user, loading, activeTab, selectedYear]);
+
+  const fetchAvailableYears = async () => {
+    if (!user) return;
+
+    try {
+      const donationsRef = collection(db, 'donations');
+      const q = query(
+        donationsRef,
+        where('userId', '==', user.uid)
+      );
+
+      const querySnapshot = await getDocs(q);
+      const years = new Set<number>();
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.year) {
+          years.add(data.year);
+        }
+      });
+
+      // 現在の年も含める
+      years.add(currentYear);
+
+      // 降順にソート
+      const sortedYears = Array.from(years).sort((a, b) => b - a);
+      setAvailableYears(sortedYears);
+    } catch (error) {
+      console.error('Error fetching available years:', error);
+    }
+  };
 
   const fetchDonations = async () => {
     if (!user) return;
 
     setLoadingDonations(true);
     try {
-      const currentYear = new Date().getFullYear();
       const donationsRef = collection(db, 'donations');
       const q = query(
         donationsRef,
         where('userId', '==', user.uid),
-        where('year', '==', currentYear),
+        where('year', '==', selectedYear),
         orderBy('donatedAt', 'desc')
       );
 
@@ -68,10 +109,12 @@ export default function PastRecordsPage() {
       const donationsList: Donation[] = [];
 
       querySnapshot.forEach((doc) => {
+        const data = doc.data();
         donationsList.push({
           id: doc.id,
-          ...doc.data(),
-          donatedAt: doc.data().donatedAt.toDate(),
+          ...data,
+          donatedAt: data.donatedAt.toDate(),
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.donatedAt.toDate(),
         } as Donation);
       });
 
@@ -121,7 +164,7 @@ export default function PastRecordsPage() {
           productName: formData.productName,
           productPrice: Number(formData.productPrice),
           productUrl: formData.productUrl || '-',
-          year: new Date().getFullYear(),
+          donatedAt: formData.donatedAt, // 寄付日を送信
         }),
       });
 
@@ -130,16 +173,73 @@ export default function PastRecordsPage() {
         throw new Error(errorData.error || '寄付の追加に失敗しました');
       }
 
-      alert('今年の寄付として追加しました');
-      setFormData({ productName: '', productPrice: '', productUrl: '' });
+      const donationYear = new Date(formData.donatedAt).getFullYear();
+      alert(`${donationYear}年の寄付として追加しました`);
+      setFormData({
+        productName: '',
+        productPrice: '',
+        productUrl: '',
+        donatedAt: new Date().toISOString().split('T')[0],
+      });
       setShowAddForm(false);
-      // 寄付履歴を再取得
+      // 年度リストを更新して、寄付履歴を再取得
+      fetchAvailableYears();
       fetchDonations();
     } catch (error) {
       console.error('Error adding donation:', error);
       alert(error instanceof Error ? error.message : '寄付の追加に失敗しました');
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleEditDonation = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!user || !editingDonation) return;
+
+    if (!formData.productName || !formData.productPrice) {
+      alert('返礼品名（または自治体名）と寄付額は必須です');
+      return;
+    }
+
+    setEditing(true);
+    try {
+      const response = await fetch('/api/donations', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingDonation.id,
+          userId: user.uid,
+          productName: formData.productName,
+          productPrice: Number(formData.productPrice),
+          productUrl: formData.productUrl || '-',
+          itemCode: editingDonation.itemCode,
+          donatedAt: formData.donatedAt, // 寄付日を送信
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '寄付の更新に失敗しました');
+      }
+
+      alert('寄付履歴を更新しました');
+      setEditingDonation(null);
+      setFormData({
+        productName: '',
+        productPrice: '',
+        productUrl: '',
+        donatedAt: new Date().toISOString().split('T')[0],
+      });
+      // 年度リストを更新して、寄付履歴を再取得
+      fetchAvailableYears();
+      fetchDonations();
+    } catch (error) {
+      console.error('Error editing donation:', error);
+      alert(error instanceof Error ? error.message : '寄付の更新に失敗しました');
+    } finally {
+      setEditing(false);
     }
   };
 
@@ -278,12 +378,27 @@ export default function PastRecordsPage() {
                       他サイトで寄付した場合は、そのページのURLを入力できます
                     </p>
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      寄付日 *
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.donatedAt}
+                      onChange={(e) => setFormData({ ...formData, donatedAt: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-100"
+                      required
+                    />
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      実際に寄付を行った日付を選択してください
+                    </p>
+                  </div>
                   <button
                     type="submit"
                     disabled={adding}
                     className="w-full bg-success-500 hover:bg-success-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {adding ? '追加中...' : '今年の寄付として追加'}
+                    {adding ? '追加中...' : '寄付を追加'}
                   </button>
                 </form>
               </div>

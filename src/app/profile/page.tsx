@@ -7,6 +7,7 @@ import LoginModal from '@/components/auth/LoginModal';
 import Header from '@/components/Header';
 import Onboarding, { OnboardingData } from '@/components/Onboarding';
 import { CATEGORIES, migrateLegacyCategory } from '@/lib/categoryMapping';
+import { User } from '@/types';
 
 export default function ProfilePage() {
   const { user, loading, updateUserData, refreshUserData } = useAuth();
@@ -245,10 +246,23 @@ export default function ProfilePage() {
         newsletter: newsletter,
       };
 
-      console.log('💾 Saving profile with categories:', categories);
-      console.log('💾 Full update data:', JSON.stringify(updateData, null, 2));
+      // 限度額履歴を更新（今年の限度額を記録）
+      const updateDataWithHistory: Partial<User> = {
+        ...updateData,
+      };
 
-      await updateUserData(updateData);
+      if (calculatedLimit >= 0) {
+        const currentYear = new Date().getFullYear();
+        updateDataWithHistory.limitHistory = {
+          ...user.limitHistory,
+          [currentYear]: calculatedLimit,
+        };
+      }
+
+      console.log('💾 Saving profile with categories:', categories);
+      console.log('💾 Full update data:', JSON.stringify(updateDataWithHistory, null, 2));
+
+      await updateUserData(updateDataWithHistory);
 
       // Firestoreから最新のupdatedAtを取得
       await refreshUserData();
