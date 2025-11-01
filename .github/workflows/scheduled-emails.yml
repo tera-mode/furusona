@@ -2,69 +2,22 @@ name: Scheduled Email Delivery
 
 on:
   schedule:
-    # 季節のおすすめ: 毎月1日 9:00 (JST)
-    - cron: '0 0 1 * *'
-
-    # 限度額通知: 6月1日、9月1日、11月1日 9:00 (JST)
-    # ※ GitHub Actions cronはUTCなので、JSTの9:00は前日の24:00 (UTC)
-    - cron: '0 0 1 6,9,11 *'
-
-    # 年末駆け込み: 11月15日、12月1日、12月15日 9:00 (JST)
-    - cron: '0 0 15 11 *'
-    - cron: '0 0 1,15 12 *'
-
-    # 確定申告リマインダー: 2月1日、2月20日 9:00 (JST)
-    - cron: '0 0 1,20 2 *'
+    # 毎時0分に実行（UTC）
+    # Firestoreのスケジュール設定に基づいて送信判定
+    - cron: '0 * * * *'
 
   # 手動実行も可能
   workflow_dispatch:
-    inputs:
-      templateId:
-        description: 'Email Template ID'
-        required: true
-        type: choice
-        options:
-          - seasonal_recommendation
-          - limit_reminder
-          - year_end_rush
-          - tax_reminder
 
 jobs:
-  send-seasonal-emails:
+  send-emails:
     runs-on: ubuntu-latest
-    # 季節のおすすめメールを送信
-    if: github.event.schedule == '0 0 1 * *' || github.event.inputs.templateId == 'seasonal_recommendation'
     steps:
-      - name: Send Seasonal Recommendation Emails
+      - name: Send Scheduled Emails
         run: |
-          curl -X GET "${{ secrets.APP_URL }}/api/cron/send-emails?templateId=seasonal_recommendation&secret=${{ secrets.CRON_SECRET }}"
+          echo "Checking for emails to send..."
+          response=$(curl -X GET "${{ secrets.APP_URL }}/api/cron/send-emails?secret=${{ secrets.CRON_SECRET }}")
+          echo "$response"
 
-  send-limit-reminder:
-    runs-on: ubuntu-latest
-    # 限度額通知を送信
-    if: github.event.schedule == '0 0 1 6,9,11 *' || github.event.inputs.templateId == 'limit_reminder'
-    steps:
-      - name: Send Limit Reminder Emails
-        run: |
-          curl -X GET "${{ secrets.APP_URL }}/api/cron/send-emails?templateId=limit_reminder&secret=${{ secrets.CRON_SECRET }}"
-
-  send-year-end-rush:
-    runs-on: ubuntu-latest
-    # 年末駆け込みメールを送信
-    if: |
-      github.event.schedule == '0 0 15 11 *' ||
-      github.event.schedule == '0 0 1,15 12 *' ||
-      github.event.inputs.templateId == 'year_end_rush'
-    steps:
-      - name: Send Year-End Rush Emails
-        run: |
-          curl -X GET "${{ secrets.APP_URL }}/api/cron/send-emails?templateId=year_end_rush&secret=${{ secrets.CRON_SECRET }}"
-
-  send-tax-reminder:
-    runs-on: ubuntu-latest
-    # 確定申告リマインダーを送信
-    if: github.event.schedule == '0 0 1,20 2 *' || github.event.inputs.templateId == 'tax_reminder'
-    steps:
-      - name: Send Tax Reminder Emails
-        run: |
-          curl -X GET "${{ secrets.APP_URL }}/api/cron/send-emails?templateId=tax_reminder&secret=${{ secrets.CRON_SECRET }}"
+          # レスポンスをログに出力
+          echo "Email sending completed."

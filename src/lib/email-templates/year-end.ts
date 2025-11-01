@@ -6,6 +6,14 @@ export const yearEndRushTemplate: Omit<EmailTemplate, 'createdAt' | 'updatedAt'>
   subject: '【急ぎ】{{userName}}さん、ふるさと納税は12月31日まで！',
   variables: ['userName', 'remainingLimit', 'usageRate', 'year', 'products'],
   active: true,
+  schedule: {
+    enabled: true,
+    months: [11, 12], // 11月、12月
+    days: [1, 15], // 1日、15日（11月15日、12月1日、12月15日）
+    hour: 0,
+    minute: 0,
+    timezone: 'Asia/Tokyo',
+  },
   htmlBody: `
     <div style="background-color: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; margin: 0 0 24px 0;">
       <h2 style="color: #991b1b; font-size: 20px; margin: 0 0 8px 0; text-align: center;">⏰ 年末まで残りわずか！</h2>

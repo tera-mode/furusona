@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { templateId, subject, htmlBody, textBody, active } = body;
+    const { templateId, subject, htmlBody, textBody, active, schedule } = body;
 
     if (!templateId) {
       return NextResponse.json(
@@ -75,13 +75,17 @@ export async function PUT(request: NextRequest) {
 
     if (templateDoc.exists) {
       // 更新
-      await templateRef.update({
-        subject: subject || templateDoc.data()?.subject,
-        htmlBody: htmlBody || templateDoc.data()?.htmlBody,
-        textBody: textBody || templateDoc.data()?.textBody,
-        active: active !== undefined ? active : templateDoc.data()?.active,
+      const updateData: Record<string, string | boolean | Date | object | undefined> = {
         updatedAt: new Date(),
-      });
+      };
+
+      if (subject !== undefined) updateData.subject = subject;
+      if (htmlBody !== undefined) updateData.htmlBody = htmlBody;
+      if (textBody !== undefined) updateData.textBody = textBody;
+      if (active !== undefined) updateData.active = active;
+      if (schedule !== undefined) updateData.schedule = schedule;
+
+      await templateRef.update(updateData);
 
       const updated = await templateRef.get();
       return NextResponse.json({

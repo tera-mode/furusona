@@ -1,3 +1,14 @@
+// メール送信スケジュール
+export interface EmailSchedule {
+  enabled: boolean;               // スケジュール送信の有効/無効
+  months?: number[];              // 送信する月（1-12）。nullまたは空配列=毎月
+  days?: number[];                // 送信する日（1-31）。nullまたは空配列=毎日
+  hour: number;                   // 送信する時（0-23）
+  minute: number;                 // 送信する分（0-59）
+  timezone: string;               // タイムゾーン（デフォルト: Asia/Tokyo）
+  lastSentAt?: Date;              // 最終送信日時（重複送信防止用）
+}
+
 // メールテンプレート
 export interface EmailTemplate {
   id: string; // "seasonal_recommendation", "limit_reminder", etc.
@@ -7,6 +18,7 @@ export interface EmailTemplate {
   textBody: string; // テキスト形式のテンプレート
   variables: string[]; // ["userName", "remainingLimit", etc.]
   active: boolean;
+  schedule?: EmailSchedule;       // 送信スケジュール設定
   createdAt: Date;
   updatedAt: Date;
 }

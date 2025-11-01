@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { EmailSchedule } from '@/types/email';
 
 interface EmailTemplate {
   id: string;
@@ -10,6 +11,7 @@ interface EmailTemplate {
   htmlBody: string;
   textBody: string;
   active: boolean;
+  schedule?: EmailSchedule;
 }
 
 export default function EmailDebugPage() {
@@ -17,6 +19,7 @@ export default function EmailDebugPage() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [editScheduleMode, setEditScheduleMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -73,12 +76,14 @@ export default function EmailDebugPage() {
           htmlBody: selectedTemplate.htmlBody,
           textBody: selectedTemplate.textBody,
           active: selectedTemplate.active,
+          schedule: selectedTemplate.schedule,
         }),
       });
 
       if (response.ok) {
         setMessage('テンプレートを更新しました');
         setEditMode(false);
+        setEditScheduleMode(false);
         await fetchTemplates();
       } else {
         setMessage('テンプレートの更新に失敗しました');
@@ -122,6 +127,18 @@ export default function EmailDebugPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // スケジュール表示用のヘルパー関数
+  const formatSchedule = (schedule?: EmailSchedule) => {
+    if (!schedule) return '未設定';
+    if (!schedule.enabled) return '無効';
+
+    const months = schedule.months && schedule.months.length > 0 ? schedule.months.join(', ') + '月' : '毎月';
+    const days = schedule.days && schedule.days.length > 0 ? schedule.days.join(', ') + '日' : '毎日';
+    const time = `${String(schedule.hour).padStart(2, '0')}:${String(schedule.minute).padStart(2, '0')}`;
+
+    return `${months} ${days} ${time} (${schedule.timezone})`;
   };
 
   if (!user) {
@@ -177,12 +194,16 @@ export default function EmailDebugPage() {
                     {template.active ? '有効' : '無効'}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">{template.subject}</p>
-                <div className="flex gap-2">
+                <p className="text-sm text-gray-600 mb-2">{template.subject}</p>
+                <div className="text-xs text-gray-500 mb-3 bg-gray-50 p-2 rounded">
+                  <strong>送信スケジュール:</strong> {formatSchedule(template.schedule)}
+                </div>
+                <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => {
                       setSelectedTemplate(template);
                       setEditMode(false);
+                      setEditScheduleMode(false);
                     }}
                     className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                   >
@@ -192,10 +213,21 @@ export default function EmailDebugPage() {
                     onClick={() => {
                       setSelectedTemplate(template);
                       setEditMode(true);
+                      setEditScheduleMode(false);
                     }}
                     className="text-sm bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700"
                   >
                     編集
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedTemplate(template);
+                      setEditMode(false);
+                      setEditScheduleMode(true);
+                    }}
+                    className="text-sm bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700"
+                  >
+                    スケジュール
                   </button>
                   <button
                     onClick={() => sendTestEmail(template.id)}
@@ -215,10 +247,180 @@ export default function EmailDebugPage() {
           {selectedTemplate ? (
             <div className="border rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4">
-                {editMode ? 'テンプレート編集' : 'プレビュー'}
+                {editScheduleMode ? 'スケジュール設定' : editMode ? 'テンプレート編集' : 'プレビュー'}
               </h2>
 
-              {editMode ? (
+              {editScheduleMode ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="flex items-center mb-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedTemplate.schedule?.enabled ?? false}
+                        onChange={(e) =>
+                          setSelectedTemplate({
+                            ...selectedTemplate,
+                            schedule: {
+                              ...selectedTemplate.schedule!,
+                              enabled: e.target.checked,
+                            },
+                          })
+                        }
+                        className="mr-2"
+                      />
+                      <span className="text-sm font-medium">自動送信を有効化</span>
+                    </label>
+                  </div>
+
+                  {selectedTemplate.schedule?.enabled && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">送信する月（複数選択可、空=毎月）</label>
+                        <div className="grid grid-cols-6 gap-2">
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month) => (
+                            <label key={month} className="flex items-center text-sm">
+                              <input
+                                type="checkbox"
+                                checked={selectedTemplate.schedule?.months?.includes(month) ?? false}
+                                onChange={(e) => {
+                                  const currentMonths = selectedTemplate.schedule?.months || [];
+                                  const newMonths = e.target.checked
+                                    ? [...currentMonths, month]
+                                    : currentMonths.filter((m) => m !== month);
+                                  setSelectedTemplate({
+                                    ...selectedTemplate,
+                                    schedule: {
+                                      ...selectedTemplate.schedule!,
+                                      months: newMonths.sort((a, b) => a - b),
+                                    },
+                                  });
+                                }}
+                                className="mr-1"
+                              />
+                              {month}月
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">送信する日（複数選択可、空=毎日）</label>
+                        <div className="grid grid-cols-7 gap-2 max-h-48 overflow-y-auto">
+                          {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                            <label key={day} className="flex items-center text-sm">
+                              <input
+                                type="checkbox"
+                                checked={selectedTemplate.schedule?.days?.includes(day) ?? false}
+                                onChange={(e) => {
+                                  const currentDays = selectedTemplate.schedule?.days || [];
+                                  const newDays = e.target.checked
+                                    ? [...currentDays, day]
+                                    : currentDays.filter((d) => d !== day);
+                                  setSelectedTemplate({
+                                    ...selectedTemplate,
+                                    schedule: {
+                                      ...selectedTemplate.schedule!,
+                                      days: newDays.sort((a, b) => a - b),
+                                    },
+                                  });
+                                }}
+                                className="mr-1"
+                              />
+                              {day}日
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">時</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="23"
+                            value={selectedTemplate.schedule?.hour ?? 0}
+                            onChange={(e) =>
+                              setSelectedTemplate({
+                                ...selectedTemplate,
+                                schedule: {
+                                  ...selectedTemplate.schedule!,
+                                  hour: parseInt(e.target.value, 10),
+                                },
+                              })
+                            }
+                            className="w-full border rounded px-3 py-2"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">分</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="59"
+                            value={selectedTemplate.schedule?.minute ?? 0}
+                            onChange={(e) =>
+                              setSelectedTemplate({
+                                ...selectedTemplate,
+                                schedule: {
+                                  ...selectedTemplate.schedule!,
+                                  minute: parseInt(e.target.value, 10),
+                                },
+                              })
+                            }
+                            className="w-full border rounded px-3 py-2"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">タイムゾーン</label>
+                        <select
+                          value={selectedTemplate.schedule?.timezone ?? 'Asia/Tokyo'}
+                          onChange={(e) =>
+                            setSelectedTemplate({
+                              ...selectedTemplate,
+                              schedule: {
+                                ...selectedTemplate.schedule!,
+                                timezone: e.target.value,
+                              },
+                            })
+                          }
+                          className="w-full border rounded px-3 py-2"
+                        >
+                          <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                          <option value="UTC">UTC</option>
+                          <option value="America/New_York">America/New_York (EST)</option>
+                          <option value="Europe/London">Europe/London (GMT)</option>
+                        </select>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-200 p-3 rounded">
+                        <p className="text-sm text-blue-800">
+                          <strong>設定プレビュー:</strong><br />
+                          {formatSchedule(selectedTemplate.schedule)}
+                        </p>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={updateTemplate}
+                      disabled={loading}
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {loading ? '保存中...' : '保存'}
+                    </button>
+                    <button
+                      onClick={() => setEditScheduleMode(false)}
+                      className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+                    >
+                      キャンセル
+                    </button>
+                  </div>
+                </div>
+              ) : editMode ? (
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">件名</label>
@@ -290,6 +492,13 @@ export default function EmailDebugPage() {
                     <h3 className="font-medium mb-2">件名</h3>
                     <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">
                       {selectedTemplate.subject}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-medium mb-2">送信スケジュール</h3>
+                    <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">
+                      {formatSchedule(selectedTemplate.schedule)}
                     </p>
                   </div>
 

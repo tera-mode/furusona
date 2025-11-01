@@ -6,6 +6,14 @@ export const taxReminderTemplate: Omit<EmailTemplate, 'createdAt' | 'updatedAt'>
   subject: '{{userName}}さん、ふるさと納税の確定申告をお忘れなく',
   variables: ['userName', 'year', 'totalDonations'],
   active: true,
+  schedule: {
+    enabled: true,
+    months: [2], // 2月
+    days: [1, 20], // 1日、20日
+    hour: 0,
+    minute: 0,
+    timezone: 'Asia/Tokyo',
+  },
   htmlBody: `
     <h2 style="color: #1f2937; font-size: 20px; margin: 0 0 16px 0;">確定申告のお知らせ</h2>
 

@@ -6,6 +6,14 @@ export const seasonalRecommendationTemplate: Omit<EmailTemplate, 'createdAt' | '
   subject: '{{userName}}さん、{{month}}月の旬の返礼品をご紹介',
   variables: ['userName', 'month', 'favoriteCategory', 'remainingLimit', 'usageRate', 'products'],
   active: true,
+  schedule: {
+    enabled: true,
+    months: [], // 空配列 = 毎月
+    days: [1], // 毎月1日
+    hour: 0,
+    minute: 0,
+    timezone: 'Asia/Tokyo',
+  },
   htmlBody: `
     <h2 style="color: #1f2937; font-size: 20px; margin: 0 0 16px 0;">{{month}}月の旬の返礼品</h2>
 

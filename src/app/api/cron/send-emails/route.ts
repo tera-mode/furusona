@@ -1,15 +1,88 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirestoreAdmin } from '@/lib/firebase-admin';
 import { User } from '@/types';
+import { EmailTemplate, EmailSchedule } from '@/types/email';
+
+/**
+ * 現在時刻がスケジュールにマッチするかチェック
+ */
+function isScheduleMatching(schedule: EmailSchedule, lastSentAt?: Date): boolean {
+  if (!schedule.enabled) return false;
+
+  // タイムゾーンを考慮して現在時刻を取得
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: schedule.timezone || 'Asia/Tokyo',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(now);
+  const currentMonth = parseInt(parts.find(p => p.type === 'month')?.value || '0', 10);
+  const currentDay = parseInt(parts.find(p => p.type === 'day')?.value || '0', 10);
+  const currentHour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+  const currentMinute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+
+  // 月のチェック（空の場合は毎月）
+  if (schedule.months && schedule.months.length > 0) {
+    if (!schedule.months.includes(currentMonth)) {
+      return false;
+    }
+  }
+
+  // 日のチェック（空の場合は毎日）
+  if (schedule.days && schedule.days.length > 0) {
+    if (!schedule.days.includes(currentDay)) {
+      return false;
+    }
+  }
+
+  // 時刻のチェック（±5分の余裕を持たせる）
+  const scheduledMinutes = schedule.hour * 60 + schedule.minute;
+  const currentMinutes = currentHour * 60 + currentMinute;
+  const diff = Math.abs(scheduledMinutes - currentMinutes);
+
+  if (diff > 5) {
+    return false;
+  }
+
+  // 同じ日に既に送信済みかチェック
+  if (lastSentAt) {
+    const lastSentFormatter = new Intl.DateTimeFormat('ja-JP', {
+      timeZone: schedule.timezone || 'Asia/Tokyo',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour12: false,
+    });
+
+    const lastSentParts = lastSentFormatter.formatToParts(lastSentAt);
+    const lastSentYear = parseInt(lastSentParts.find(p => p.type === 'year')?.value || '0', 10);
+    const lastSentMonth = parseInt(lastSentParts.find(p => p.type === 'month')?.value || '0', 10);
+    const lastSentDay = parseInt(lastSentParts.find(p => p.type === 'day')?.value || '0', 10);
+
+    const currentYear = parseInt(parts.find(p => p.type === 'year')?.value || '0', 10);
+
+    // 同じ日なら送信しない
+    if (lastSentYear === currentYear && lastSentMonth === currentMonth && lastSentDay === currentDay) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 /**
  * GET /api/cron/send-emails
  *
  * スケジューリングされたメール配信
- * GitHub Actionsから定期的に呼び出される
+ * GitHub Actionsから毎時実行される
  *
  * クエリパラメータ:
- * - templateId: メールテンプレートID (seasonal_recommendation, limit_reminder, year_end_rush, tax_reminder)
  * - secret: 認証用シークレット (環境変数CRON_SECRETと一致する必要がある)
  */
 export async function GET(request: NextRequest) {
@@ -32,17 +105,51 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // テンプレートIDを取得
-    const templateId = request.nextUrl.searchParams.get('templateId');
+    const db = getFirestoreAdmin();
 
-    if (!templateId) {
-      return NextResponse.json(
-        { error: 'templateId is required' },
-        { status: 400 }
-      );
+    // すべてのテンプレートをFirestoreから取得
+    const templatesSnapshot = await db.collection('emailTemplates').get();
+
+    if (templatesSnapshot.empty) {
+      return NextResponse.json({
+        message: 'No templates found',
+        sent: 0,
+      });
     }
 
-    const db = getFirestoreAdmin();
+    const templates = templatesSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        ...data,
+        createdAt: data.createdAt?.toDate(),
+        updatedAt: data.updatedAt?.toDate(),
+        schedule: data.schedule ? {
+          ...data.schedule,
+          lastSentAt: data.schedule.lastSentAt?.toDate(),
+        } : undefined,
+      } as EmailTemplate;
+    });
+
+    // 現在時刻にマッチするテンプレートをフィルタリング
+    const matchingTemplates = templates.filter(template => {
+      if (!template.schedule) return false;
+      if (!template.active) return false;
+      return isScheduleMatching(template.schedule, template.schedule.lastSentAt);
+    });
+
+    if (matchingTemplates.length === 0) {
+      return NextResponse.json({
+        message: 'No templates matching current schedule',
+        templates: templates.map(t => ({
+          id: t.id,
+          name: t.name,
+          schedule: t.schedule,
+        })),
+        sent: 0,
+      });
+    }
+
+    console.log(`📧 Found ${matchingTemplates.length} templates to send:`, matchingTemplates.map(t => t.id));
 
     // メルマガ購読しているユーザーを取得
     const usersSnapshot = await db
@@ -53,6 +160,7 @@ export async function GET(request: NextRequest) {
     if (usersSnapshot.empty) {
       return NextResponse.json({
         message: 'No subscribers found',
+        matchingTemplates: matchingTemplates.map(t => t.id),
         sent: 0,
       });
     }
@@ -62,83 +170,109 @@ export async function GET(request: NextRequest) {
       ...doc.data(),
     })) as User[];
 
-    // フィルタリング: メールタイプ別の購読設定をチェック
-    const filteredUsers = users.filter(user => {
-      const preferences = user.emailPreferences || {};
-
-      // テンプレートIDに応じて購読設定をチェック
-      switch (templateId) {
-        case 'seasonal_recommendation':
-          return preferences.seasonal !== false; // デフォルトtrue
-        case 'limit_reminder':
-          return preferences.limitReminder !== false;
-        case 'year_end_rush':
-          return preferences.yearEnd !== false;
-        case 'tax_reminder':
-          return preferences.taxReminder !== false;
-        default:
-          return true;
-      }
-    });
-
-    // 送信履歴をチェック（重複送信を防ぐ）
-    const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-    const eligibleUsers = filteredUsers.filter(user => {
-      const lastSent = user.lastEmailSent?.[templateId];
-
-      if (!lastSent) return true; // 未送信なら送信対象
-
-      // 最後の送信から24時間以上経過していれば送信対象
-      const lastSentDate = lastSent instanceof Date ? lastSent : new Date(lastSent);
-      return lastSentDate < oneDayAgo;
-    });
-
-    // 各ユーザーにメール送信リクエストを送る
-    const results = [];
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const allResults: Record<string, Array<{ userId: string; status: string; error?: string }>> = {};
 
-    for (const user of eligibleUsers) {
-      try {
-        const response = await fetch(`${baseUrl}/api/email/send`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            templateId,
-            userId: user.uid,
-            testMode: false,
-          }),
-        });
+    // 各テンプレートについてメール送信
+    for (const template of matchingTemplates) {
+      console.log(`📧 Processing template: ${template.id} (${template.name})`);
 
-        if (response.ok) {
-          results.push({ userId: user.uid, status: 'sent' });
-        } else {
-          const error = await response.json();
-          results.push({ userId: user.uid, status: 'failed', error: error.error });
+      // フィルタリング: メールタイプ別の購読設定をチェック
+      const filteredUsers = users.filter(user => {
+        const preferences = user.emailPreferences || {};
+
+        // テンプレートIDに応じて購読設定をチェック
+        switch (template.id) {
+          case 'seasonal_recommendation':
+            return preferences.seasonal !== false; // デフォルトtrue
+          case 'limit_reminder':
+            return preferences.limitReminder !== false;
+          case 'year_end_rush':
+            return preferences.yearEnd !== false;
+          case 'tax_reminder':
+            return preferences.taxReminder !== false;
+          default:
+            return true;
         }
-      } catch (error) {
-        results.push({
-          userId: user.uid,
-          status: 'failed',
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
+      });
+
+      // 送信履歴をチェック（重複送信を防ぐ - 24時間以内の送信をスキップ）
+      const now = new Date();
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+      const eligibleUsers = filteredUsers.filter(user => {
+        const lastSent = user.lastEmailSent?.[template.id];
+
+        if (!lastSent) return true; // 未送信なら送信対象
+
+        // 最後の送信から24時間以上経過していれば送信対象
+        const lastSentDate = lastSent instanceof Date ? lastSent : new Date(lastSent);
+        return lastSentDate < oneDayAgo;
+      });
+
+      console.log(`  Total users: ${users.length}, Filtered: ${filteredUsers.length}, Eligible: ${eligibleUsers.length}`);
+
+      // 各ユーザーにメール送信リクエストを送る
+      const results = [];
+
+      for (const user of eligibleUsers) {
+        try {
+          const response = await fetch(`${baseUrl}/api/email/send`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              templateId: template.id,
+              userId: user.uid,
+              testMode: false,
+            }),
+          });
+
+          if (response.ok) {
+            results.push({ userId: user.uid, status: 'sent' });
+          } else {
+            const error = await response.json();
+            results.push({ userId: user.uid, status: 'failed', error: error.error });
+          }
+        } catch (error) {
+          results.push({
+            userId: user.uid,
+            status: 'failed',
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
       }
+
+      allResults[template.id] = results;
+
+      // テンプレートのlastSentAtを更新
+      await db.collection('emailTemplates').doc(template.id).update({
+        'schedule.lastSentAt': new Date(),
+      });
+
+      console.log(`  ✅ Sent ${results.filter(r => r.status === 'sent').length}/${results.length} emails`);
     }
 
-    const successCount = results.filter(r => r.status === 'sent').length;
-    const failCount = results.filter(r => r.status === 'failed').length;
+    // 結果をまとめる
+    const summary = Object.entries(allResults).map(([templateId, results]) => ({
+      templateId,
+      sent: results.filter(r => r.status === 'sent').length,
+      failed: results.filter(r => r.status === 'failed').length,
+      total: results.length,
+    }));
+
+    const totalSent = summary.reduce((sum, s) => sum + s.sent, 0);
+    const totalFailed = summary.reduce((sum, s) => sum + s.failed, 0);
 
     return NextResponse.json({
       message: 'Email sending completed',
-      templateId,
+      matchingTemplates: matchingTemplates.map(t => ({ id: t.id, name: t.name })),
       totalSubscribers: users.length,
-      eligibleUsers: eligibleUsers.length,
-      sent: successCount,
-      failed: failCount,
-      results,
+      sent: totalSent,
+      failed: totalFailed,
+      summary,
+      details: allResults,
     });
   } catch (error) {
     console.error('Failed to send scheduled emails:', error);

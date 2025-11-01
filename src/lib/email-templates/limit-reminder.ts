@@ -6,6 +6,14 @@ export const limitReminderTemplate: Omit<EmailTemplate, 'createdAt' | 'updatedAt
   subject: '{{userName}}さん、ふるさと納税の限度額をご確認ください',
   variables: ['userName', 'remainingLimit', 'usageRate', 'totalDonations', 'year', 'products'],
   active: true,
+  schedule: {
+    enabled: true,
+    months: [6, 9, 11], // 6月、9月、11月
+    days: [1], // 1日
+    hour: 0,
+    minute: 0,
+    timezone: 'Asia/Tokyo',
+  },
   htmlBody: `
     <h2 style="color: #1f2937; font-size: 20px; margin: 0 0 16px 0;">今年の限度額状況</h2>
 
