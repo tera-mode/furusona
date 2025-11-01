@@ -158,11 +158,6 @@ export async function sendEmailToUser(
       };
 
       await db.collection('emailLogs').add(emailLog);
-
-      // ユーザーの送信履歴を更新
-      await db.collection('users').doc(userId).update({
-        [`lastEmailSent.${templateId}`]: new Date(),
-      });
     }
 
     return {

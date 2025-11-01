@@ -7,7 +7,7 @@ import { EmailTemplate, EmailSchedule } from '@/types/email';
 /**
  * 現在時刻がスケジュールにマッチするかチェック
  */
-function isScheduleMatching(schedule: EmailSchedule, lastSentAt?: Date): boolean {
+function isScheduleMatching(schedule: EmailSchedule): boolean {
   if (!schedule.enabled) return false;
 
   // タイムゾーンを考慮して現在時刻を取得
@@ -49,29 +49,6 @@ function isScheduleMatching(schedule: EmailSchedule, lastSentAt?: Date): boolean
 
   if (diff > 5) {
     return false;
-  }
-
-  // 同じ日に既に送信済みかチェック
-  if (lastSentAt) {
-    const lastSentFormatter = new Intl.DateTimeFormat('ja-JP', {
-      timeZone: schedule.timezone || 'Asia/Tokyo',
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      hour12: false,
-    });
-
-    const lastSentParts = lastSentFormatter.formatToParts(lastSentAt);
-    const lastSentYear = parseInt(lastSentParts.find(p => p.type === 'year')?.value || '0', 10);
-    const lastSentMonth = parseInt(lastSentParts.find(p => p.type === 'month')?.value || '0', 10);
-    const lastSentDay = parseInt(lastSentParts.find(p => p.type === 'day')?.value || '0', 10);
-
-    const currentYear = parseInt(parts.find(p => p.type === 'year')?.value || '0', 10);
-
-    // 同じ日なら送信しない
-    if (lastSentYear === currentYear && lastSentMonth === currentMonth && lastSentDay === currentDay) {
-      return false;
-    }
   }
 
   return true;
@@ -137,7 +114,7 @@ export async function GET(request: NextRequest) {
     const matchingTemplates = templates.filter(template => {
       if (!template.schedule) return false;
       if (!template.active) return false;
-      return isScheduleMatching(template.schedule, template.schedule.lastSentAt);
+      return isScheduleMatching(template.schedule);
     });
 
     if (matchingTemplates.length === 0) {
@@ -213,33 +190,12 @@ export async function GET(request: NextRequest) {
         }
       });
 
-      // 送信履歴をチェック（重複送信を防ぐ - 24時間以内の送信をスキップ）
-      // ただし、テストモードの場合は履歴チェックをスキップ
-      let eligibleUsers = filteredUsers;
-
-      if (!testMode) {
-        const now = new Date();
-        const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-        eligibleUsers = filteredUsers.filter(user => {
-          const lastSent = user.lastEmailSent?.[template.id];
-
-          if (!lastSent) return true; // 未送信なら送信対象
-
-          // 最後の送信から24時間以上経過していれば送信対象
-          const lastSentDate = lastSent instanceof Date ? lastSent : new Date(lastSent);
-          return lastSentDate < oneDayAgo;
-        });
-      } else {
-        console.log('🧪 TEST MODE: Skipping 24-hour duplicate check');
-      }
-
-      console.log(`  Total users: ${users.length}, Filtered: ${filteredUsers.length}, Eligible: ${eligibleUsers.length}`);
+      console.log(`  Total users: ${users.length}, Filtered: ${filteredUsers.length}`);
 
       // 各ユーザーにメール送信（直接関数呼び出し）
       const results = [];
 
-      for (const user of eligibleUsers) {
+      for (const user of filteredUsers) {
         console.log(`  Sending email to user ${user.uid}`);
 
         const result = await sendEmailToUser({
@@ -262,11 +218,6 @@ export async function GET(request: NextRequest) {
       }
 
       allResults[template.id] = results;
-
-      // テンプレートのlastSentAtを更新
-      await db.collection('emailTemplates').doc(template.id).update({
-        'schedule.lastSentAt': new Date(),
-      });
 
       console.log(`  ✅ Sent ${results.filter(r => r.status === 'sent').length}/${results.length} emails`);
     }
