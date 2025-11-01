@@ -85,11 +85,13 @@ function isScheduleMatching(schedule: EmailSchedule, lastSentAt?: Date): boolean
  *
  * クエリパラメータ:
  * - secret: 認証用シークレット (環境変数CRON_SECRETと一致する必要がある)
+ * - testMode: true の場合、管理者メールアドレスのユーザーのみに送信（デバッグ用）
  */
 export async function GET(request: NextRequest) {
   try {
     // シークレットキーで認証
     const secret = request.nextUrl.searchParams.get('secret');
+    const testMode = request.nextUrl.searchParams.get('testMode') === 'true';
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
@@ -152,6 +154,10 @@ export async function GET(request: NextRequest) {
 
     console.log(`📧 Found ${matchingTemplates.length} templates to send:`, matchingTemplates.map(t => t.id));
 
+    if (testMode) {
+      console.log('🧪 TEST MODE: Only sending to admin email address');
+    }
+
     // メルマガ購読しているユーザーを取得
     const usersSnapshot = await db
       .collection('users')
@@ -166,10 +172,21 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const users = usersSnapshot.docs.map(doc => ({
+    let users = usersSnapshot.docs.map(doc => ({
       uid: doc.id,
       ...doc.data(),
     })) as User[];
+
+    // テストモードの場合、管理者メールアドレスのユーザーのみに絞り込む
+    if (testMode) {
+      const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+      if (adminEmail) {
+        users = users.filter(user => user.email === adminEmail);
+        console.log(`🧪 Filtered to admin user only: ${users.length} user(s)`);
+      } else {
+        console.warn('⚠️ TEST MODE enabled but NEXT_PUBLIC_ADMIN_EMAIL is not set');
+      }
+    }
 
     const allResults: Record<string, Array<{ userId: string; status: string; error?: string }>> = {};
 

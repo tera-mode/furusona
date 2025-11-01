@@ -142,7 +142,16 @@ export default function EmailDebugPage() {
         return;
       }
 
-      const response = await fetch(`/api/cron/send-emails?secret=${cronSecret}`, {
+      const isTestMode = confirm(
+        'テストモードで実行しますか？\n\n' +
+        'はい: 管理者メールアドレスのみに送信（安全）\n' +
+        'いいえ: 全ユーザーに送信（本番）'
+      );
+
+      const url = `/api/cron/send-emails?secret=${cronSecret}${isTestMode ? '&testMode=true' : ''}`;
+      console.log(`Calling: ${url}`);
+
+      const response = await fetch(url, {
         method: 'GET',
       });
 
@@ -169,7 +178,7 @@ export default function EmailDebugPage() {
         }
 
         setMessage(
-          `✅ Cron実行完了\n\n` +
+          `✅ Cron実行完了${isTestMode ? ' (🧪 テストモード)' : ''}\n\n` +
           `マッチしたテンプレート: ${matchingTemplates.map((t) => t.name).join(', ') || 'なし'}\n` +
           `総購読者数: ${data.totalSubscribers || 0}\n` +
           `送信成功: ${data.sent || 0}通\n` +
