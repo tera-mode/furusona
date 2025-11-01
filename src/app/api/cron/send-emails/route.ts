@@ -223,13 +223,17 @@ export async function GET(request: NextRequest) {
       });
 
       console.log(`  Total users: ${users.length}, Filtered: ${filteredUsers.length}, Eligible: ${eligibleUsers.length}`);
+      console.log(`  Base URL for email sending: ${baseUrl}`);
 
       // 各ユーザーにメール送信リクエストを送る
       const results = [];
 
       for (const user of eligibleUsers) {
         try {
-          const response = await fetch(`${baseUrl}/api/email/send`, {
+          const url = `${baseUrl}/api/email/send`;
+          console.log(`  Sending email to user ${user.uid} via ${url}`);
+
+          const response = await fetch(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -242,16 +246,33 @@ export async function GET(request: NextRequest) {
           });
 
           if (response.ok) {
+            console.log(`  ✓ Email sent successfully to ${user.uid}`);
             results.push({ userId: user.uid, status: 'sent' });
           } else {
-            const error = await response.json();
-            results.push({ userId: user.uid, status: 'failed', error: error.error });
+            const errorText = await response.text();
+            console.error(`  ✗ Email failed for ${user.uid}: ${response.status} ${errorText}`);
+
+            let errorMessage;
+            try {
+              const errorJson = JSON.parse(errorText);
+              errorMessage = errorJson.error || errorText;
+            } catch {
+              errorMessage = errorText;
+            }
+
+            results.push({
+              userId: user.uid,
+              status: 'failed',
+              error: `HTTP ${response.status}: ${errorMessage}`
+            });
           }
         } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error(`  ✗ Fetch error for ${user.uid}:`, error);
           results.push({
             userId: user.uid,
             status: 'failed',
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: `Fetch failed: ${errorMessage}`,
           });
         }
       }
