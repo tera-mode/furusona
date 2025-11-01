@@ -170,7 +170,19 @@ export async function GET(request: NextRequest) {
       ...doc.data(),
     })) as User[];
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Vercel環境では自動的に設定されるVERCEL_URLを優先的に使用
+    const getBaseUrl = () => {
+      if (process.env.NEXT_PUBLIC_APP_URL) {
+        return process.env.NEXT_PUBLIC_APP_URL;
+      }
+      if (process.env.VERCEL_URL) {
+        // Vercel環境ではhttpsを使用
+        return `https://${process.env.VERCEL_URL}`;
+      }
+      // ローカル開発環境
+      return 'http://localhost:3000';
+    };
+    const baseUrl = getBaseUrl();
     const allResults: Record<string, Array<{ userId: string; status: string; error?: string }>> = {};
 
     // 各テンプレートについてメール送信

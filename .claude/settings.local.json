@@ -28,7 +28,8 @@
       "WebFetch(domain:event.rakuten.co.jp)",
       "WebFetch(domain:webservice.rakuten.co.jp)",
       "Bash(git reset:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []
