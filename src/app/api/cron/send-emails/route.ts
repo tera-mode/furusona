@@ -172,14 +172,23 @@ export async function GET(request: NextRequest) {
 
     // Vercel環境では自動的に設定されるVERCEL_URLを優先的に使用
     const getBaseUrl = () => {
-      if (process.env.NEXT_PUBLIC_APP_URL) {
+      console.log('🔍 Environment variables check:');
+      console.log('  NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
+      console.log('  VERCEL_URL:', process.env.VERCEL_URL);
+      console.log('  VERCEL_ENV:', process.env.VERCEL_ENV);
+      console.log('  NODE_ENV:', process.env.NODE_ENV);
+
+      if (process.env.NEXT_PUBLIC_APP_URL && process.env.NEXT_PUBLIC_APP_URL !== 'http://localhost:3000') {
+        console.log('✓ Using NEXT_PUBLIC_APP_URL');
         return process.env.NEXT_PUBLIC_APP_URL;
       }
       if (process.env.VERCEL_URL) {
+        console.log('✓ Using VERCEL_URL');
         // Vercel環境ではhttpsを使用
         return `https://${process.env.VERCEL_URL}`;
       }
       // ローカル開発環境
+      console.log('⚠ Falling back to localhost');
       return 'http://localhost:3000';
     };
     const baseUrl = getBaseUrl();

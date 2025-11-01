@@ -29,7 +29,8 @@
       "WebFetch(domain:webservice.rakuten.co.jp)",
       "Bash(git reset:*)",
       "Bash(git restore:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
