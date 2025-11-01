@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirestoreAdmin } from '@/lib/firebase-admin';
+import { sendEmailToUser } from '@/lib/email/send-email-to-user';
 import { User } from '@/types';
 import { EmailTemplate, EmailSchedule } from '@/types/email';
 
@@ -170,28 +171,6 @@ export async function GET(request: NextRequest) {
       ...doc.data(),
     })) as User[];
 
-    // Vercel環境では自動的に設定されるVERCEL_URLを優先的に使用
-    const getBaseUrl = () => {
-      console.log('🔍 Environment variables check:');
-      console.log('  NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
-      console.log('  VERCEL_URL:', process.env.VERCEL_URL);
-      console.log('  VERCEL_ENV:', process.env.VERCEL_ENV);
-      console.log('  NODE_ENV:', process.env.NODE_ENV);
-
-      if (process.env.NEXT_PUBLIC_APP_URL && process.env.NEXT_PUBLIC_APP_URL !== 'http://localhost:3000') {
-        console.log('✓ Using NEXT_PUBLIC_APP_URL');
-        return process.env.NEXT_PUBLIC_APP_URL;
-      }
-      if (process.env.VERCEL_URL) {
-        console.log('✓ Using VERCEL_URL');
-        // Vercel環境ではhttpsを使用
-        return `https://${process.env.VERCEL_URL}`;
-      }
-      // ローカル開発環境
-      console.log('⚠ Falling back to localhost');
-      return 'http://localhost:3000';
-    };
-    const baseUrl = getBaseUrl();
     const allResults: Record<string, Array<{ userId: string; status: string; error?: string }>> = {};
 
     // 各テンプレートについてメール送信
@@ -232,56 +211,28 @@ export async function GET(request: NextRequest) {
       });
 
       console.log(`  Total users: ${users.length}, Filtered: ${filteredUsers.length}, Eligible: ${eligibleUsers.length}`);
-      console.log(`  Base URL for email sending: ${baseUrl}`);
 
-      // 各ユーザーにメール送信リクエストを送る
+      // 各ユーザーにメール送信（直接関数呼び出し）
       const results = [];
 
       for (const user of eligibleUsers) {
-        try {
-          const url = `${baseUrl}/api/email/send`;
-          console.log(`  Sending email to user ${user.uid} via ${url}`);
+        console.log(`  Sending email to user ${user.uid}`);
 
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              templateId: template.id,
-              userId: user.uid,
-              testMode: false,
-            }),
-          });
+        const result = await sendEmailToUser({
+          templateId: template.id,
+          userId: user.uid,
+          testMode: false,
+        });
 
-          if (response.ok) {
-            console.log(`  ✓ Email sent successfully to ${user.uid}`);
-            results.push({ userId: user.uid, status: 'sent' });
-          } else {
-            const errorText = await response.text();
-            console.error(`  ✗ Email failed for ${user.uid}: ${response.status} ${errorText}`);
-
-            let errorMessage;
-            try {
-              const errorJson = JSON.parse(errorText);
-              errorMessage = errorJson.error || errorText;
-            } catch {
-              errorMessage = errorText;
-            }
-
-            results.push({
-              userId: user.uid,
-              status: 'failed',
-              error: `HTTP ${response.status}: ${errorMessage}`
-            });
-          }
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          console.error(`  ✗ Fetch error for ${user.uid}:`, error);
+        if (result.success) {
+          console.log(`  ✓ Email sent successfully to ${user.uid}`);
+          results.push({ userId: user.uid, status: 'sent' });
+        } else {
+          console.error(`  ✗ Email failed for ${user.uid}: ${result.error}`);
           results.push({
             userId: user.uid,
             status: 'failed',
-            error: `Fetch failed: ${errorMessage}`,
+            error: result.error || 'Unknown error',
           });
         }
       }
