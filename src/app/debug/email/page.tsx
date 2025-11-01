@@ -221,7 +221,19 @@ export default function EmailDebugPage() {
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedTemplate(template);
+                      // スケジュールが存在しない場合はデフォルト値で初期化
+                      const templateWithSchedule = {
+                        ...template,
+                        schedule: template.schedule || {
+                          enabled: false,
+                          months: [],
+                          days: [],
+                          hour: 0,
+                          minute: 0,
+                          timezone: 'Asia/Tokyo',
+                        },
+                      };
+                      setSelectedTemplate(templateWithSchedule);
                       setEditMode(false);
                       setEditScheduleMode(true);
                     }}
@@ -261,8 +273,12 @@ export default function EmailDebugPage() {
                           setSelectedTemplate({
                             ...selectedTemplate,
                             schedule: {
-                              ...selectedTemplate.schedule!,
                               enabled: e.target.checked,
+                              months: selectedTemplate.schedule?.months || [],
+                              days: selectedTemplate.schedule?.days || [],
+                              hour: selectedTemplate.schedule?.hour || 0,
+                              minute: selectedTemplate.schedule?.minute || 0,
+                              timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
                             },
                           })
                         }
@@ -290,8 +306,12 @@ export default function EmailDebugPage() {
                                   setSelectedTemplate({
                                     ...selectedTemplate,
                                     schedule: {
-                                      ...selectedTemplate.schedule!,
+                                      enabled: selectedTemplate.schedule?.enabled || false,
                                       months: newMonths.sort((a, b) => a - b),
+                                      days: selectedTemplate.schedule?.days || [],
+                                      hour: selectedTemplate.schedule?.hour || 0,
+                                      minute: selectedTemplate.schedule?.minute || 0,
+                                      timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
                                     },
                                   });
                                 }}
@@ -319,8 +339,12 @@ export default function EmailDebugPage() {
                                   setSelectedTemplate({
                                     ...selectedTemplate,
                                     schedule: {
-                                      ...selectedTemplate.schedule!,
+                                      enabled: selectedTemplate.schedule?.enabled || false,
+                                      months: selectedTemplate.schedule?.months || [],
                                       days: newDays.sort((a, b) => a - b),
+                                      hour: selectedTemplate.schedule?.hour || 0,
+                                      minute: selectedTemplate.schedule?.minute || 0,
+                                      timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
                                     },
                                   });
                                 }}
@@ -344,8 +368,12 @@ export default function EmailDebugPage() {
                               setSelectedTemplate({
                                 ...selectedTemplate,
                                 schedule: {
-                                  ...selectedTemplate.schedule!,
+                                  enabled: selectedTemplate.schedule?.enabled || false,
+                                  months: selectedTemplate.schedule?.months || [],
+                                  days: selectedTemplate.schedule?.days || [],
                                   hour: parseInt(e.target.value, 10),
+                                  minute: selectedTemplate.schedule?.minute || 0,
+                                  timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
                                 },
                               })
                             }
@@ -363,8 +391,12 @@ export default function EmailDebugPage() {
                               setSelectedTemplate({
                                 ...selectedTemplate,
                                 schedule: {
-                                  ...selectedTemplate.schedule!,
+                                  enabled: selectedTemplate.schedule?.enabled || false,
+                                  months: selectedTemplate.schedule?.months || [],
+                                  days: selectedTemplate.schedule?.days || [],
+                                  hour: selectedTemplate.schedule?.hour || 0,
                                   minute: parseInt(e.target.value, 10),
+                                  timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
                                 },
                               })
                             }
@@ -381,7 +413,11 @@ export default function EmailDebugPage() {
                             setSelectedTemplate({
                               ...selectedTemplate,
                               schedule: {
-                                ...selectedTemplate.schedule!,
+                                enabled: selectedTemplate.schedule?.enabled || false,
+                                months: selectedTemplate.schedule?.months || [],
+                                days: selectedTemplate.schedule?.days || [],
+                                hour: selectedTemplate.schedule?.hour || 0,
+                                minute: selectedTemplate.schedule?.minute || 0,
                                 timezone: e.target.value,
                               },
                             })
