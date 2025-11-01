@@ -150,11 +150,23 @@ export default function EmailDebugPage() {
 
       if (response.ok) {
         const summary = (data.summary || []) as Array<{ templateId: string; sent: number; failed: number }>;
-        const details = summary.map((s) =>
-          `${s.templateId}: ${s.sent}通送信成功, ${s.failed}通失敗`
-        ).join('\n');
-
         const matchingTemplates = (data.matchingTemplates || []) as Array<{ id: string; name: string }>;
+
+        // 詳細なエラー情報を取得
+        const detailsData = data.details as Record<string, Array<{ userId: string; status: string; error?: string }>> | undefined;
+        let errorDetails = '';
+
+        if (detailsData) {
+          Object.entries(detailsData).forEach(([templateId, results]) => {
+            const failedResults = results.filter(r => r.status === 'failed');
+            if (failedResults.length > 0) {
+              errorDetails += `\n[${templateId}]\n`;
+              failedResults.forEach((r, index) => {
+                errorDetails += `  ${index + 1}. userId: ${r.userId}\n     エラー: ${r.error || 'Unknown'}\n`;
+              });
+            }
+          });
+        }
 
         setMessage(
           `✅ Cron実行完了\n\n` +
@@ -162,7 +174,8 @@ export default function EmailDebugPage() {
           `総購読者数: ${data.totalSubscribers || 0}\n` +
           `送信成功: ${data.sent || 0}通\n` +
           `送信失敗: ${data.failed || 0}通\n\n` +
-          `詳細:\n${details || 'なし'}`
+          `サマリー:\n${summary.map(s => `  ${s.templateId}: ${s.sent}通成功, ${s.failed}通失敗`).join('\n') || 'なし'}` +
+          (errorDetails ? `\n\nエラー詳細:${errorDetails}` : '')
         );
       } else {
         setMessage(`❌ Cron実行失敗: ${data.error || 'Unknown error'}\n\n詳細: ${data.details || ''}`);
