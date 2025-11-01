@@ -214,18 +214,25 @@ export async function GET(request: NextRequest) {
       });
 
       // 送信履歴をチェック（重複送信を防ぐ - 24時間以内の送信をスキップ）
-      const now = new Date();
-      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      // ただし、テストモードの場合は履歴チェックをスキップ
+      let eligibleUsers = filteredUsers;
 
-      const eligibleUsers = filteredUsers.filter(user => {
-        const lastSent = user.lastEmailSent?.[template.id];
+      if (!testMode) {
+        const now = new Date();
+        const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-        if (!lastSent) return true; // 未送信なら送信対象
+        eligibleUsers = filteredUsers.filter(user => {
+          const lastSent = user.lastEmailSent?.[template.id];
 
-        // 最後の送信から24時間以上経過していれば送信対象
-        const lastSentDate = lastSent instanceof Date ? lastSent : new Date(lastSent);
-        return lastSentDate < oneDayAgo;
-      });
+          if (!lastSent) return true; // 未送信なら送信対象
+
+          // 最後の送信から24時間以上経過していれば送信対象
+          const lastSentDate = lastSent instanceof Date ? lastSent : new Date(lastSent);
+          return lastSentDate < oneDayAgo;
+        });
+      } else {
+        console.log('🧪 TEST MODE: Skipping 24-hour duplicate check');
+      }
 
       console.log(`  Total users: ${users.length}, Filtered: ${filteredUsers.length}, Eligible: ${eligibleUsers.length}`);
 
@@ -238,7 +245,7 @@ export async function GET(request: NextRequest) {
         const result = await sendEmailToUser({
           templateId: template.id,
           userId: user.uid,
-          testMode: false,
+          testMode: testMode, // テストモードの場合は送信履歴を更新しない
         });
 
         if (result.success) {
