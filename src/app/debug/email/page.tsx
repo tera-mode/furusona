@@ -129,6 +129,52 @@ export default function EmailDebugPage() {
     }
   };
 
+  // Cron APIを手動実行
+  const runCronManually = async () => {
+    setLoading(true);
+    setMessage('Cron APIを実行中...');
+
+    try {
+      const cronSecret = prompt('CRON_SECRETを入力してください:');
+      if (!cronSecret) {
+        setMessage('キャンセルされました');
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`/api/cron/send-emails?secret=${cronSecret}`, {
+        method: 'GET',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const summary = (data.summary || []) as Array<{ templateId: string; sent: number; failed: number }>;
+        const details = summary.map((s) =>
+          `${s.templateId}: ${s.sent}通送信成功, ${s.failed}通失敗`
+        ).join('\n');
+
+        const matchingTemplates = (data.matchingTemplates || []) as Array<{ id: string; name: string }>;
+
+        setMessage(
+          `✅ Cron実行完了\n\n` +
+          `マッチしたテンプレート: ${matchingTemplates.map((t) => t.name).join(', ') || 'なし'}\n` +
+          `総購読者数: ${data.totalSubscribers || 0}\n` +
+          `送信成功: ${data.sent || 0}通\n` +
+          `送信失敗: ${data.failed || 0}通\n\n` +
+          `詳細:\n${details || 'なし'}`
+        );
+      } else {
+        setMessage(`❌ Cron実行失敗: ${data.error || 'Unknown error'}\n\n詳細: ${data.details || ''}`);
+      }
+    } catch (error) {
+      console.error('Failed to run cron:', error);
+      setMessage(`❌ Cron実行エラー: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // スケジュール表示用のヘルパー関数
   const formatSchedule = (schedule?: EmailSchedule) => {
     if (!schedule) return '未設定';
@@ -155,23 +201,37 @@ export default function EmailDebugPage() {
       <h1 className="text-3xl font-bold mb-8">メール管理</h1>
 
       {message && (
-        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-6">
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-6 whitespace-pre-wrap">
           {message}
         </div>
       )}
 
       {/* 初期化ボタン */}
-      <div className="mb-6">
-        <button
-          onClick={initializeTemplates}
-          disabled={loading}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
-        >
-          {loading ? '処理中...' : 'テンプレートを初期化'}
-        </button>
-        <p className="text-sm text-gray-600 mt-2">
-          ※ デフォルトテンプレートをFirestoreに保存します
-        </p>
+      <div className="mb-6 flex gap-4">
+        <div>
+          <button
+            onClick={initializeTemplates}
+            disabled={loading}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+          >
+            {loading ? '処理中...' : 'テンプレートを初期化'}
+          </button>
+          <p className="text-sm text-gray-600 mt-2">
+            ※ デフォルトテンプレートをFirestoreに保存します
+          </p>
+        </div>
+        <div>
+          <button
+            onClick={runCronManually}
+            disabled={loading}
+            className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 disabled:opacity-50"
+          >
+            {loading ? '実行中...' : 'Cronを手動実行'}
+          </button>
+          <p className="text-sm text-gray-600 mt-2">
+            ※ スケジュールに一致するメールを今すぐ送信テスト
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
