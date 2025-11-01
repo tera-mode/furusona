@@ -16,8 +16,13 @@ jobs:
       - name: Send Scheduled Emails
         run: |
           echo "Checking for emails to send..."
-          response=$(curl -X GET "${{ secrets.APP_URL }}/api/cron/send-emails?secret=${{ secrets.CRON_SECRET }}")
-          echo "$response"
+          echo "Target URL: ${{ secrets.APP_URL }}/api/cron/send-emails"
 
-          # レスポンスをログに出力
+          # -L: リダイレクトを追跡, -s: サイレントモード, -S: エラーは表示, -w: HTTPコード表示
+          response=$(curl -L -s -S -w "\n\nHTTP Status: %{http_code}\n" \
+            -X GET "${{ secrets.APP_URL }}/api/cron/send-emails?secret=${{ secrets.CRON_SECRET }}")
+
+          echo "Response:"
+          echo "$response"
+          echo ""
           echo "Email sending completed."
