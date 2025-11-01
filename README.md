@@ -7,6 +7,7 @@ AIがあなたにぴったりのふるさと納税返礼品を提案するサー
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - 技術アーキテクチャ、データモデル、システム構成
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** - 開発ガイド、セットアップ手順、トラブルシューティング
 - **[API.md](./API.md)** - API仕様書、エンドポイント詳細
+- **[SECURITY_GUIDELINES.md](./SECURITY_GUIDELINES.md)** - 🔐 セキュリティガイドライン（開発前に必読）
 
 ## 主な機能
 
@@ -21,6 +22,10 @@ AIがあなたにぴったりのふるさと納税返礼品を提案するサー
 9. **Firestore永続キャッシュ**: 楽天APIから取得した商品データを検索条件ベースでキャッシュ（7日間有効）
 10. **レスポンシブデザイン**: モバイル・タブレット・デスクトップに最適化されたUI
 11. **管理者デバッグ画面**: アルゴリズム設定・変更履歴・フロー図を可視化（`/debug`）
+12. **メール配信システム**: Brevo APIとGitHub Actionsによる自動メール配信
+   - 季節のおすすめ、限度額リマインダー、年末駆け込み案内、確定申告リマインダー
+   - ルールベースのパーソナライズ（AIコストなし）
+   - 管理者画面でテンプレート編集・テスト送信可能（`/debug/email`）
 
 ## 技術スタック
 
@@ -30,6 +35,8 @@ AIがあなたにぴったりのふるさと納税返礼品を提案するサー
 - **外部API**:
   - 楽天市場API: 返礼品データ取得
   - Google Gemini API: パーソナライズ推薦エンジン
+  - Brevo API: トランザクショナルメール配信
+- **自動化**: GitHub Actions（スケジュールメール配信）
 - **デプロイ**: Vercel
 
 ## セットアップ
@@ -59,6 +66,14 @@ RAKUTEN_AFFILIATE_ID=your_rakuten_affiliate_id
 
 # Google Gemini API
 GEMINI_API_KEY=your_gemini_api_key
+
+# Brevo API (Email Delivery)
+BREVO_API_KEY=your_brevo_api_key
+BREVO_FROM_EMAIL=noreply@yourdomain.com
+BREVO_FROM_NAME=Your App Name
+
+# Cron Secret (for GitHub Actions)
+CRON_SECRET=your_random_secret_here
 
 # App Configuration
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -94,6 +109,11 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 1. [Google AI Studio](https://aistudio.google.com/app/apikey)でAPIキーを取得
 2. APIキーを`.env.local`に設定
 
+#### Brevo API（メール配信）
+1. [Brevo](https://www.brevo.com/)でアカウント作成（無料プラン: 1日300通まで）
+2. Settings > SMTP & API > API Keys からAPIキーを取得
+3. APIキー、送信者メールアドレス、送信者名を`.env.local`に設定
+
 ### 5. 商品データのプリフェッチ（任意）
 
 初回起動時に主要カテゴリの返礼品データをキャッシュする場合:
@@ -126,10 +146,14 @@ furusona/
 │   │   ├── api/             # APIルート
 │   │   │   ├── calculate-limit/  # 限度額計算API
 │   │   │   ├── rakuten/          # 楽天API統合（キャッシング対応）
-│   │   │   └── recommendations/  # Gemini推薦API
+│   │   │   ├── recommendations/  # Gemini推薦API
+│   │   │   ├── email/            # メール配信API
+│   │   │   └── cron/             # Cron/GitHub Actions用API
 │   │   ├── dashboard/       # ダッシュボード画面
 │   │   ├── profile/         # プロファイル設定画面
 │   │   ├── history/         # 寄付履歴画面
+│   │   ├── debug/           # 管理者デバッグ画面
+│   │   │   └── email/      # メールテンプレート管理
 │   │   ├── layout.tsx       # ルートレイアウト
 │   │   ├── page.tsx         # トップページ
 │   │   └── globals.css      # グローバルスタイル
@@ -143,13 +167,26 @@ furusona/
 │   │   ├── firebase.ts     # Firebase設定
 │   │   ├── firebase-admin.ts
 │   │   ├── categoryMapping.ts  # 15カテゴリマッピング
-│   │   └── product-cache.ts # 商品キャッシュサービス
+│   │   ├── product-cache.ts # 商品キャッシュサービス
+│   │   ├── email/          # メール配信システム
+│   │   │   ├── brevo-client.ts      # Brevo API統合
+│   │   │   ├── template-engine.ts   # テンプレートエンジン
+│   │   │   └── personalization.ts   # パーソナライズロジック
+│   │   └── email-templates/  # メールテンプレート
+│   │       ├── seasonal.ts         # 季節のおすすめ
+│   │       ├── limit-reminder.ts   # 限度額リマインダー
+│   │       ├── year-end.ts         # 年末駆け込み
+│   │       └── tax-reminder.ts     # 確定申告リマインダー
 │   ├── types/              # TypeScript型定義
-│   │   └── index.ts
+│   │   ├── index.ts
+│   │   └── email.ts        # メール型定義
 │   └── utils/              # ユーティリティ関数
 │       └── furusatoCalculator.ts
 ├── scripts/                # スクリプト
 │   └── prefetch-products.ts # 商品データプリフェッチ
+├── .github/
+│   └── workflows/
+│       └── scheduled-emails.yml  # メール配信スケジュール
 ├── .env.local.example      # 環境変数テンプレート
 ├── firestore.rules         # Firestoreセキュリティルール
 ├── next.config.ts          # Next.js設定
@@ -194,6 +231,22 @@ firebase deploy --only firestore:indexes
 7. **寄付記録**: 気に入った返礼品をクリックして楽天市場で寄付し、「購入済みに変更」ボタンで寄付履歴に追加
 
 ## 最新の更新
+
+### v1.10.0 (2025-11-01)
+- **メール配信システム実装**: Brevo APIとGitHub Actionsによる自動メール配信機能を実装
+  - **4種類のメールテンプレート**:
+    - 季節のおすすめ返礼品（毎月1日）
+    - 限度額リマインダー（6月、9月、11月）
+    - 年末駆け込み案内（11月15日、12月1日・15日）
+    - 確定申告リマインダー（2月1日・20日）
+  - **ルールベースのパーソナライズ**: ユーザーの寄付履歴、限度額、好みカテゴリに基づいたコンテンツ生成（AIコストなし）
+  - **カスタムテンプレートエンジン**: 変数置換と条件分岐をサポート
+  - **管理者デバッグ画面**: `/debug/email` でテンプレート編集、プレビュー、テスト送信が可能
+  - **GitHub Actions統合**: cronスケジュールで自動実行、CRON_SECRETで認証
+  - **配信制御**: ニュースレター購読設定とメール種別ごとの購読管理
+  - **送信履歴管理**: Firestoreに送信ログを記録、24時間以内の重複送信を防止
+- **Brevo API統合**: 無料プランで1日300通まで配信可能（十分な容量）
+- **Firestore複合インデックス追加**: メール配信用の商品検索クエリに対応
 
 ### v1.8.0 (2025-10-31)
 - **カスタムリクエスト機能の完全統合**: プロフィール設定のフリーワード入力が推薦に反映されるよう改善
@@ -460,19 +513,38 @@ console.log('Output tokens:', result.response.usageMetadata?.candidatesTokenCoun
 
 ## 🚨 セキュリティルール（必読）
 
+### ⚠️ 重要: 2025年のセキュリティインシデント教訓
+
+**実際に起きた問題:**
+- `docs/EMAIL_SETUP.md` に実際のBrevo APIキーを記載
+- ユーザーが気づかなければそのままGitHubに公開されるところだった
+
+**学んだこと:**
+- **ドキュメント作成時も機密情報チェックは絶対に必要**
+- AIが生成したコードやドキュメントを無批判に信頼してはいけない
+- コミット前のレビューは人間の目で必ず行う
+
+**→ 詳細は [SECURITY_GUIDELINES.md](./SECURITY_GUIDELINES.md) を参照**
+
+---
+
 ### 絶対に守るべきルール
 
 #### 1. **環境変数・APIキーの取り扱い**
-- ❌ **絶対禁止**: 実際のAPIキーや環境変数の値をコードやドキュメントに記載しない
+- ❌ **絶対禁止**: 実際のAPIキーや環境変数の値をコード、ドキュメント、コメント、ログに記載しない
 - ❌ **絶対禁止**: `.env.local` ファイルをGitにコミットしない
-- ✅ **推奨**: `.env.local.example` に例示値（`your_api_key`等）のみ記載
-- ✅ **推奨**: 環境変数は必ず `.gitignore` に含める
+- ❌ **絶対禁止**: 設定手順書やREADMEに実際のAPI キー値をコピー&ペーストしない
+- ✅ **必須**: `.env.local.example` に例示値（`your_api_key`等）のみ記載
+- ✅ **必須**: 環境変数は必ず `.gitignore` に含める
+- ✅ **必須**: すべてのドキュメントはプレースホルダーのみ使用
 
 #### 2. **ドキュメント・コメントの記述ルール**
 - ❌ **絶対禁止**: 実際のAPIキー、アプリケーションID、認証情報をドキュメントに記載
+- ❌ **絶対禁止**: 設定例として実際の値を貼り付けない（`BREVO_API_KEY=xkeysib-...` など）
 - ❌ **絶対禁止**: デバッグログやコメントに機密情報を含める
-- ✅ **推奨**: 例示には必ずプレースホルダーを使用（例: `your_rakuten_app_id`）
-- ✅ **推奨**: 設定手順を記載する際は「取得した値を設定」のように記述
+- ✅ **必須**: 例示には必ずプレースホルダーを使用（例: `BREVO_API_KEY=your-brevo-api-key-here`）
+- ✅ **必須**: 設定手順を記載する際は「取得した値を設定」のように記述
+- ✅ **必須**: AIが生成したドキュメントは必ずレビューして実際の値が含まれていないか確認
 
 #### 3. **コミット前のチェック**
 Gitにコミットする前に、以下を必ず確認：

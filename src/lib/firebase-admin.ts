@@ -72,4 +72,7 @@ export const adminDb = new Proxy({} as FirebaseFirestore.Firestore, {
 
 export const adminAuth = getAuth;
 
+// Export getFirestore as a named export for email module
+export const getFirestoreAdmin = getFirestore;
+
 export default admin;

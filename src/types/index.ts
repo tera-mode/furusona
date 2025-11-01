@@ -27,6 +27,15 @@ export interface User {
     [year: string]: number; // { "2025": 150000, "2024": 120000 }
   };
   newsletter?: boolean; // メルマガ購読
+  emailPreferences?: { // メール種別ごとの購読設定
+    seasonal?: boolean;          // 季節のおすすめ
+    limitReminder?: boolean;     // 限度額通知
+    yearEnd?: boolean;           // 年末駆け込み
+    taxReminder?: boolean;       // 確定申告
+  };
+  lastEmailSent?: { // メール送信履歴
+    [templateId: string]: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

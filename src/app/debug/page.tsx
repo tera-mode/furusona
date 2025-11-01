@@ -11,7 +11,7 @@ export default function DebugPage() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [activeTab, setActiveTab] = useState<'algorithm' | 'logs'>('algorithm');
+  const [activeTab, setActiveTab] = useState<'algorithm' | 'logs' | 'email'>('algorithm');
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -103,6 +103,16 @@ export default function DebugPage() {
               }`}
             >
               推薦ログ・変更履歴
+            </button>
+            <button
+              onClick={() => router.push('/debug/email')}
+              className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
+                activeTab === 'email'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              メール管理
             </button>
           </div>
         </div>
