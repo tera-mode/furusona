@@ -10,8 +10,7 @@ export const taxReminderTemplate: Omit<EmailTemplate, 'createdAt' | 'updatedAt'>
     enabled: true,
     months: [2], // 2月
     days: [1, 20], // 1日、20日
-    hour: 0,
-    minute: 0,
+    hour: 0, // 0時（UTC）= 9時（JST）
     timezone: 'Asia/Tokyo',
   },
   htmlBody: `

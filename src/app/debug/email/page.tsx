@@ -198,15 +198,16 @@ export default function EmailDebugPage() {
   };
 
   // スケジュール表示用のヘルパー関数
+  // 注意: GitHub Actions cronは毎時0分（UTC）に実行されるため、分単位の設定はできません
   const formatSchedule = (schedule?: EmailSchedule) => {
     if (!schedule) return '未設定';
     if (!schedule.enabled) return '無効';
 
     const months = schedule.months && schedule.months.length > 0 ? schedule.months.join(', ') + '月' : '毎月';
     const days = schedule.days && schedule.days.length > 0 ? schedule.days.join(', ') + '日' : '毎日';
-    const time = `${String(schedule.hour).padStart(2, '0')}:${String(schedule.minute).padStart(2, '0')}`;
+    const time = `${String(schedule.hour).padStart(2, '0')}:00 (UTC)`;
 
-    return `${months} ${days} ${time} (${schedule.timezone})`;
+    return `${months} ${days} ${time} → ${schedule.timezone}表記`;
   };
 
   if (!user) {
@@ -311,7 +312,6 @@ export default function EmailDebugPage() {
                           months: [],
                           days: [],
                           hour: 0,
-                          minute: 0,
                           timezone: 'Asia/Tokyo',
                         },
                       };
@@ -359,7 +359,6 @@ export default function EmailDebugPage() {
                               months: selectedTemplate.schedule?.months || [],
                               days: selectedTemplate.schedule?.days || [],
                               hour: selectedTemplate.schedule?.hour || 0,
-                              minute: selectedTemplate.schedule?.minute || 0,
                               timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
                             },
                           })
@@ -392,7 +391,6 @@ export default function EmailDebugPage() {
                                       months: newMonths.sort((a, b) => a - b),
                                       days: selectedTemplate.schedule?.days || [],
                                       hour: selectedTemplate.schedule?.hour || 0,
-                                      minute: selectedTemplate.schedule?.minute || 0,
                                       timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
                                     },
                                   });
@@ -425,7 +423,6 @@ export default function EmailDebugPage() {
                                       months: selectedTemplate.schedule?.months || [],
                                       days: newDays.sort((a, b) => a - b),
                                       hour: selectedTemplate.schedule?.hour || 0,
-                                      minute: selectedTemplate.schedule?.minute || 0,
                                       timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
                                     },
                                   });
@@ -438,53 +435,37 @@ export default function EmailDebugPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-2">時</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="23"
-                            value={selectedTemplate.schedule?.hour ?? 0}
-                            onChange={(e) =>
-                              setSelectedTemplate({
-                                ...selectedTemplate,
-                                schedule: {
-                                  enabled: selectedTemplate.schedule?.enabled || false,
-                                  months: selectedTemplate.schedule?.months || [],
-                                  days: selectedTemplate.schedule?.days || [],
-                                  hour: parseInt(e.target.value, 10),
-                                  minute: selectedTemplate.schedule?.minute || 0,
-                                  timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
-                                },
-                              })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-2">分</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="59"
-                            value={selectedTemplate.schedule?.minute ?? 0}
-                            onChange={(e) =>
-                              setSelectedTemplate({
-                                ...selectedTemplate,
-                                schedule: {
-                                  enabled: selectedTemplate.schedule?.enabled || false,
-                                  months: selectedTemplate.schedule?.months || [],
-                                  days: selectedTemplate.schedule?.days || [],
-                                  hour: selectedTemplate.schedule?.hour || 0,
-                                  minute: parseInt(e.target.value, 10),
-                                  timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
-                                },
-                              })
-                            }
-                            className="w-full border rounded px-3 py-2"
-                          />
-                        </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          時（0-23、UTC基準）
+                          <span className="text-xs text-gray-500 ml-2">
+                            例: 0時（UTC）= 9時（JST）
+                          </span>
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="23"
+                          value={selectedTemplate.schedule?.hour ?? 0}
+                          onChange={(e) =>
+                            setSelectedTemplate({
+                              ...selectedTemplate,
+                              schedule: {
+                                enabled: selectedTemplate.schedule?.enabled || false,
+                                months: selectedTemplate.schedule?.months || [],
+                                days: selectedTemplate.schedule?.days || [],
+                                hour: parseInt(e.target.value, 10),
+                                timezone: selectedTemplate.schedule?.timezone || 'Asia/Tokyo',
+                              },
+                            })
+                          }
+                          className="w-full border rounded px-3 py-2"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          ⚠️ GitHub Actions cronは1時間に1回、毎時0分（UTC）に実行されます。<br />
+                          実際の実行時刻は毎時10分前後（±10分程度のずれ）となるため、<br />
+                          分単位の設定はできず、時間単位の設定のみ有効です。
+                        </p>
                       </div>
 
                       <div>
@@ -499,7 +480,6 @@ export default function EmailDebugPage() {
                                 months: selectedTemplate.schedule?.months || [],
                                 days: selectedTemplate.schedule?.days || [],
                                 hour: selectedTemplate.schedule?.hour || 0,
-                                minute: selectedTemplate.schedule?.minute || 0,
                                 timezone: e.target.value,
                               },
                             })

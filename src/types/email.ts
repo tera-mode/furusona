@@ -1,12 +1,14 @@
 // メール送信スケジュール
+// 注意: GitHub Actions cronは毎時0分（UTC）に実行されますが、
+// 実際の実行時刻は10分前後のずれがあります。
+// そのため、分単位の設定はできず、時間単位の設定のみ有効です。
 export interface EmailSchedule {
   enabled: boolean;               // スケジュール送信の有効/無効
   months?: number[];              // 送信する月（1-12）。nullまたは空配列=毎月
   days?: number[];                // 送信する日（1-31）。nullまたは空配列=毎日
-  hour: number;                   // 送信する時（0-23）
-  minute: number;                 // 送信する分（0-59）
+  hour: number;                   // 送信する時（0-23、UTC基準）
   timezone: string;               // タイムゾーン（デフォルト: Asia/Tokyo）
-  lastSentAt?: Date;              // 最終送信日時（重複送信防止用）
+  lastSentAt?: Date;              // 最終送信日時（参考用）
 }
 
 // メールテンプレート

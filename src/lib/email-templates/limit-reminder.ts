@@ -10,8 +10,7 @@ export const limitReminderTemplate: Omit<EmailTemplate, 'createdAt' | 'updatedAt
     enabled: true,
     months: [6, 9, 11], // 6月、9月、11月
     days: [1], // 1日
-    hour: 0,
-    minute: 0,
+    hour: 0, // 0時（UTC）= 9時（JST）
     timezone: 'Asia/Tokyo',
   },
   htmlBody: `

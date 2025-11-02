@@ -10,8 +10,7 @@ export const seasonalRecommendationTemplate: Omit<EmailTemplate, 'createdAt' | '
     enabled: true,
     months: [], // 空配列 = 毎月
     days: [1], // 毎月1日
-    hour: 0,
-    minute: 0,
+    hour: 0, // 0時（UTC）= 9時（JST）
     timezone: 'Asia/Tokyo',
   },
   htmlBody: `

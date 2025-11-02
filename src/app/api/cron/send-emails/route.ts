@@ -6,27 +6,30 @@ import { EmailTemplate, EmailSchedule } from '@/types/email';
 
 /**
  * 現在時刻がスケジュールにマッチするかチェック
+ *
+ * 重要な制約:
+ * GitHub Actions cronは1時間に1回のみ実行され、
+ * 毎時0分（UTC）にスケジュールされています。
+ * ただし、実際の実行時刻は毎時10分前後（±10分程度のずれ）となります。
+ *
+ * 参考: https://github.com/tera-mode/furusona/actions
+ *
+ * この制約により:
+ * - 分単位の精密なスケジューリングはできません
+ * - hourが一致すれば送信する（分単位のチェックは行わない）
+ * - 1時間に複数回の送信スケジュールは設定できません
  */
 function isScheduleMatching(schedule: EmailSchedule): boolean {
   if (!schedule.enabled) return false;
 
-  // タイムゾーンを考慮して現在時刻を取得
+  // UTCでの現在時刻を取得（GitHub Actions cronはUTCで実行される）
   const now = new Date();
-  const formatter = new Intl.DateTimeFormat('ja-JP', {
-    timeZone: schedule.timezone || 'Asia/Tokyo',
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false,
-  });
+  const currentMonth = now.getUTCMonth() + 1; // 0-11 → 1-12
+  const currentDay = now.getUTCDate();
+  const currentHour = now.getUTCHours();
 
-  const parts = formatter.formatToParts(now);
-  const currentMonth = parseInt(parts.find(p => p.type === 'month')?.value || '0', 10);
-  const currentDay = parseInt(parts.find(p => p.type === 'day')?.value || '0', 10);
-  const currentHour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-  const currentMinute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+  console.log(`Current time (UTC): ${currentMonth}月${currentDay}日 ${currentHour}時`);
+  console.log(`Schedule: months=${schedule.months}, days=${schedule.days}, hour=${schedule.hour}`);
 
   // 月のチェック（空の場合は毎月）
   if (schedule.months && schedule.months.length > 0) {
@@ -42,12 +45,8 @@ function isScheduleMatching(schedule: EmailSchedule): boolean {
     }
   }
 
-  // 時刻のチェック（±5分の余裕を持たせる）
-  const scheduledMinutes = schedule.hour * 60 + schedule.minute;
-  const currentMinutes = currentHour * 60 + currentMinute;
-  const diff = Math.abs(scheduledMinutes - currentMinutes);
-
-  if (diff > 5) {
+  // 時刻のチェック（hourが一致すればOK）
+  if (schedule.hour !== currentHour) {
     return false;
   }
 
@@ -58,7 +57,10 @@ function isScheduleMatching(schedule: EmailSchedule): boolean {
  * GET /api/cron/send-emails
  *
  * スケジューリングされたメール配信
- * GitHub Actionsから毎時実行される
+ *
+ * GitHub Actionsから1時間に1回、毎時0分（UTC）に実行されます。
+ * 実際の実行時刻は毎時10分前後（±10分程度のずれ）となります。
+ * 詳細: https://github.com/tera-mode/furusona/actions
  *
  * クエリパラメータ:
  * - secret: 認証用シークレット (環境変数CRON_SECRETと一致する必要がある)

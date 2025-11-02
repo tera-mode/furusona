@@ -10,8 +10,7 @@ export const yearEndRushTemplate: Omit<EmailTemplate, 'createdAt' | 'updatedAt'>
     enabled: true,
     months: [11, 12], // 11月、12月
     days: [1, 15], // 1日、15日（11月15日、12月1日、12月15日）
-    hour: 0,
-    minute: 0,
+    hour: 0, // 0時（UTC）= 9時（JST）
     timezone: 'Asia/Tokyo',
   },
   htmlBody: `
