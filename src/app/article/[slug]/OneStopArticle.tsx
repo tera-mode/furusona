@@ -368,8 +368,6 @@ export default function OneStopArticle() {
             <div className="space-y-3">
               <Link
                 href="/article/furusato-hajimekata"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
               >
                 <p className="font-bold text-gray-900 mb-1">
@@ -378,13 +376,22 @@ export default function OneStopArticle() {
                 <p className="text-sm text-gray-500">初心者でも簡単にできる手順を解説</p>
               </Link>
               <Link
-                href="/article/furusato-gendogaku-simulation"
+                href="/article/furusato-kakuteishinkoku"
                 className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
               >
                 <p className="font-bold text-gray-900 mb-1">
-                  ふるさと納税限度額シミュレーション【2025年最新】
+                  ふるさと納税の確定申告のやり方【2025年完全マニュアル】
                 </p>
-                <p className="text-sm text-gray-500">あなたの限度額を簡単計算</p>
+                <p className="text-sm text-gray-500">ワンストップが使えない場合の確定申告方法</p>
+              </Link>
+              <Link
+                href="/article/furusato-shippai-chuui"
+                className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
+              >
+                <p className="font-bold text-gray-900 mb-1">
+                  ふるさと納税で失敗しない方法と注意点【2025年版】
+                </p>
+                <p className="text-sm text-gray-500">申請書提出忘れなど、よくある失敗を防ぐ</p>
               </Link>
             </div>
           </section>

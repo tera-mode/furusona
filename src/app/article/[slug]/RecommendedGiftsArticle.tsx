@@ -403,14 +403,12 @@ export default function RecommendedGiftsArticle() {
             <div className="space-y-3">
               <Link
                 href="/article/furusato-hajimekata"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
               >
                 <p className="font-bold text-gray-900 mb-1">
                   ふるさと納税の始め方【2025年完全ガイド】
                 </p>
-                <p className="text-sm text-gray-500">初心者でも簡単にできる手順を解説</p>
+                <p className="text-sm text-gray-500">返礼品を選ぶ前に基本をチェック</p>
               </Link>
               <Link
                 href="/article/furusato-gendogaku-simulation"
@@ -420,6 +418,15 @@ export default function RecommendedGiftsArticle() {
                   ふるさと納税限度額シミュレーション【2025年最新】
                 </p>
                 <p className="text-sm text-gray-500">あなたの限度額を簡単計算</p>
+              </Link>
+              <Link
+                href="/article/furusato-shippai-chuui"
+                className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
+              >
+                <p className="font-bold text-gray-900 mb-1">
+                  ふるさと納税で失敗しない方法と注意点【2025年版】
+                </p>
+                <p className="text-sm text-gray-500">返礼品選びの失敗を防ぐ</p>
               </Link>
             </div>
           </section>

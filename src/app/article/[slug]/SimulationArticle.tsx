@@ -484,22 +484,38 @@ export default function SimulationArticle() {
           </div>
         </section>
 
-        {/* 関連記事（将来の拡張用） */}
+        {/* 関連記事 */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 border-b-2 border-gray-200 pb-2">
             関連記事
           </h2>
           <div className="space-y-3">
             <Link
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/article/furusato-hajimekata"
               className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
             >
               <p className="font-bold text-gray-900 mb-1">
-                ふるさと納税の始め方 - 初心者向け完全ガイド
+                ふるさと納税の始め方【2025年完全ガイド】
               </p>
-              <p className="text-sm text-gray-500">準備中</p>
+              <p className="text-sm text-gray-500">限度額を確認したら、次は申し込み手順をチェック</p>
+            </Link>
+            <Link
+              href="/article/furusato-osusume-henreihin"
+              className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
+            >
+              <p className="font-bold text-gray-900 mb-1">
+                ふるさと納税おすすめ返礼品ランキング【2025年最新】
+              </p>
+              <p className="text-sm text-gray-500">限度額内で選べる人気返礼品をチェック</p>
+            </Link>
+            <Link
+              href="/article/furusato-shippai-chuui"
+              className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
+            >
+              <p className="font-bold text-gray-900 mb-1">
+                ふるさと納税で失敗しない方法と注意点【2025年版】
+              </p>
+              <p className="text-sm text-gray-500">限度額オーバーなど、よくある失敗を防ぐ</p>
             </Link>
           </div>
         </section>

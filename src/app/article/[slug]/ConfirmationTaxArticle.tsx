@@ -597,11 +597,10 @@ export default function ConfirmationTaxArticle() {
                 className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
               >
                 <p className="font-bold text-gray-900 mb-1">
-                  ふるさと納税ワンストップ特例制度とは【2025年版】
+                  ふるさと納税ワンストップ特例制度とは？【2025年最新】
                 </p>
-                <p className="text-sm text-gray-500">確定申告不要で控除を受ける方法</p>
+                <p className="text-sm text-gray-500">確定申告不要の簡単な控除手続き</p>
               </Link>
-
               <Link
                 href="/article/furusato-hajimekata"
                 className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
@@ -611,17 +610,6 @@ export default function ConfirmationTaxArticle() {
                 </p>
                 <p className="text-sm text-gray-500">初心者でも簡単にできる手順を解説</p>
               </Link>
-
-              <Link
-                href="/article/furusato-gendogaku-simulation"
-                className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
-              >
-                <p className="font-bold text-gray-900 mb-1">
-                  ふるさと納税限度額シミュレーション【2025年最新】
-                </p>
-                <p className="text-sm text-gray-500">あなたの限度額を簡単計算</p>
-              </Link>
-
               <Link
                 href="/article/furusato-shippai-chuui"
                 className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
@@ -629,7 +617,7 @@ export default function ConfirmationTaxArticle() {
                 <p className="font-bold text-gray-900 mb-1">
                   ふるさと納税で失敗しない方法と注意点【2025年版】
                 </p>
-                <p className="text-sm text-gray-500">よくあるミスと対策</p>
+                <p className="text-sm text-gray-500">確定申告のミスを防ぐ</p>
               </Link>
             </div>
           </section>

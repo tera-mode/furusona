@@ -687,9 +687,8 @@ export default function MistakesArticle() {
                 <p className="font-bold text-gray-900 mb-1">
                   ふるさと納税の始め方【2025年完全ガイド】
                 </p>
-                <p className="text-sm text-gray-500">初心者でも簡単にできる手順を解説</p>
+                <p className="text-sm text-gray-500">正しい始め方を理解してミスを防ぐ</p>
               </Link>
-
               <Link
                 href="/article/furusato-gendogaku-simulation"
                 className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
@@ -697,19 +696,17 @@ export default function MistakesArticle() {
                 <p className="font-bold text-gray-900 mb-1">
                   ふるさと納税限度額シミュレーション【2025年最新】
                 </p>
-                <p className="text-sm text-gray-500">あなたの限度額を簡単計算</p>
+                <p className="text-sm text-gray-500">限度額オーバーを防ぐための正確な計算</p>
               </Link>
-
               <Link
                 href="/article/furusato-onestop"
                 className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
               >
                 <p className="font-bold text-gray-900 mb-1">
-                  ふるさと納税ワンストップ特例制度とは【2025年版】
+                  ふるさと納税ワンストップ特例制度とは？【2025年最新】
                 </p>
-                <p className="text-sm text-gray-500">確定申告不要で控除を受ける方法</p>
+                <p className="text-sm text-gray-500">申請書提出の正しい方法と期限</p>
               </Link>
-
               <Link
                 href="/article/furusato-kakuteishinkoku"
                 className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
@@ -717,7 +714,7 @@ export default function MistakesArticle() {
                 <p className="font-bold text-gray-900 mb-1">
                   ふるさと納税の確定申告のやり方【2025年完全マニュアル】
                 </p>
-                <p className="text-sm text-gray-500">手順を詳しく解説</p>
+                <p className="text-sm text-gray-500">確定申告が必要な場合の正しい手続き</p>
               </Link>
             </div>
           </section>

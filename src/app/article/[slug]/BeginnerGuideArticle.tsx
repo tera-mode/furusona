@@ -338,7 +338,25 @@ export default function BeginnerGuideArticle() {
                 <p className="font-bold text-gray-900 mb-1">
                   ふるさと納税限度額シミュレーション【2025年最新】
                 </p>
-                <p className="text-sm text-gray-500">あなたの限度額を簡単計算</p>
+                <p className="text-sm text-gray-500">ステップ1で必要な限度額を簡単計算</p>
+              </Link>
+              <Link
+                href="/article/furusato-onestop"
+                className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
+              >
+                <p className="font-bold text-gray-900 mb-1">
+                  ふるさと納税ワンストップ特例制度とは？【2025年最新】
+                </p>
+                <p className="text-sm text-gray-500">確定申告不要の簡単な控除手続き</p>
+              </Link>
+              <Link
+                href="/article/furusato-osusume-henreihin"
+                className="block p-5 border border-gray-200 rounded-lg hover:border-primary-500 hover:shadow-sm transition-all"
+              >
+                <p className="font-bold text-gray-900 mb-1">
+                  ふるさと納税おすすめ返礼品ランキング【2025年最新】
+                </p>
+                <p className="text-sm text-gray-500">人気カテゴリー別におすすめ返礼品を紹介</p>
               </Link>
             </div>
           </section>
