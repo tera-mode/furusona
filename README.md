@@ -26,6 +26,10 @@ AIがあなたにぴったりのふるさと納税返礼品を提案するサー
    - 季節のおすすめ、限度額リマインダー、年末駆け込み案内、確定申告リマインダー
    - ルールベースのパーソナライズ（AIコストなし）
    - 管理者画面でテンプレート編集・テスト送信可能（`/debug/email`）
+13. **記事管理システム**: SEO記事の公開/非公開をFirestoreで永続化
+   - デバッグ画面から記事の公開/非公開をワンクリック切り替え
+   - Firestore（`articleSettings`コレクション）で状態を永続化
+   - デフォルト値とFirestore設定の自動マージ
 
 ## 技術スタック
 
@@ -154,6 +158,8 @@ furusona/
 │   │   ├── history/         # 寄付履歴画面
 │   │   ├── debug/           # 管理者デバッグ画面
 │   │   │   └── email/      # メールテンプレート管理
+│   │   ├── article/         # SEO記事ページ
+│   │   │   └── [slug]/     # 動的ルート（記事スラッグ）
 │   │   ├── layout.tsx       # ルートレイアウト
 │   │   ├── page.tsx         # トップページ
 │   │   └── globals.css      # グローバルスタイル
@@ -168,6 +174,7 @@ furusona/
 │   │   ├── firebase-admin.ts
 │   │   ├── categoryMapping.ts  # 15カテゴリマッピング
 │   │   ├── product-cache.ts # 商品キャッシュサービス
+│   │   ├── article-settings.ts # 記事設定管理（Firestore）
 │   │   ├── email/          # メール配信システム
 │   │   │   ├── brevo-client.ts      # Brevo API統合
 │   │   │   ├── template-engine.ts   # テンプレートエンジン
@@ -231,6 +238,20 @@ firebase deploy --only firestore:indexes
 7. **寄付記録**: 気に入った返礼品をクリックして楽天市場で寄付し、「購入済みに変更」ボタンで寄付履歴に追加
 
 ## 最新の更新
+
+### v1.11.0 (2025-11-05)
+- **記事管理システム実装**: SEO記事の公開/非公開をFirestoreで永続化
+  - **デバッグ画面に記事管理タブを追加**: `/debug` の「記事管理」タブから全記事の公開/非公開を管理
+  - **Firestore永続化**: `articleSettings` コレクションで記事の公開状態を保存（サーバー再起動後も保持）
+  - **統計情報表示**: 総記事数、公開中、非公開の記事数をリアルタイム表示
+  - **ワンクリック切り替え**: 各記事の公開/非公開をボタンひとつで切り替え可能
+  - **アクセス制限**: 非公開記事へのアクセスは404を返す
+  - **デフォルト値とFirestoreの自動マージ**: コードで定義したデフォルト値とFirestoreの設定を自動的に統合
+- **ヘルパー関数追加**: `src/lib/article-settings.ts` でFirestore操作を抽象化
+  - `getArticleSetting()`: 特定記事の設定を取得
+  - `getAllArticleSettings()`: 全記事の設定を取得
+  - `saveArticleSetting()`: 記事設定を保存
+- **記事構造**: 現在11記事を管理（ふるさと納税関連のSEO記事）
 
 ### v1.10.0 (2025-11-01)
 - **メール配信システム実装**: Brevo APIとGitHub Actionsによる自動メール配信機能を実装

@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import AlgorithmVisualizer from '@/components/debug/AlgorithmVisualizer';
 import RecommendationLogs from '@/components/debug/RecommendationLogs';
+import ArticleManager from '@/components/debug/ArticleManager';
 
 export default function DebugPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [activeTab, setActiveTab] = useState<'algorithm' | 'logs' | 'email'>('algorithm');
+  const [activeTab, setActiveTab] = useState<'algorithm' | 'logs' | 'articles' | 'email'>('algorithm');
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -105,6 +106,16 @@ export default function DebugPage() {
               推薦ログ・変更履歴
             </button>
             <button
+              onClick={() => setActiveTab('articles')}
+              className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
+                activeTab === 'articles'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              記事管理
+            </button>
+            <button
               onClick={() => router.push('/debug/email')}
               className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
                 activeTab === 'email'
@@ -140,6 +151,7 @@ export default function DebugPage() {
         {/* コンテンツ */}
         {activeTab === 'algorithm' && <AlgorithmVisualizer />}
         {activeTab === 'logs' && <RecommendationLogs />}
+        {activeTab === 'articles' && <ArticleManager />}
       </main>
     </div>
   );

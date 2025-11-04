@@ -25,25 +25,6 @@ export default function AiArticle() {
         </p>
       </div>
 
-      {/* CTA1: 記事冒頭 */}
-      <div className="mb-12 p-6 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border-2 border-orange-200">
-        <div className="text-center">
-          <p className="text-lg font-bold text-gray-900 mb-2">
-            🤖 AIで返礼品を自動提案
-          </p>
-          <p className="text-sm text-gray-700 mb-4">
-            あなたの好みに合わせて最適な返礼品をAIが選びます
-          </p>
-          <Link
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-          >
-            ふるそなで無料診断 →
-          </Link>
-        </div>
-      </div>
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -248,22 +229,6 @@ export default function AiArticle() {
           </div>
         </div>
 
-        {/* CTA2: AI機能紹介後 */}
-        <div className="mt-8 p-6 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border-2 border-orange-200">
-          <p className="text-center text-gray-800 mb-4">
-            <strong>これらのAI機能がすべて無料で使えます</strong>
-          </p>
-          <div className="text-center">
-            <Link
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-            >
-              ふるそなでAI診断を始める →
-            </Link>
-          </div>
-        </div>
       </section>
 
       {/* セクション4: 使い方 */}
@@ -503,6 +468,58 @@ export default function AiArticle() {
         </div>
       </section>
 
+      {/* ふるそなPR */}
+      <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
+        <div className="text-center mb-6">
+          <Link href="/" className="inline-block mb-4">
+            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+          </Link>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            AIで返礼品選びを時短！1分で最適な返礼品が見つかる
+          </h3>
+          <p className="text-gray-700 mb-6">
+            もう、2〜3時間かけて返礼品を探す必要はありません。
+            ふるそなのAIが、あなたにぴったりの返礼品を自動で提案します。
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
+          <div className="text-center">
+            <div className="text-4xl mb-3">🎯</div>
+            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <p className="text-sm text-gray-700">
+              あなたの好み・家族構成から最適な返礼品を自動提案
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl mb-3">📊</div>
+            <h4 className="font-bold text-gray-900 mb-2">限度額シミュレーション</h4>
+            <p className="text-sm text-gray-700">
+              年収と家族構成を入力するだけで正確な限度額を計算
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl mb-3">📧</div>
+            <h4 className="font-bold text-gray-900 mb-2">旬のタイミングで通知</h4>
+            <p className="text-sm text-gray-700">
+              楽天マラソン等のお得なタイミングをメール通知
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <Link
+            href="/"
+            className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+          >
+            無料で始める →
+          </Link>
+          <p className="text-sm text-gray-600 mt-4">
+            完全無料 | クレジットカード登録不要 | 登録後すぐに利用開始
+          </p>
+        </div>
+      </div>
+
       {/* FAQ */}
       <section id="faq" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-orange-500">
@@ -617,25 +634,6 @@ export default function AiArticle() {
           </p>
         </div>
       </section>
-
-      {/* CTA3: 記事末尾 */}
-      <div className="mb-12 p-8 bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg text-white text-center">
-        <h3 className="text-2xl font-bold mb-4">
-          AIで返礼品選びを3分で完了
-        </h3>
-        <p className="mb-6">
-          ふるそななら、限度額計算から返礼品選びまで<br />
-          すべてAIがサポートします
-        </p>
-        <Link
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-white text-orange-600 hover:bg-gray-100 font-bold py-4 px-10 rounded-lg transition-colors text-lg"
-        >
-          今すぐ無料で始める →
-        </Link>
-      </div>
 
       {/* 関連記事 */}
       <section className="mb-12">

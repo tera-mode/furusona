@@ -26,25 +26,6 @@ export default function DailyGoodsArticle() {
         </p>
       </div>
 
-      {/* CTA1: 記事冒頭 */}
-      <div className="mb-12 p-6 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border-2 border-orange-200">
-        <div className="text-center">
-          <p className="text-lg font-bold text-gray-900 mb-2">
-            🧻 AIで端数調整に最適な日用品を提案
-          </p>
-          <p className="text-sm text-gray-700 mb-4">
-            限度額を無駄なく使い切る返礼品を自動計算
-          </p>
-          <Link
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-          >
-            ふるそなで無料診断 →
-          </Link>
-        </div>
-      </div>
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -525,20 +506,55 @@ export default function DailyGoodsArticle() {
         </div>
       </section>
 
-      {/* CTA2: 記事中盤 */}
-      <div className="mb-12 p-6 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border-2 border-orange-200">
-        <p className="text-center text-gray-800 mb-4">
-          <strong>AIで限度額の端数を無駄なく使い切る</strong>
-        </p>
+      {/* ふるそなPR */}
+      <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
+        <div className="text-center mb-6">
+          <Link href="/" className="inline-block mb-4">
+            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+          </Link>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            物価高対策！日用品で限度額を無駄なく使い切る
+          </h3>
+          <p className="text-gray-700 mb-6">
+            限度額の端数調整に最適な日用品をAIが自動提案。
+            2,000円〜15,000円まで幅広い寄付額で、限度額をピッタリ使い切れます。
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
+          <div className="text-center">
+            <div className="text-4xl mb-3">🎯</div>
+            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <p className="text-sm text-gray-700">
+              端数調整に最適な日用品を自動で提案
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl mb-3">📊</div>
+            <h4 className="font-bold text-gray-900 mb-2">限度額シミュレーション</h4>
+            <p className="text-sm text-gray-700">
+              年収と家族構成を入力するだけで正確な限度額を計算
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl mb-3">📧</div>
+            <h4 className="font-bold text-gray-900 mb-2">旬のタイミングで通知</h4>
+            <p className="text-sm text-gray-700">
+              楽天マラソン等のお得なタイミングをメール通知
+            </p>
+          </div>
+        </div>
+
         <div className="text-center">
           <Link
             href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+            className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
           >
-            ふるそなで最適化 →
+            無料で始める →
           </Link>
+          <p className="text-sm text-gray-600 mt-4">
+            完全無料 | クレジットカード登録不要 | 登録後すぐに利用開始
+          </p>
         </div>
       </div>
 
@@ -652,25 +668,6 @@ export default function DailyGoodsArticle() {
           </p>
         </div>
       </section>
-
-      {/* CTA3: 記事末尾 */}
-      <div className="mb-12 p-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-white text-center">
-        <h3 className="text-2xl font-bold mb-4">
-          AIで限度額を無駄なく使い切る
-        </h3>
-        <p className="mb-6">
-          端数調整に最適な日用品を<br />
-          自動で提案します
-        </p>
-        <Link
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-white text-blue-600 hover:bg-gray-100 font-bold py-4 px-10 rounded-lg transition-colors text-lg"
-        >
-          今すぐ無料で始める →
-        </Link>
-      </div>
 
       {/* 関連記事 */}
       <section className="mb-12">

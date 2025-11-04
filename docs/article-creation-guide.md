@@ -5,12 +5,15 @@
 ## 目次
 
 1. [ファイル構成](#ファイル構成)
-2. [SEO対策](#seo対策)
-3. [メタデータ設定](#メタデータ設定)
-4. [コンテンツ構成](#コンテンツ構成)
-5. [UXデザイン](#uxデザイン)
-6. [リンク設定](#リンク設定)
-7. [チェックリスト](#チェックリスト)
+2. [スタイル・トンマナ](#スタイルトンマナ)
+3. [PRふるそな紹介セクション](#prふるそな紹介セクション)
+4. [デザイン・ビジュアル](#デザインビジュアル)
+5. [SEO対策](#seo対策)
+6. [メタデータ設定](#メタデータ設定)
+7. [コンテンツ構成](#コンテンツ構成)
+8. [UXデザイン](#uxデザイン)
+9. [リンク設定](#リンク設定)
+10. [チェックリスト](#チェックリスト)
 
 ---
 
@@ -35,6 +38,212 @@ src/app/article/[slug]/
 - 記事の実際のコンテンツ表示
 - インタラクティブな機能（フォーム、計算機等）
 - クライアントサイドの状態管理
+
+---
+
+## スタイル・トンマナ
+
+### 文章スタイル
+
+1. **語調**: 丁寧語（です・ます調）を使用
+2. **読者への呼びかけ**: 「あなた」を使用（例: 「あなたにぴったりの返礼品」）
+3. **強調**: `<strong>` タグで重要なキーワードを強調
+4. **具体性**: 数値・データを積極的に使用（例: 「173%増」「76万点以上」）
+5. **親しみやすさ**: 適度に絵文字を使用（🎯📊📧など）
+
+### トーン
+
+- 初心者にも分かりやすい言葉遣い
+- 専門用語は必ず説明を添える
+- ポジティブで前向きな表現（「簡単」「お得」「便利」など）
+- 不安を煽らず、解決策を提示
+
+### 避けるべき表現
+
+- ❌ 「絶対」「必ず」などの断定表現
+- ❌ 過度な煽り文句
+- ❌ ネガティブな表現（「損する」「失敗する」など、解決策なしでは使わない）
+
+---
+
+## PR（ふるそな紹介）セクション
+
+### 配置
+
+- **FAQセクションの直前**に1箇所のみ配置
+- 記事の中盤〜後半（全体の60〜80%地点）が理想
+- 記事冒頭や末尾にCTAを複数配置しない
+
+### 統一された構造
+
+```tsx
+{/* ふるそなPR */}
+<div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
+  <div className="text-center mb-6">
+    <Link href="/" className="inline-block mb-4">
+      <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+    </Link>
+    <h3 className="text-2xl font-bold text-gray-900 mb-3">
+      【記事内容に合わせたキャッチフレーズ】
+    </h3>
+    <p className="text-gray-700 mb-6">
+      【記事内容に合わせたサブタイトル・説明文】
+    </p>
+  </div>
+
+  <div className="grid md:grid-cols-3 gap-6 mb-6">
+    <div className="text-center">
+      <div className="text-4xl mb-3">🎯</div>
+      <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+      <p className="text-sm text-gray-700">
+        【記事内容に合わせた説明】
+      </p>
+    </div>
+    <div className="text-center">
+      <div className="text-4xl mb-3">📊</div>
+      <h4 className="font-bold text-gray-900 mb-2">限度額シミュレーション</h4>
+      <p className="text-sm text-gray-700">
+        年収と家族構成を入力するだけで正確な限度額を計算
+      </p>
+    </div>
+    <div className="text-center">
+      <div className="text-4xl mb-3">📧</div>
+      <h4 className="font-bold text-gray-900 mb-2">旬のタイミングで通知</h4>
+      <p className="text-sm text-gray-700">
+        楽天マラソン等のお得なタイミングをメール通知
+      </p>
+    </div>
+  </div>
+
+  <div className="text-center">
+    <Link
+      href="/"
+      className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+    >
+      無料で始める →
+    </Link>
+    <p className="text-sm text-gray-600 mt-4">
+      完全無料 | クレジットカード登録不要 | 登録後すぐに利用開始
+    </p>
+  </div>
+</div>
+```
+
+### 記事内容別のキャッチフレーズ例
+
+| 記事タイプ | キャッチフレーズ例 |
+|----------|---------------|
+| AI推薦 | AIで返礼品選びを時短！1分で最適な返礼品が見つかる |
+| 12月駆け込み | もう、12月に慌てない。AIがあなたに最適な返礼品を診断 |
+| 楽天ポイント | 楽天ポイント還元を最大化！AIが最適なタイミングを提案 |
+| 米ランキング | 家族にぴったりの米が見つかる！AIが最適な量と品種を提案 |
+| 日用品 | 物価高対策！日用品で限度額を無駄なく使い切る |
+
+### 3つの機能説明
+
+**必須項目:**
+1. **AIおすすめ診断** 🎯 - 記事内容に合わせてカスタマイズ
+2. **限度額シミュレーション** 📊 - 固定文言
+3. **旬のタイミングで通知** 📧 - 固定文言（楽天関連の場合は強調）
+
+**注意点:**
+- 記事のトピックに最も関連する機能を1番目に配置
+- 説明文は簡潔に（20〜30文字程度）
+- 具体的なベネフィットを明示
+
+---
+
+## デザイン・ビジュアル
+
+### カラーパレット
+
+#### 記事のテーマカラー
+
+記事の内容に応じてメインカラーを選択し、セクション見出しの下線などに統一して使用：
+
+- **オレンジ系** (`orange-500`): 一般的なふるさと納税、初心者向け
+- **赤系** (`red-500`): 楽天ポイント、お得系
+- **緑系** (`green-500`): 米、食品系
+- **青系** (`blue-500`): 日用品、実用品系
+- **紫系** (`purple-500`): 高級品、特別な返礼品
+
+#### PRセクションの背景色（固定）
+
+```css
+bg-gradient-to-br from-primary-50 to-warning-50
+```
+
+すべての記事で統一して使用
+
+### タイポグラフィ
+
+```css
+/* H1 - 記事タイトル */
+text-3xl md:text-4xl font-bold text-gray-900
+
+/* H2 - セクション見出し */
+text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-[color]-500
+
+/* H3 - サブセクション見出し */
+text-xl font-semibold text-gray-800 mb-4
+
+/* H4 - 小見出し */
+text-lg font-bold text-gray-900 mb-3
+
+/* 本文 */
+text-gray-700
+
+/* 強調 */
+font-bold text-gray-900
+
+/* 小文字・注記 */
+text-sm text-gray-600
+```
+
+### アイコン・絵文字
+
+#### 推奨絵文字一覧
+
+- 🎯 AIおすすめ診断、ターゲティング
+- 📊 限度額計算、データ分析
+- 📧 メール通知、リマインダー
+- ⏰ 期限、時間
+- 🍚 米
+- 🥩 肉
+- 🐟 海鮮
+- 🍎 フルーツ
+- 🧻 日用品
+- 💰 お金、コスパ
+- ✓ チェックポイント、成功
+- ⚠️ 注意点
+
+### 情報ボックス
+
+```tsx
+{/* 成功・ポジティブ */}
+<div className="bg-green-50 border-l-4 border-green-500 p-4">
+  <p className="text-sm text-gray-700">
+    💡 <strong>ヒント</strong><br />
+    補足情報
+  </p>
+</div>
+
+{/* 警告・注意 */}
+<div className="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+  <p className="text-sm text-gray-700">
+    ⚠️ <strong>注意点</strong><br />
+    注意すべき内容
+  </p>
+</div>
+
+{/* 重要・エラー */}
+<div className="bg-red-50 border-l-4 border-red-500 p-4">
+  <p className="text-sm text-gray-700">
+    🚨 <strong>重要</strong><br />
+    絶対に守るべき内容
+  </p>
+</div>
+```
 
 ---
 
@@ -388,4 +597,9 @@ useEffect(() => {
 
 ## 更新履歴
 
+- 2025-11-04: **スタイル・トンマナセクションを追加**（11/3・11/4作成記事の統一を反映）
+  - PR（ふるそな紹介）セクションの統一フォーマットを定義
+  - デザイン・ビジュアルガイドラインを追加
+  - 記事内容別のキャッチフレーズ例を追加
+  - カラーパレット、タイポグラフィ、絵文字の推奨リストを追加
 - 2025-11-03: 初版作成（ふるさと納税限度額シミュレーション記事をベースに作成）

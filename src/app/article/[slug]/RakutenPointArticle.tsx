@@ -26,25 +26,6 @@ export default function RakutenPointArticle() {
         </p>
       </div>
 
-      {/* CTA1: 記事冒頭 */}
-      <div className="mb-12 p-6 bg-gradient-to-r from-red-50 to-red-100 rounded-lg border-2 border-red-200">
-        <div className="text-center">
-          <p className="text-lg font-bold text-gray-900 mb-2">
-            🎁 AIで楽天ポイント還元を自動計算
-          </p>
-          <p className="text-sm text-gray-700 mb-4">
-            実質負担額がマイナスになる返礼品を優先表示
-          </p>
-          <Link
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-          >
-            ふるそなで無料診断 →
-          </Link>
-        </div>
-      </div>
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -310,22 +291,6 @@ export default function RakutenPointArticle() {
           </div>
         </div>
 
-        {/* CTA2: キャンペーン紹介後 */}
-        <div className="mt-8 p-6 bg-gradient-to-r from-red-50 to-red-100 rounded-lg border-2 border-red-200">
-          <p className="text-center text-gray-800 mb-4">
-            <strong>ふるそなのAIが最適なキャンペーン時期を自動通知</strong>
-          </p>
-          <div className="text-center">
-            <Link
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-            >
-              最適タイミングを確認 →
-            </Link>
-          </div>
-        </div>
       </section>
 
       {/* セクション4: 戦略 */}
@@ -588,6 +553,58 @@ export default function RakutenPointArticle() {
         </div>
       </section>
 
+      {/* ふるそなPR */}
+      <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
+        <div className="text-center mb-6">
+          <Link href="/" className="inline-block mb-4">
+            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+          </Link>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            楽天ポイント還元を最大化！AIが最適なタイミングを提案
+          </h3>
+          <p className="text-gray-700 mb-6">
+            あなたのSPU倍率を自動計算し、お買い物マラソンなど最適なキャンペーン時期をAIが通知。
+            実質負担額をマイナスにする返礼品選びをサポートします。
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
+          <div className="text-center">
+            <div className="text-4xl mb-3">🎯</div>
+            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <p className="text-sm text-gray-700">
+              楽天ポイント還元を含めた実質価値を自動計算
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl mb-3">📊</div>
+            <h4 className="font-bold text-gray-900 mb-2">限度額シミュレーション</h4>
+            <p className="text-sm text-gray-700">
+              年収と家族構成を入力するだけで正確な限度額を計算
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl mb-3">📧</div>
+            <h4 className="font-bold text-gray-900 mb-2">旬のタイミングで通知</h4>
+            <p className="text-sm text-gray-700">
+              楽天マラソン・5と0のつく日をメール通知
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <Link
+            href="/"
+            className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+          >
+            無料で始める →
+          </Link>
+          <p className="text-sm text-gray-600 mt-4">
+            完全無料 | クレジットカード登録不要 | 登録後すぐに利用開始
+          </p>
+        </div>
+      </div>
+
       {/* FAQ */}
       <section id="faq" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-red-500">
@@ -695,25 +712,6 @@ export default function RakutenPointArticle() {
           </p>
         </div>
       </section>
-
-      {/* CTA3: 記事末尾 */}
-      <div className="mb-12 p-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg text-white text-center">
-        <h3 className="text-2xl font-bold mb-4">
-          楽天ポイント還元を最大化
-        </h3>
-        <p className="mb-6">
-          ふるそなのAIで、最適なタイミングと<br />
-          返礼品をすぐに見つけましょう
-        </p>
-        <Link
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-white text-red-600 hover:bg-gray-100 font-bold py-4 px-10 rounded-lg transition-colors text-lg"
-        >
-          今すぐ無料で始める →
-        </Link>
-      </div>
 
       {/* 関連記事 */}
       <section className="mb-12">
