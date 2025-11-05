@@ -54,6 +54,13 @@ export interface EmailVariables {
   totalDonations?: number;
   year?: number;
   month?: number;
+  // 月別訴求情報
+  monthlyAppeal?: {
+    primaryProducts: string[];    // 即時訴求品目
+    appealReason: string;          // なぜ今購入すべきか
+    detailedReason: string;        // 詳細な理由
+    needsStrength: number;         // ニーズ強度（1-5）
+  };
   products?: Array<{
     name: string;
     price: number;

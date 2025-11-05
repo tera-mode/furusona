@@ -10,12 +10,13 @@ import { sendEmailToUser } from '@/lib/email/send-email-to-user';
  *   templateId: string;
  *   userId: string;
  *   testMode?: boolean; // trueの場合、管理者メールに送信
+ *   testMonth?: number; // テスト用の月（1-12）※デバッグ用
  * }
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { templateId, userId, testMode = false } = body;
+    const { templateId, userId, testMode = false, testMonth } = body;
 
     if (!templateId || !userId) {
       return NextResponse.json(
@@ -28,6 +29,7 @@ export async function POST(request: NextRequest) {
       templateId,
       userId,
       testMode,
+      testMonth,
     });
 
     if (!result.success) {

@@ -22,6 +22,7 @@ export default function EmailDebugPage() {
   const [editScheduleMode, setEditScheduleMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [testMonth, setTestMonth] = useState<number>(new Date().getMonth() + 1); // 月選択（1-12）
 
   // テンプレート一覧を取得
   useEffect(() => {
@@ -112,6 +113,7 @@ export default function EmailDebugPage() {
           templateId,
           userId: user.uid,
           testMode: true,
+          testMonth: testMonth, // 月を指定
         }),
       });
 
@@ -255,6 +257,27 @@ export default function EmailDebugPage() {
             ※ スケジュールに一致するメールを今すぐ送信テスト
           </p>
         </div>
+      </div>
+
+      {/* 月選択 */}
+      <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          🗓️ テスト送信用の月選択（季節のおすすめメール用）
+        </label>
+        <select
+          value={testMonth}
+          onChange={(e) => setTestMonth(Number(e.target.value))}
+          className="block w-full max-w-xs px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+        >
+          {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+            <option key={month} value={month}>
+              {month}月
+            </option>
+          ))}
+        </select>
+        <p className="text-sm text-gray-600 mt-2">
+          ※ 季節のおすすめメールは、選択した月の訴求内容でプレビュー・送信されます
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

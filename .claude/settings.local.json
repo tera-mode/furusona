@@ -32,7 +32,8 @@
       "Bash(npm uninstall:*)",
       "Bash(curl:*)",
       "Bash(taskkill:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

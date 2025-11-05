@@ -1,7 +1,7 @@
 import { User, Donation } from '@/types';
 import { EmailVariables } from '@/types/email';
 import { getFirestoreAdmin } from '@/lib/firebase-admin';
-import { getCurrentSeasonalKeywords } from '@/utils/seasonality';
+import { getCurrentSeasonalKeywords, getMonthlyAppealStrategy } from '@/utils/seasonality';
 
 /**
  * ユーザーの寄付履歴を取得
@@ -144,10 +144,11 @@ async function getRecommendedProducts(
  */
 export async function generateEmailVariables(
   user: User,
-  templateId: string
+  templateId: string,
+  testMonth?: number // デバッグ用の月指定（1-12）
 ): Promise<EmailVariables> {
   const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
+  const currentMonth = testMonth || (new Date().getMonth() + 1);
 
   // 今年の寄付履歴を取得
   const donations = await getUserDonations(user.uid, currentYear);
@@ -160,6 +161,9 @@ export async function generateEmailVariables(
   const lastDonationDate = getLastDonationDate(donations);
   const totalDonations = donations.reduce((sum, d) => sum + d.productPrice, 0);
 
+  // 月別訴求戦略を取得
+  const monthlyStrategy = getMonthlyAppealStrategy(currentMonth);
+
   // 基本変数
   const variables: EmailVariables = {
     userName,
@@ -171,6 +175,13 @@ export async function generateEmailVariables(
     totalDonations,
     year: currentYear,
     month: currentMonth,
+    // 月別訴求情報を追加
+    monthlyAppeal: {
+      primaryProducts: monthlyStrategy.primaryProducts,
+      appealReason: monthlyStrategy.appealReason,
+      detailedReason: monthlyStrategy.detailedReason,
+      needsStrength: monthlyStrategy.needsStrength,
+    },
   };
 
   // テンプレートごとに商品リストを追加

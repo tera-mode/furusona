@@ -10,6 +10,7 @@ export interface SendEmailToUserOptions {
   templateId: string;
   userId: string;
   testMode?: boolean;
+  testMonth?: number; // デバッグ用の月指定（1-12）
 }
 
 export interface SendEmailToUserResult {
@@ -26,7 +27,7 @@ export async function sendEmailToUser(
   options: SendEmailToUserOptions
 ): Promise<SendEmailToUserResult> {
   try {
-    const { templateId, userId, testMode = false } = options;
+    const { templateId, userId, testMode = false, testMonth } = options;
 
     if (!templateId || !userId) {
       return {
@@ -105,7 +106,7 @@ export async function sendEmailToUser(
     }
 
     // パーソナライズ変数を生成
-    const variables = await generateEmailVariables(user, templateId);
+    const variables = await generateEmailVariables(user, templateId, testMonth);
 
     // 件名をレンダリング
     const subject = renderTemplate(templateData.subject || '', variables);
