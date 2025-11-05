@@ -39,5 +39,6 @@ next-env.d.ts
 .vercel
 .env.production
 
-# SEO research (internal use only)
+# SEO research and internal documentation (internal use only)
 SEOresearch.md
+/docs
