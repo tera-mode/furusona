@@ -239,6 +239,23 @@ firebase deploy --only firestore:indexes
 
 ## 最新の更新
 
+### v1.12.0 (2025-11-06)
+- **SEO自動インデックス対策実装**: Google Search Consoleでの手動インデックス登録を不要に
+  - **動的サイトマップ生成**: `/sitemap.xml` が全公開記事を自動的に含むように改善
+    - Firestoreの公開設定を反映し、非公開記事は自動除外
+    - 記事ページは `priority: 0.9`、`changeFrequency: 'weekly'` で設定
+  - **静的サイト生成(SSG)**: `generateStaticParams()` を追加し、ビルド時に全記事を事前生成
+    - Googleクローラーが高速にページを検出・インデックス可能に
+    - SEOパフォーマンスとページ読み込み速度を大幅向上
+  - **Article構造化データ**: Schema.org Article マークアップを全記事に追加
+    - Google検索結果でリッチリザルト表示の可能性が向上
+    - 既存のFAQPage構造化データも維持
+  - **サーチエンジン通知スクリプト**: 新記事公開時にGoogle/Bingへ自動通知
+    - `npm run ping-search-engines` で簡単に実行可能
+    - サイトマップ更新をGoogle/Bingに即座に通知
+- **今後の運用**: 新しい記事を公開したら、デプロイ後にpingスクリプトを実行するだけでOK
+- **効果**: 手動でのインデックス登録作業が不要になり、Googleが自動的に新記事を発見
+
 ### v1.11.0 (2025-11-05)
 - **記事管理システム実装**: SEO記事の公開/非公開をFirestoreで永続化
   - **デバッグ画面に記事管理タブを追加**: `/debug` の「記事管理」タブから全記事の公開/非公開を管理
