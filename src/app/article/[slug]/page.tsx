@@ -76,6 +76,13 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+// 静的パスの生成（ビルド時にすべての記事ページを事前生成）
+export async function generateStaticParams() {
+  return Object.keys(articleData).map((slug) => ({
+    slug,
+  }));
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = articleData[slug];
@@ -136,6 +143,34 @@ export default async function ArticlePage({ params }: Props) {
     notFound();
   }
 
+  // Article構造化データ（全記事共通）
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": article.title,
+    "description": article.description,
+    "image": "https://furusona.com/img/og-furusato-simulation.png",
+    "author": {
+      "@type": "Organization",
+      "name": "ふるそな",
+      "url": "https://furusona.jp"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "ふるそな",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://furusona.com/img/og-furusato-simulation.png"
+      }
+    },
+    "datePublished": "2025-01-01",
+    "dateModified": new Date().toISOString().split('T')[0],
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://furusona.jp/article/${slug}`
+    }
+  };
+
   // FAQPage構造化データ（ふるさと納税限度額シミュレーション用）
   const faqSchema = slug === 'furusato-gendogaku-simulation' ? {
     "@context": "https://schema.org",
@@ -169,40 +204,50 @@ export default async function ArticlePage({ params }: Props) {
   } : null;
 
   // スラッグに応じた記事コンポーネントを返す
-  switch (slug) {
-    case 'furusato-gendogaku-simulation':
-      return (
-        <>
-          {faqSchema && (
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-            />
-          )}
-          <SimulationArticle />
-        </>
-      );
-    case 'furusato-hajimekata':
-      return <BeginnerGuideArticle />;
-    case 'furusato-onestop':
-      return <OneStopArticle />;
-    case 'furusato-osusume-henreihin':
-      return <RecommendedGiftsArticle />;
-    case 'furusato-kakuteishinkoku':
-      return <ConfirmationTaxArticle />;
-    case 'furusato-shippai-chuui':
-      return <MistakesArticle />;
-    case 'furusato-ai-suisen':
-      return <AiArticle />;
-    case 'furusato-december-kakekomi':
-      return <DecemberArticle />;
-    case 'furusato-rakuten-point':
-      return <RakutenPointArticle />;
-    case 'furusato-kome-ranking':
-      return <RiceRankingArticle />;
-    case 'furusato-nichiyouhin':
-      return <DailyGoodsArticle />;
-    default:
-      notFound();
-  }
+  const ArticleComponent = (() => {
+    switch (slug) {
+      case 'furusato-gendogaku-simulation':
+        return SimulationArticle;
+      case 'furusato-hajimekata':
+        return BeginnerGuideArticle;
+      case 'furusato-onestop':
+        return OneStopArticle;
+      case 'furusato-osusume-henreihin':
+        return RecommendedGiftsArticle;
+      case 'furusato-kakuteishinkoku':
+        return ConfirmationTaxArticle;
+      case 'furusato-shippai-chuui':
+        return MistakesArticle;
+      case 'furusato-ai-suisen':
+        return AiArticle;
+      case 'furusato-december-kakekomi':
+        return DecemberArticle;
+      case 'furusato-rakuten-point':
+        return RakutenPointArticle;
+      case 'furusato-kome-ranking':
+        return RiceRankingArticle;
+      case 'furusato-nichiyouhin':
+        return DailyGoodsArticle;
+      default:
+        notFound();
+    }
+  })();
+
+  return (
+    <>
+      {/* Article構造化データ */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      {/* FAQPage構造化データ（該当する場合のみ） */}
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+      <ArticleComponent />
+    </>
+  );
 }

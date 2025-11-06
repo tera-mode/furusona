@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prefetch": "tsx scripts/prefetch-products.ts"
+    "prefetch": "tsx scripts/prefetch-products.ts",
+    "ping-search-engines": "tsx scripts/ping-search-engines.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
