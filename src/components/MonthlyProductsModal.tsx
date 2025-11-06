@@ -280,9 +280,9 @@ export default function MonthlyProductsModal({ isOpen, onClose, onSave }: Monthl
           {/* 月のテーマ表示 */}
           <div className="bg-purple-50 rounded-lg p-4">
             <h3 className="font-bold text-purple-900 mb-2">
-              {selectedMonth}月のテーマ: {monthlyStrategy.theme}
+              {selectedMonth}月のテーマ: {monthlyStrategy.appealReason}
             </h3>
-            <p className="text-sm text-purple-700">{monthlyStrategy.description}</p>
+            <p className="text-sm text-purple-700">{monthlyStrategy.detailedReason}</p>
           </div>
         </div>
 
