@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { EmailSchedule } from '@/types/email';
+import MonthlyProductsModal from '@/components/MonthlyProductsModal';
 
 interface EmailTemplate {
   id: string;
@@ -23,6 +24,7 @@ export default function EmailDebugPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [testMonth, setTestMonth] = useState<number>(new Date().getMonth() + 1); // 月選択（1-12）
+  const [showMonthlyProductsModal, setShowMonthlyProductsModal] = useState(false);
 
   // テンプレート一覧を取得
   useEffect(() => {
@@ -199,6 +201,26 @@ export default function EmailDebugPage() {
     }
   };
 
+  // 月別おすすめ商品を保存
+  const saveMonthlyProducts = async (month: number, products: Array<{
+    affiliateUrl: string;
+    itemName: string;
+    itemPrice: number;
+    imageUrl: string;
+    category: string;
+  }>) => {
+    const response = await fetch('/api/email/monthly-products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ month, products }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Failed to save');
+    }
+  };
+
   // スケジュール表示用のヘルパー関数
   // 注意: GitHub Actions cronは毎時0分（UTC）に実行されるため、分単位の設定はできません
   const formatSchedule = (schedule?: EmailSchedule) => {
@@ -255,6 +277,18 @@ export default function EmailDebugPage() {
           </button>
           <p className="text-sm text-gray-600 mt-2">
             ※ スケジュールに一致するメールを今すぐ送信テスト
+          </p>
+        </div>
+        <div>
+          <button
+            onClick={() => setShowMonthlyProductsModal(true)}
+            disabled={loading}
+            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50"
+          >
+            月別おすすめ商品設定
+          </button>
+          <p className="text-sm text-gray-600 mt-2">
+            ※ 各月のおすすめ返礼品を手動設定
           </p>
         </div>
       </div>
@@ -641,6 +675,13 @@ export default function EmailDebugPage() {
           )}
         </div>
       </div>
+
+      {/* 月別おすすめ商品設定モーダル */}
+      <MonthlyProductsModal
+        isOpen={showMonthlyProductsModal}
+        onClose={() => setShowMonthlyProductsModal(false)}
+        onSave={saveMonthlyProducts}
+      />
     </div>
   );
 }

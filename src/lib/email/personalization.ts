@@ -83,7 +83,81 @@ function getLastDonationDate(donations: Donation[]): string | undefined {
 }
 
 /**
- * おすすめ商品を取得（ルールベース）
+ * 季節のおすすめ商品を取得（全ユーザー共通）
+ * 1. まずFirestoreの手動設定商品をチェック
+ * 2. 手動設定がない場合は、月別訴求戦略のprimaryProductsに基づいて自動検索
+ */
+async function getSeasonalRecommendedProducts(
+  primaryProducts: string[],
+  count: number = 3,
+  currentMonth?: number
+): Promise<EmailVariables['seasonalProducts']> {
+  const db = getFirestoreAdmin();
+  const products: EmailVariables['seasonalProducts'] = [];
+  const month = currentMonth || (new Date().getMonth() + 1);
+
+  // 1. 手動設定の商品を取得
+  const manualDoc = await db
+    .collection('monthlyRecommendedProducts')
+    .doc(`month_${month}`)
+    .get();
+
+  if (manualDoc.exists) {
+    const manualData = manualDoc.data();
+    const manualProducts = manualData?.products || [];
+
+    if (manualProducts.length > 0) {
+      console.log(`Using manually configured products for month ${month}`);
+      // 手動設定商品をそのまま使用
+      return manualProducts.slice(0, count).map((p: {
+        itemName: string;
+        itemPrice: number;
+        imageUrl: string;
+        affiliateUrl: string;
+        category: string;
+      }) => ({
+        name: p.itemName,
+        price: p.itemPrice,
+        imageUrl: p.imageUrl,
+        url: p.affiliateUrl,
+        category: p.category,
+      }));
+    }
+  }
+
+  // 2. 手動設定がない場合は自動検索（従来の仕組み）
+  console.log(`No manual products found for month ${month}, using automatic search`);
+
+  // primaryProductsに含まれるカテゴリキーワードで商品を検索
+  for (const keyword of primaryProducts) {
+    const snapshot = await db
+      .collection('cachedProducts')
+      .where('category', '==', keyword)
+      .orderBy('itemPrice', 'desc')
+      .limit(5) // 各カテゴリから上位5件
+      .get();
+
+    if (!snapshot.empty) {
+      const doc = snapshot.docs[0]; // 最も高額な商品を1つ選択
+      const data = doc.data();
+
+      products.push({
+        name: data.itemName,
+        price: data.itemPrice,
+        imageUrl: data.imageUrl,
+        url: data.affiliateUrl,
+        category: data.category,
+      });
+    }
+
+    if (products.length >= count) break;
+  }
+
+  return products;
+}
+
+/**
+ * おすすめ商品を取得（ルールベース・パーソナライズ）
  */
 async function getRecommendedProducts(
   user: User,
@@ -186,6 +260,14 @@ export async function generateEmailVariables(
 
   // テンプレートごとに商品リストを追加
   if (templateId === 'seasonal_recommendation') {
+    // 季節のおすすめ商品（全ユーザー共通）
+    // 手動設定を優先し、なければ自動検索
+    variables.seasonalProducts = await getSeasonalRecommendedProducts(
+      monthlyStrategy.primaryProducts,
+      3,
+      currentMonth
+    );
+    // パーソナライズされたおすすめ商品
     variables.products = await getRecommendedProducts(user, remainingLimit, 3);
   } else if (templateId === 'limit_reminder' || templateId === 'year_end_rush') {
     variables.products = await getRecommendedProducts(user, remainingLimit, 2);

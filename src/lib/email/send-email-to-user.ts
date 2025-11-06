@@ -114,7 +114,15 @@ export async function sendEmailToUser(
     // 本文をレンダリング
     let htmlBody = renderTemplate(templateData.htmlBody || '', variables);
 
-    // 商品リストがある場合は挿入
+    // 季節のおすすめ商品リストがある場合は挿入
+    if (variables.seasonalProducts && variables.seasonalProducts.length > 0) {
+      const seasonalProductListHTML = renderProductList(variables.seasonalProducts);
+      htmlBody = htmlBody.replace('<div id="seasonal-product-list"></div>', seasonalProductListHTML);
+    } else {
+      htmlBody = htmlBody.replace('<div id="seasonal-product-list"></div>', '');
+    }
+
+    // パーソナライズされた商品リストがある場合は挿入
     if (variables.products && variables.products.length > 0) {
       const productListHTML = renderProductList(variables.products);
       htmlBody = htmlBody.replace('<div id="product-list"></div>', productListHTML);

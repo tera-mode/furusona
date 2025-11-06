@@ -34,6 +34,12 @@ export function renderTemplate(
     rendered = rendered.replace(regex, replacementValue);
   });
 
+  // ネストされたオブジェクトのプロパティを置換 (e.g., monthlyAppeal.appealReason)
+  rendered = processNestedVariables(rendered, variables);
+
+  // 配列のループ処理 {{#each array}}...{{/each}}
+  rendered = processEachLoop(rendered, variables);
+
   // 条件分岐の処理 {{#if usageRate > 70}}...{{/if}}
   rendered = processConditionals(rendered, variables);
 
@@ -91,6 +97,103 @@ function processConditionals(
   result = result.replace(simpleBoolRegex, (match, varName, truePart, falsePart) => {
     const value = variables[varName as keyof EmailVariables];
     return value ? truePart : (falsePart || '');
+  });
+
+  return result;
+}
+
+/**
+ * ネストされたオブジェクトのプロパティを置換
+ * {{monthlyAppeal.appealReason}} のようなパターンをマッチ
+ */
+function processNestedVariables(
+  template: string,
+  variables: EmailVariables
+): string {
+  let result = template;
+
+  // {{object.property}} のようなパターンをマッチ
+  const nestedRegex = /{{(\w+)\.(\w+)}}/g;
+
+  result = result.replace(nestedRegex, (match, objectKey, propertyKey) => {
+    const obj = variables[objectKey as keyof EmailVariables];
+
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      const value = (obj as Record<string, unknown>)[propertyKey];
+
+      if (value === undefined || value === null) {
+        return '';
+      } else if (typeof value === 'number') {
+        return value.toLocaleString('ja-JP');
+      } else {
+        return String(value);
+      }
+    }
+
+    return match; // 置換できない場合は元のまま
+  });
+
+  return result;
+}
+
+/**
+ * 配列のループ処理
+ * {{#each array}}...{{/each}} のようなパターンをマッチ
+ */
+function processEachLoop(
+  template: string,
+  variables: EmailVariables
+): string {
+  let result = template;
+
+  // {{#each array}}...{{/each}} のパターンをマッチ（ドット記法をサポート）
+  const eachRegex = /{{#each\s+([\w.]+)}}([\s\S]*?){{\/each}}/g;
+
+  result = result.replace(eachRegex, (match, arrayPath, loopBody) => {
+    // ネストされたプロパティをサポート (e.g., monthlyAppeal.primaryProducts)
+    const pathParts = arrayPath.split('.');
+    let arrayValue: unknown = variables;
+
+    for (const part of pathParts) {
+      if (arrayValue && typeof arrayValue === 'object') {
+        arrayValue = (arrayValue as Record<string, unknown>)[part];
+      } else {
+        arrayValue = undefined;
+        break;
+      }
+    }
+
+    if (!Array.isArray(arrayValue)) {
+      return ''; // 配列でない場合は空文字を返す
+    }
+
+    // 配列の各要素に対してループ本文を処理
+    return arrayValue.map((item) => {
+      let itemResult = loopBody;
+
+      // {{this}} を現在の要素に置換
+      itemResult = itemResult.replace(/{{this}}/g, String(item));
+
+      // オブジェクトの場合、プロパティにアクセス可能にする {{name}}, {{price}} など
+      if (item && typeof item === 'object') {
+        Object.entries(item).forEach(([key, value]) => {
+          const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+          let replacementValue = '';
+
+          if (value !== undefined && value !== null) {
+            if (typeof value === 'number') {
+              replacementValue = value.toLocaleString('ja-JP');
+            } else {
+              replacementValue = String(value);
+            }
+          }
+
+          itemResult = itemResult.replace(regex, replacementValue);
+        });
+      }
+
+      return itemResult;
+    }).join('');
   });
 
   return result;

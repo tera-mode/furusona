@@ -4,7 +4,7 @@ export const seasonalRecommendationTemplate: Omit<EmailTemplate, 'createdAt' | '
   id: 'seasonal_recommendation',
   name: '季節のおすすめ返礼品',
   subject: '{{userName}}さん、{{month}}月の旬の返礼品をご紹介',
-  variables: ['userName', 'month', 'favoriteCategory', 'remainingLimit', 'usageRate', 'products', 'monthlyAppeal'],
+  variables: ['userName', 'month', 'favoriteCategory', 'remainingLimit', 'usageRate', 'seasonalProducts', 'products', 'monthlyAppeal'],
   active: true,
   schedule: {
     enabled: true,
@@ -47,8 +47,19 @@ export const seasonalRecommendationTemplate: Omit<EmailTemplate, 'createdAt' | '
       </div>
     </div>
 
+    <!-- 今月の季節のおすすめ返礼品 -->
+    <h3 style="color: #1f2937; font-size: 18px; margin: 24px 0 16px 0; border-bottom: 2px solid #f97316; padding-bottom: 8px;">
+      🍽️ 今月の季節のおすすめ返礼品
+    </h3>
+    <p style="color: #6b7280; font-size: 13px; margin: 0 0 16px 0;">
+      今月特におすすめの旬の返礼品をご紹介します
+    </p>
+
+    <!-- 季節のおすすめ商品リストはJavaScript側で挿入 -->
+    <div id="seasonal-product-list"></div>
+
     <!-- 限度額情報 -->
-    <div style="border-left: 4px solid #3b82f6; padding: 16px; margin: 0 0 24px 0; background-color: #dbeafe;">
+    <div style="border-left: 4px solid #3b82f6; padding: 16px; margin: 24px 0; background-color: #dbeafe;">
       <p style="color: #1e40af; font-size: 14px; margin: 0;">
         <strong>残り限度額: {{remainingLimit}}円（利用率: {{usageRate}}%）</strong><br>
         {{#if usageRate < 30}}
@@ -63,9 +74,15 @@ export const seasonalRecommendationTemplate: Omit<EmailTemplate, 'createdAt' | '
       </p>
     </div>
 
-    <h3 style="color: #1f2937; font-size: 18px; margin: 0 0 16px 0;">あなたにおすすめの返礼品</h3>
+    <!-- あなたへのおすすめ返礼品 -->
+    <h3 style="color: #1f2937; font-size: 18px; margin: 24px 0 16px 0; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;">
+      💝 あなたへのおすすめ返礼品
+    </h3>
+    <p style="color: #6b7280; font-size: 13px; margin: 0 0 16px 0;">
+      あなたの好みや限度額に合わせた返礼品をピックアップしました
+    </p>
 
-    <!-- 商品リストはJavaScript側で挿入 -->
+    <!-- パーソナライズされた商品リストはJavaScript側で挿入 -->
     <div id="product-list"></div>
 
     <div style="text-align: center; margin: 32px 0 0 0;">
@@ -97,11 +114,27 @@ export const seasonalRecommendationTemplate: Omit<EmailTemplate, 'createdAt' | '
 {{/each}}
 
 ━━━━━━━━━━━━━━━━━━━━
+🍽️ 今月の季節のおすすめ返礼品
+━━━━━━━━━━━━━━━━━━━━
+
+今月特におすすめの旬の返礼品をご紹介します
+
+（商品リストはHTMLメールでご確認ください）
+
+━━━━━━━━━━━━━━━━━━━━
 💰 あなたの限度額情報
 ━━━━━━━━━━━━━━━━━━━━
 
 残り限度額: {{remainingLimit}}円
 利用率: {{usageRate}}%
+
+━━━━━━━━━━━━━━━━━━━━
+💝 あなたへのおすすめ返礼品
+━━━━━━━━━━━━━━━━━━━━
+
+あなたの好みや限度額に合わせた返礼品をピックアップしました
+
+（商品リストはHTMLメールでご確認ください）
 
 詳しくはこちら: ${process.env.NEXT_PUBLIC_APP_URL || 'https://furusona.jp'}/dashboard
 

@@ -61,6 +61,15 @@ export interface EmailVariables {
     detailedReason: string;        // 詳細な理由
     needsStrength: number;         // ニーズ強度（1-5）
   };
+  // 季節のおすすめ商品（全ユーザー共通）
+  seasonalProducts?: Array<{
+    name: string;
+    price: number;
+    imageUrl: string;
+    url: string;
+    category: string;
+  }>;
+  // パーソナライズされたおすすめ商品
   products?: Array<{
     name: string;
     price: number;
@@ -90,3 +99,17 @@ export interface EmailPreferences {
 export type EmailSentHistory = {
   [templateId: string]: Date;
 };
+
+// 月別のおすすめ商品設定
+export interface MonthlyRecommendedProduct {
+  id: string; // ドキュメントID
+  month: number; // 1-12
+  products: Array<{
+    affiliateUrl: string;
+    itemName: string;
+    itemPrice: number;
+    imageUrl: string;
+    category: string;
+  }>;
+  updatedAt: Date;
+}
