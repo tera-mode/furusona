@@ -176,6 +176,16 @@ export default function MonthlyProductsModal({ isOpen, onClose, onSave }: Monthl
               affiliateUrl,
             };
             setProducts(newProducts);
+
+            // 手動入力を促すため、details要素を開く
+            setTimeout(() => {
+              const detailsElements = document.querySelectorAll('details');
+              if (detailsElements[index]) {
+                (detailsElements[index] as HTMLDetailsElement).open = true;
+              }
+            }, 100);
+
+            alert('URLを保存しました。\n\n下記の「手動で編集」セクションが開きましたので、商品名・価格・画像URLを入力してください。');
             return;
           }
         } else {
@@ -212,7 +222,17 @@ export default function MonthlyProductsModal({ isOpen, onClose, onSave }: Monthl
     const validProducts = products.filter(p => p.affiliateUrl && p.itemName);
 
     if (validProducts.length === 0) {
-      alert('少なくとも1つの商品を設定してください');
+      // より詳細なエラーメッセージ
+      const hasUrl = products.some(p => p.affiliateUrl);
+      const hasName = products.some(p => p.itemName);
+
+      if (hasUrl && !hasName) {
+        alert('商品名が入力されていません。\n\n「手動で編集」セクションを開いて、商品名を入力してください。');
+      } else if (!hasUrl && hasName) {
+        alert('URLが入力されていません。\n\n楽天アフィリエイトURLを入力してください。');
+      } else {
+        alert('少なくとも1つの商品を設定してください。\n\nURLと商品名の両方が必要です。');
+      }
       return;
     }
 
