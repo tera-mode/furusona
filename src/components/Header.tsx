@@ -40,27 +40,38 @@ export default function Header({ user, calculatedLimit = 0, totalDonated = 0, re
             />
           </div>
 
-          {user && (
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* 過去履歴 */}
-              <button
-                onClick={() => router.push('/past-records')}
-                className="flex items-center gap-1.5 text-xs sm:text-sm text-primary-600 hover:text-primary-700 transition-colors px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20"
-              >
-                <span className="text-base sm:text-lg">📋</span>
-                <span>過去履歴</span>
-              </button>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {user && (
+              <>
+                {/* 過去履歴 */}
+                <button
+                  onClick={() => router.push('/past-records')}
+                  className="flex items-center gap-1.5 text-xs sm:text-sm text-primary-600 hover:text-primary-700 transition-colors px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                >
+                  <span className="text-base sm:text-lg">📋</span>
+                  <span>過去履歴</span>
+                </button>
 
-              {/* マイページ */}
-              <button
-                onClick={() => router.push('/my-page')}
-                className="flex items-center gap-1.5 text-xs sm:text-sm text-primary-600 hover:text-primary-700 transition-colors px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20"
-              >
-                <span className="text-base sm:text-lg">👤</span>
-                <span>マイページ</span>
-              </button>
-            </div>
-          )}
+                {/* マイページ */}
+                <button
+                  onClick={() => router.push('/my-page')}
+                  className="flex items-center gap-1.5 text-xs sm:text-sm text-primary-600 hover:text-primary-700 transition-colors px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                >
+                  <span className="text-base sm:text-lg">👤</span>
+                  <span>マイページ</span>
+                </button>
+              </>
+            )}
+
+            {/* 情報サイト（全ユーザー向け） */}
+            <button
+              onClick={() => router.push('/info')}
+              className="flex items-center gap-1.5 text-xs sm:text-sm text-primary-600 hover:text-primary-700 transition-colors px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20"
+            >
+              <span className="text-base sm:text-lg">📚</span>
+              <span>情報サイト</span>
+            </button>
+          </div>
         </div>
 
         {/* 下部: サマリー情報 */}

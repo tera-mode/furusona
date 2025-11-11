@@ -1,9 +1,103 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+interface RankingProduct {
+  rank: number;
+  affiliateUrl: string;
+  itemName: string;
+  itemPrice: number;
+  imageUrl?: string;
+  returnRate?: number;
+  reviewRating?: number;
+  description?: string;
+}
+
+interface CategoryRankingData {
+  category: string;
+  products: RankingProduct[];
+}
+
 export default function OsusumeRankingArticle() {
+  const [rankings, setRankings] = useState<Record<string, RankingProduct[]>>({
+    meat: [],
+    rice: [],
+    fruits: [],
+    seafood: [],
+    'daily-goods': [],
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRankings = async () => {
+      try {
+        const categories = ['meat', 'rice', 'fruits', 'seafood', 'daily-goods'];
+        const promises = categories.map(async (category) => {
+          const response = await fetch(`/api/article/category-rankings?category=${category}`);
+          const data = await response.json();
+          return { category, products: data.products || [] };
+        });
+
+        const results = await Promise.all(promises);
+        const newRankings: Record<string, RankingProduct[]> = {};
+        results.forEach(({ category, products }) => {
+          newRankings[category] = products;
+        });
+
+        setRankings(newRankings);
+      } catch (error) {
+        console.error('Failed to fetch rankings:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRankings();
+  }, []);
+
+  // 静的フォールバックデータ
+  const fallbackRankings: Record<string, RankingProduct[]> = {
+    meat: [
+      { rank: 1, itemName: '黒毛和牛 切り落とし 1kg', itemPrice: 10000, returnRate: 35, reviewRating: 4.7, description: 'すき焼き、しゃぶしゃぶに最適。使いやすい小分けパック。コスパ最強の定番商品。', affiliateUrl: '#' },
+      { rank: 2, itemName: '国産豚肉 バラエティセット 2kg', itemPrice: 10000, returnRate: 40, description: '量が多い、家族向け。バラ・ロース・モモなど複数部位。', affiliateUrl: '#' },
+      { rank: 3, itemName: '鶏肉 むね肉・もも肉セット 3kg', itemPrice: 10000, returnRate: 38, description: 'ヘルシー、大容量。コスパ重視の方に。', affiliateUrl: '#' },
+      { rank: 4, itemName: '佐賀牛 サーロインステーキ 300g', itemPrice: 20000, returnRate: 30, description: '特別な日のご馳走。ブランド牛の贅沢な味わい。', affiliateUrl: '#' },
+      { rank: 5, itemName: '国産ハンバーグ 10個入り', itemPrice: 10000, returnRate: 35, description: '冷凍保存可能。子供に人気、使いやすい。', affiliateUrl: '#' },
+    ],
+    rice: [
+      { rank: 1, itemName: '新潟県産 コシヒカリ 10kg', itemPrice: 10000, returnRate: 35, reviewRating: 4.8, description: '定番中の定番。失敗しない安定の美味しさ。全国的に人気のブランド米。', affiliateUrl: '#' },
+      { rank: 2, itemName: '北海道産 ゆめぴりか 10kg', itemPrice: 10000, returnRate: 33, description: 'もちもち食感。冷めても美味しいと評判。', affiliateUrl: '#' },
+      { rank: 3, itemName: '山形県産 つや姫 10kg', itemPrice: 10000, returnRate: 32, description: '艶やかな見た目と甘み。高級感のある味わい。', affiliateUrl: '#' },
+      { rank: 4, itemName: '秋田県産 あきたこまち 10kg', itemPrice: 10000, returnRate: 34, description: 'バランスの良い味わい。毎日食べても飽きない。', affiliateUrl: '#' },
+      { rank: 5, itemName: '佐賀県産 さがびより 10kg', itemPrice: 10000, returnRate: 33, description: '粒が大きく食べ応えあり。九州で人気の品種。', affiliateUrl: '#' },
+    ],
+    fruits: [
+      { rank: 1, itemName: 'シャインマスカット 1kg', itemPrice: 15000, returnRate: 30, description: '贅沢な高級フルーツ。ギフトにも最適。種なしで食べやすい。', affiliateUrl: '#' },
+      { rank: 2, itemName: 'みかん 10kg', itemPrice: 10000, returnRate: 40, description: '大容量、冬の定番。家族で楽しめる。', affiliateUrl: '#' },
+      { rank: 3, itemName: '山梨県産 桃 2kg', itemPrice: 10000, returnRate: 35, description: '夏の贅沢。甘くてジューシー。', affiliateUrl: '#' },
+    ],
+    seafood: [
+      { rank: 1, itemName: '北海道産 いくら醤油漬け 500g', itemPrice: 15000, returnRate: 35, reviewRating: 4.8, description: '高級、お正月に。プチプチ食感と濃厚な味わい。', affiliateUrl: '#' },
+      { rank: 2, itemName: 'うなぎ蒲焼 5尾', itemPrice: 15000, returnRate: 32, description: '夏のご馳走。国産うなぎの贅沢品。', affiliateUrl: '#' },
+      { rank: 3, itemName: 'ホタテ貝柱 1kg', itemPrice: 15000, returnRate: 38, description: '北海道産の大粒ホタテ。刺身でも焼いても絶品。', affiliateUrl: '#' },
+    ],
+    'daily-goods': [
+      { rank: 1, itemName: 'トイレットペーパー 96ロール', itemPrice: 10000, returnRate: 40, reviewRating: 4.6, description: '確実に使う、保存可能。物価高対策に最適。約1年分。', affiliateUrl: '#' },
+      { rank: 2, itemName: '洗剤セット（P&G）', itemPrice: 10000, returnRate: 35, description: '有名ブランド、実用的。洗濯洗剤・柔軟剤などセット。', affiliateUrl: '#' },
+      { rank: 3, itemName: 'ティッシュペーパー 60箱', itemPrice: 8000, returnRate: 38, description: '家族で使える大容量。約半年～1年分。', affiliateUrl: '#' },
+      { rank: 4, itemName: 'サランラップ・アルミホイルセット', itemPrice: 8000, returnRate: 35, description: 'キッチン必需品。長期保存可能。', affiliateUrl: '#' },
+      { rank: 5, itemName: 'タオルセット', itemPrice: 10000, returnRate: 30, description: '今治タオルなど高品質。買い替え時期に最適。', affiliateUrl: '#' },
+    ],
+  };
+
+  // データがあればAPIデータ、なければフォールバック
+  const getMeatProducts = () => rankings.meat.length > 0 ? rankings.meat : fallbackRankings.meat;
+  const getRiceProducts = () => rankings.rice.length > 0 ? rankings.rice : fallbackRankings.rice;
+  const getFruitsProducts = () => rankings.fruits.length > 0 ? rankings.fruits : fallbackRankings.fruits;
+  const getSeafoodProducts = () => rankings.seafood.length > 0 ? rankings.seafood : fallbackRankings.seafood;
+  const getDailyGoodsProducts = () => rankings['daily-goods'].length > 0 ? rankings['daily-goods'] : fallbackRankings['daily-goods'];
+
   return (
     <article className="max-w-4xl mx-auto px-4 py-8">
       {/* タイトルと更新日 */}
@@ -84,320 +178,257 @@ export default function OsusumeRankingArticle() {
       {/* セクション2: 肉部門 */}
       <section id="meat" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-red-500">
-          肉部門 TOP10
+          肉部門 TOP{getMeatProducts().length}
         </h2>
 
         <div className="space-y-4">
-          <div className="bg-white p-6 rounded-lg border-2 border-red-200">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <span className="inline-block bg-red-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">1位</span>
-                <h3 className="text-lg font-bold text-gray-900">黒毛和牛 切り落とし 1kg</h3>
-              </div>
-              <span className="text-red-600 font-bold text-lg whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約35% | レビュー: ★★★★★ 4.7</p>
-            <p className="text-gray-700">すき焼き、しゃぶしゃぶに最適。使いやすい小分けパック。コスパ最強の定番商品。</p>
-          </div>
+          {getMeatProducts().map((product, index) => {
+            const isTop = index === 0;
+            const badgeColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-600', 'bg-gray-500'];
+            const badgeColor = badgeColors[Math.min(index, 3)];
 
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-orange-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">2位</span>
-                <h3 className="font-bold text-gray-900">国産豚肉 バラエティセット 2kg</h3>
+            return (
+              <div key={index} className={`bg-white rounded-lg ${isTop ? 'p-6 border-2 border-red-200' : 'p-4 border-2 border-gray-200'}`}>
+                {product.imageUrl && (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.itemName}
+                    className="w-full h-48 object-cover rounded mb-3"
+                  />
+                )}
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <span className={`inline-block ${badgeColor} text-white font-bold px-3 py-1 rounded-full text-sm mb-2`}>
+                      {product.rank}位
+                    </span>
+                    <h3 className={`${isTop ? 'text-lg' : ''} font-bold text-gray-900`}>
+                      <a href={product.affiliateUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-600 hover:underline">
+                        {product.itemName}
+                      </a>
+                    </h3>
+                  </div>
+                  <span className={`text-red-600 font-bold ${isTop ? 'text-lg' : ''} whitespace-nowrap ml-4`}>
+                    {product.itemPrice.toLocaleString()}円
+                  </span>
+                </div>
+                {(product.returnRate || product.reviewRating) && (
+                  <p className="text-sm text-gray-600 mb-2">
+                    {product.returnRate && `還元率: 約${product.returnRate}%`}
+                    {product.returnRate && product.reviewRating && ' | '}
+                    {product.reviewRating && `レビュー: ★${product.reviewRating.toFixed(1)}`}
+                  </p>
+                )}
+                {product.description && (
+                  <p className={`text-gray-700 ${isTop ? '' : 'text-sm'}`}>{product.description}</p>
+                )}
               </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約40%</p>
-            <p className="text-sm text-gray-700">量が多い、家族向け。バラ・ロース・モモなど複数部位。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-yellow-600 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">3位</span>
-                <h3 className="font-bold text-gray-900">鶏肉 むね肉・もも肉セット 3kg</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約38%</p>
-            <p className="text-sm text-gray-700">ヘルシー、大容量。コスパ重視の方に。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-gray-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">4位</span>
-                <h3 className="font-bold text-gray-900">佐賀牛 サーロインステーキ 300g</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">20,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約30%</p>
-            <p className="text-sm text-gray-700">特別な日のご馳走。ブランド牛の贅沢な味わい。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-gray-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">5位</span>
-                <h3 className="font-bold text-gray-900">国産ハンバーグ 10個入り</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約35%</p>
-            <p className="text-sm text-gray-700">冷凍保存可能。子供に人気、使いやすい。</p>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-700">
-              <strong>6位～10位:</strong> 宮崎牛 焼肉セット（15,000円）、豚バラスライス 2kg（8,000円）、
-              鶏もも肉 2kg（8,000円）、国産牛ホルモン 1kg（10,000円）、牛タン 500g（15,000円）
-            </p>
-          </div>
+            );
+          })}
         </div>
       </section>
 
       {/* セクション3: 米部門 */}
       <section id="rice" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-green-500">
-          米部門 TOP5
+          米部門 TOP{getRiceProducts().length}
         </h2>
 
         <div className="space-y-4">
-          <div className="bg-white p-6 rounded-lg border-2 border-green-200">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <span className="inline-block bg-green-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">1位</span>
-                <h3 className="text-lg font-bold text-gray-900">新潟県産 コシヒカリ 10kg</h3>
-              </div>
-              <span className="text-red-600 font-bold text-lg whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約35% | レビュー: ★★★★★ 4.8</p>
-            <p className="text-gray-700">定番中の定番。失敗しない安定の美味しさ。全国的に人気のブランド米。</p>
-          </div>
+          {getRiceProducts().map((product, index) => {
+            const isTop = index === 0;
+            const badgeColor = 'bg-green-500';
 
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-green-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">2位</span>
-                <h3 className="font-bold text-gray-900">北海道産 ゆめぴりか 10kg</h3>
+            return (
+              <div key={index} className={`bg-white rounded-lg ${isTop ? 'p-6 border-2 border-green-200' : 'p-4 border-2 border-gray-200'}`}>
+                {product.imageUrl && (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.itemName}
+                    className="w-full h-48 object-cover rounded mb-3"
+                  />
+                )}
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <span className={`inline-block ${badgeColor} text-white font-bold px-3 py-1 rounded-full text-sm mb-2`}>
+                      {product.rank}位
+                    </span>
+                    <h3 className={`${isTop ? 'text-lg' : ''} font-bold text-gray-900`}>
+                      <a href={product.affiliateUrl} target="_blank" rel="noopener noreferrer" className="hover:text-green-600 hover:underline">
+                        {product.itemName}
+                      </a>
+                    </h3>
+                  </div>
+                  <span className={`text-red-600 font-bold ${isTop ? 'text-lg' : ''} whitespace-nowrap ml-4`}>
+                    {product.itemPrice.toLocaleString()}円
+                  </span>
+                </div>
+                {(product.returnRate || product.reviewRating) && (
+                  <p className="text-sm text-gray-600 mb-2">
+                    {product.returnRate && `還元率: 約${product.returnRate}%`}
+                    {product.returnRate && product.reviewRating && ' | '}
+                    {product.reviewRating && `レビュー: ★${product.reviewRating.toFixed(1)}`}
+                  </p>
+                )}
+                {product.description && (
+                  <p className={`text-gray-700 ${isTop ? '' : 'text-sm'}`}>{product.description}</p>
+                )}
               </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約33%</p>
-            <p className="text-sm text-gray-700">もちもち食感。冷めても美味しいと評判。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-green-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">3位</span>
-                <h3 className="font-bold text-gray-900">山形県産 つや姫 10kg</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約32%</p>
-            <p className="text-sm text-gray-700">艶やかな見た目と甘み。高級感のある味わい。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-green-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">4位</span>
-                <h3 className="font-bold text-gray-900">秋田県産 あきたこまち 10kg</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約34%</p>
-            <p className="text-sm text-gray-700">バランスの良い味わい。毎日食べても飽きない。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-green-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">5位</span>
-                <h3 className="font-bold text-gray-900">佐賀県産 さがびより 10kg</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約33%</p>
-            <p className="text-sm text-gray-700">粒が大きく食べ応えあり。九州で人気の品種。</p>
-          </div>
+            );
+          })}
         </div>
       </section>
 
       {/* セクション4: フルーツ部門 */}
       <section id="fruits" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-purple-500">
-          フルーツ部門 TOP10
+          フルーツ部門 TOP{getFruitsProducts().length}
         </h2>
 
         <div className="space-y-4">
-          <div className="bg-white p-6 rounded-lg border-2 border-purple-200">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <span className="inline-block bg-purple-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">1位</span>
-                <h3 className="text-lg font-bold text-gray-900">シャインマスカット 1kg</h3>
-              </div>
-              <span className="text-red-600 font-bold text-lg whitespace-nowrap ml-4">15,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約30% | 季節: 8-10月</p>
-            <p className="text-gray-700">贅沢な高級フルーツ。ギフトにも最適。種なしで食べやすい。</p>
-          </div>
+          {getFruitsProducts().map((product, index) => {
+            const isTop = index === 0;
+            const badgeColors = ['bg-purple-500', 'bg-orange-500', 'bg-yellow-600'];
+            const badgeColor = badgeColors[Math.min(index, 2)] || 'bg-gray-500';
 
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-orange-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">2位</span>
-                <h3 className="font-bold text-gray-900">みかん 10kg</h3>
+            return (
+              <div key={index} className={`bg-white rounded-lg ${isTop ? 'p-6 border-2 border-purple-200' : 'p-4 border-2 border-gray-200'}`}>
+                {product.imageUrl && (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.itemName}
+                    className="w-full h-48 object-cover rounded mb-3"
+                  />
+                )}
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <span className={`inline-block ${badgeColor} text-white font-bold px-3 py-1 rounded-full text-sm mb-2`}>
+                      {product.rank}位
+                    </span>
+                    <h3 className={`${isTop ? 'text-lg' : ''} font-bold text-gray-900`}>
+                      <a href={product.affiliateUrl} target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 hover:underline">
+                        {product.itemName}
+                      </a>
+                    </h3>
+                  </div>
+                  <span className={`text-red-600 font-bold ${isTop ? 'text-lg' : ''} whitespace-nowrap ml-4`}>
+                    {product.itemPrice.toLocaleString()}円
+                  </span>
+                </div>
+                {(product.returnRate || product.reviewRating) && (
+                  <p className="text-sm text-gray-600 mb-2">
+                    {product.returnRate && `還元率: 約${product.returnRate}%`}
+                    {product.returnRate && product.reviewRating && ' | '}
+                    {product.reviewRating && `レビュー: ★${product.reviewRating.toFixed(1)}`}
+                  </p>
+                )}
+                {product.description && (
+                  <p className={`text-gray-700 ${isTop ? '' : 'text-sm'}`}>{product.description}</p>
+                )}
               </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約40% | 季節: 11-2月</p>
-            <p className="text-sm text-gray-700">大容量、冬の定番。家族で楽しめる。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-yellow-600 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">3位</span>
-                <h3 className="font-bold text-gray-900">山梨県産 桃 2kg</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約35% | 季節: 6-8月</p>
-            <p className="text-sm text-gray-700">夏の贅沢。甘くてジューシー。</p>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-700">
-              <strong>4位～10位:</strong> いちご 1kg（15,000円）、メロン 2玉（15,000円）、
-              りんご 5kg（10,000円）、梨 5kg（10,000円）、ぶどう詰め合わせ（10,000円）、
-              キウイ 3kg（8,000円）、柿 5kg（8,000円）
-            </p>
-          </div>
+            );
+          })}
         </div>
       </section>
 
       {/* セクション5: 海鮮部門 */}
       <section id="seafood" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-blue-500">
-          海鮮部門 TOP10
+          海鮮部門 TOP{getSeafoodProducts().length}
         </h2>
 
         <div className="space-y-4">
-          <div className="bg-white p-6 rounded-lg border-2 border-blue-200">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <span className="inline-block bg-blue-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">1位</span>
-                <h3 className="text-lg font-bold text-gray-900">北海道産 いくら醤油漬け 500g</h3>
-              </div>
-              <span className="text-red-600 font-bold text-lg whitespace-nowrap ml-4">15,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約35% | レビュー: ★★★★★ 4.8</p>
-            <p className="text-gray-700">高級、お正月に。プチプチ食感と濃厚な味わい。</p>
-          </div>
+          {getSeafoodProducts().map((product, index) => {
+            const isTop = index === 0;
+            const badgeColor = 'bg-blue-500';
 
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-blue-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">2位</span>
-                <h3 className="font-bold text-gray-900">うなぎ蒲焼 5尾</h3>
+            return (
+              <div key={index} className={`bg-white rounded-lg ${isTop ? 'p-6 border-2 border-blue-200' : 'p-4 border-2 border-gray-200'}`}>
+                {product.imageUrl && (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.itemName}
+                    className="w-full h-48 object-cover rounded mb-3"
+                  />
+                )}
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <span className={`inline-block ${badgeColor} text-white font-bold px-3 py-1 rounded-full text-sm mb-2`}>
+                      {product.rank}位
+                    </span>
+                    <h3 className={`${isTop ? 'text-lg' : ''} font-bold text-gray-900`}>
+                      <a href={product.affiliateUrl} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 hover:underline">
+                        {product.itemName}
+                      </a>
+                    </h3>
+                  </div>
+                  <span className={`text-red-600 font-bold ${isTop ? 'text-lg' : ''} whitespace-nowrap ml-4`}>
+                    {product.itemPrice.toLocaleString()}円
+                  </span>
+                </div>
+                {(product.returnRate || product.reviewRating) && (
+                  <p className="text-sm text-gray-600 mb-2">
+                    {product.returnRate && `還元率: 約${product.returnRate}%`}
+                    {product.returnRate && product.reviewRating && ' | '}
+                    {product.reviewRating && `レビュー: ★${product.reviewRating.toFixed(1)}`}
+                  </p>
+                )}
+                {product.description && (
+                  <p className={`text-gray-700 ${isTop ? '' : 'text-sm'}`}>{product.description}</p>
+                )}
               </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">15,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約32%</p>
-            <p className="text-sm text-gray-700">夏のご馳走。国産うなぎの贅沢品。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-blue-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">3位</span>
-                <h3 className="font-bold text-gray-900">ホタテ貝柱 1kg</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">15,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約38%</p>
-            <p className="text-sm text-gray-700">北海道産の大粒ホタテ。刺身でも焼いても絶品。</p>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-700">
-              <strong>4位～10位:</strong> ズワイガニ 1kg（20,000円）、サーモン切り身 1kg（10,000円）、
-              マグロ赤身 500g（15,000円）、牡蠣 2kg（10,000円）、エビ 1kg（12,000円）、
-              海鮮丼セット（10,000円）、干物詰め合わせ（8,000円）
-            </p>
-          </div>
+            );
+          })}
         </div>
       </section>
 
       {/* セクション6: 日用品部門 */}
       <section id="daily-goods" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-yellow-500">
-          日用品部門 TOP5
+          日用品部門 TOP{getDailyGoodsProducts().length}
         </h2>
 
         <div className="space-y-4">
-          <div className="bg-white p-6 rounded-lg border-2 border-yellow-200">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <span className="inline-block bg-yellow-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">1位</span>
-                <h3 className="text-lg font-bold text-gray-900">トイレットペーパー 96ロール</h3>
-              </div>
-              <span className="text-red-600 font-bold text-lg whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約40% | レビュー: ★★★★☆ 4.6</p>
-            <p className="text-gray-700">確実に使う、保存可能。物価高対策に最適。約1年分。</p>
-          </div>
+          {getDailyGoodsProducts().map((product, index) => {
+            const isTop = index === 0;
+            const badgeColor = 'bg-yellow-500';
 
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-yellow-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">2位</span>
-                <h3 className="font-bold text-gray-900">洗剤セット（P&G）</h3>
+            return (
+              <div key={index} className={`bg-white rounded-lg ${isTop ? 'p-6 border-2 border-yellow-200' : 'p-4 border-2 border-gray-200'}`}>
+                {product.imageUrl && (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.itemName}
+                    className="w-full h-48 object-cover rounded mb-3"
+                  />
+                )}
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <span className={`inline-block ${badgeColor} text-white font-bold px-3 py-1 rounded-full text-sm mb-2`}>
+                      {product.rank}位
+                    </span>
+                    <h3 className={`${isTop ? 'text-lg' : ''} font-bold text-gray-900`}>
+                      <a href={product.affiliateUrl} target="_blank" rel="noopener noreferrer" className="hover:text-yellow-600 hover:underline">
+                        {product.itemName}
+                      </a>
+                    </h3>
+                  </div>
+                  <span className={`text-red-600 font-bold ${isTop ? 'text-lg' : ''} whitespace-nowrap ml-4`}>
+                    {product.itemPrice.toLocaleString()}円
+                  </span>
+                </div>
+                {(product.returnRate || product.reviewRating) && (
+                  <p className="text-sm text-gray-600 mb-2">
+                    {product.returnRate && `還元率: 約${product.returnRate}%`}
+                    {product.returnRate && product.reviewRating && ' | '}
+                    {product.reviewRating && `レビュー: ★${product.reviewRating.toFixed(1)}`}
+                  </p>
+                )}
+                {product.description && (
+                  <p className={`text-gray-700 ${isTop ? '' : 'text-sm'}`}>{product.description}</p>
+                )}
               </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約35%</p>
-            <p className="text-sm text-gray-700">有名ブランド、実用的。洗濯洗剤・柔軟剤などセット。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-yellow-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">3位</span>
-                <h3 className="font-bold text-gray-900">ティッシュペーパー 60箱</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">8,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約38%</p>
-            <p className="text-sm text-gray-700">家族で使える大容量。約半年～1年分。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-yellow-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">4位</span>
-                <h3 className="font-bold text-gray-900">サランラップ・アルミホイルセット</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">8,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約35%</p>
-            <p className="text-sm text-gray-700">キッチン必需品。長期保存可能。</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <span className="inline-block bg-yellow-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">5位</span>
-                <h3 className="font-bold text-gray-900">タオルセット</h3>
-              </div>
-              <span className="text-red-600 font-bold whitespace-nowrap ml-4">10,000円</span>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">還元率: 約30%</p>
-            <p className="text-sm text-gray-700">今治タオルなど高品質。買い替え時期に最適。</p>
-          </div>
+            );
+          })}
         </div>
       </section>
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { EmailSchedule } from '@/types/email';
 import MonthlyProductsModal from '@/components/MonthlyProductsModal';
+import CategoryRankingsModal from '@/components/CategoryRankingsModal';
 
 interface EmailTemplate {
   id: string;
@@ -25,6 +26,7 @@ export default function EmailDebugPage() {
   const [message, setMessage] = useState('');
   const [testMonth, setTestMonth] = useState<number>(new Date().getMonth() + 1); // 月選択（1-12）
   const [showMonthlyProductsModal, setShowMonthlyProductsModal] = useState(false);
+  const [showCategoryRankingsModal, setShowCategoryRankingsModal] = useState(false);
 
   // テンプレート一覧を取得
   useEffect(() => {
@@ -221,6 +223,29 @@ export default function EmailDebugPage() {
     }
   };
 
+  // カテゴリ別ランキングを保存
+  const saveCategoryRankings = async (category: string, products: Array<{
+    rank: number;
+    affiliateUrl: string;
+    itemName: string;
+    itemPrice: number;
+    imageUrl: string;
+    returnRate?: number;
+    reviewRating?: number;
+    description?: string;
+  }>) => {
+    const response = await fetch('/api/article/category-rankings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category, products }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Failed to save');
+    }
+  };
+
   // スケジュール表示用のヘルパー関数
   // 注意: GitHub Actions cronは毎時0分（UTC）に実行されるため、分単位の設定はできません
   const formatSchedule = (schedule?: EmailSchedule) => {
@@ -289,6 +314,18 @@ export default function EmailDebugPage() {
           </button>
           <p className="text-sm text-gray-600 mt-2">
             ※ 各月のおすすめ返礼品を手動設定
+          </p>
+        </div>
+        <div>
+          <button
+            onClick={() => setShowCategoryRankingsModal(true)}
+            disabled={loading}
+            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
+          >
+            カテゴリランキング設定
+          </button>
+          <p className="text-sm text-gray-600 mt-2">
+            ※ 記事のカテゴリ別ランキングを設定
           </p>
         </div>
       </div>
@@ -681,6 +718,13 @@ export default function EmailDebugPage() {
         isOpen={showMonthlyProductsModal}
         onClose={() => setShowMonthlyProductsModal(false)}
         onSave={saveMonthlyProducts}
+      />
+
+      {/* カテゴリランキング設定モーダル */}
+      <CategoryRankingsModal
+        isOpen={showCategoryRankingsModal}
+        onClose={() => setShowCategoryRankingsModal(false)}
+        onSave={saveCategoryRankings}
       />
     </div>
   );

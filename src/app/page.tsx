@@ -171,12 +171,21 @@ export default function HomePage() {
             priority
             className="h-8 sm:h-10 w-auto hidden dark:block"
           />
-          <button
-            onClick={() => setShowLoginModal(true)}
-            className="bg-primary-500 hover:bg-primary-600 text-white px-4 sm:px-6 py-2 rounded-lg transition-colors text-sm sm:text-base font-medium"
-          >
-            ログイン
-          </button>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => router.push('/info')}
+              className="flex items-center gap-1.5 text-xs sm:text-sm text-primary-600 hover:text-primary-700 transition-colors px-2 sm:px-3 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20"
+            >
+              <span className="text-base sm:text-lg">📚</span>
+              <span>情報サイト</span>
+            </button>
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="bg-primary-500 hover:bg-primary-600 text-white px-4 sm:px-6 py-2 rounded-lg transition-colors text-sm sm:text-base font-medium"
+            >
+              ログイン
+            </button>
+          </div>
         </div>
       </header>
 
