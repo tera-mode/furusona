@@ -7,6 +7,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  signInAnonymously,
   signOut as firebaseSignOut,
   onAuthStateChanged
 } from 'firebase/auth';
@@ -15,6 +16,30 @@ import { auth, db } from '@/lib/firebase';
 import { User, AuthContextType } from '@/types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// ローカルストレージのキー
+const GUEST_ID_KEY = 'furusona_guest_id';
+
+// ゲストIDを生成する関数
+const generateGuestId = (): string => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 15);
+  return `guest_${timestamp}_${random}`;
+};
+
+// ローカルストレージからゲストIDを取得または生成
+const getOrCreateGuestId = (): string => {
+  if (typeof window === 'undefined') return generateGuestId();
+
+  const existingId = localStorage.getItem(GUEST_ID_KEY);
+  if (existingId) {
+    return existingId;
+  }
+
+  const newId = generateGuestId();
+  localStorage.setItem(GUEST_ID_KEY, newId);
+  return newId;
+};
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -33,11 +58,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } as User;
     }
 
+    const isAnonymous = firebaseUser.isAnonymous;
+    const guestId = isAnonymous ? getOrCreateGuestId() : undefined;
+
     const newUser: User = {
       uid: firebaseUser.uid,
-      email: firebaseUser.email!,
+      email: firebaseUser.email || '',
       displayName: firebaseUser.displayName || undefined,
       photoURL: firebaseUser.photoURL || undefined,
+      isGuest: isAnonymous,
+      guestId: guestId,
       familyStructure: {},
       income: {},
       preferences: {
@@ -56,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // undefinedフィールドを除去してFirestoreに保存
     const userData: Record<string, unknown> = {
       uid: firebaseUser.uid,
-      email: firebaseUser.email!,
+      email: firebaseUser.email || '',
       familyStructure: {},
       income: {},
       preferences: {
@@ -78,6 +108,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (firebaseUser.photoURL) {
       userData.photoURL = firebaseUser.photoURL;
+    }
+
+    if (isAnonymous) {
+      userData.isGuest = true;
+      if (guestId) {
+        userData.guestId = guestId;
+      }
     }
 
     await setDoc(userRef, userData);
@@ -116,6 +153,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // onAuthStateChangedが自動的にユーザー情報を設定します
     } catch (error) {
       console.error('Error signing in with Google:', error);
+      throw error;
+    }
+  };
+
+  const signInAsGuest = async () => {
+    try {
+      const result = await signInAnonymously(auth);
+      // ゲストユーザードキュメントを作成または取得
+      await createUserDocument(result.user);
+      // onAuthStateChangedが自動的にユーザー情報を設定します
+    } catch (error) {
+      console.error('Error signing in as guest:', error);
       throw error;
     }
   };
@@ -271,6 +320,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInWithEmail,
     signUpWithEmail,
     signInWithGoogle,
+    signInAsGuest,
     signOut,
     updateUserData,
     refreshUserData

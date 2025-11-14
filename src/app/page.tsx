@@ -9,8 +9,9 @@ import Script from 'next/script';
 
 export default function HomePage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading, signInAsGuest } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
 
   // 構造化データ
   const organizationSchema = {
@@ -106,6 +107,18 @@ export default function HomePage() {
         },
       },
     ],
+  };
+
+  const handleGuestStart = async () => {
+    setIsGuestLoading(true);
+    try {
+      await signInAsGuest();
+      // onAuthStateChangedがユーザー情報を設定し、自動的にリダイレクトされる
+    } catch (error) {
+      console.error('Error starting as guest:', error);
+      alert('ゲストログインに失敗しました。もう一度お試しください。');
+      setIsGuestLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -215,12 +228,21 @@ export default function HomePage() {
             限度額シミュレーションから返礼品の選び方まで。<br />
             楽天ふるさと納税の中から、あなたにぴったりの返礼品をAIが診断します
           </p>
-          <button
-            onClick={() => setShowLoginModal(true)}
-            className="bg-primary-500 hover:bg-primary-600 text-white px-8 py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors shadow-lg inline-flex items-center gap-2"
-          >
-            無料で始める <span>→</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="bg-primary-500 hover:bg-primary-600 text-white px-8 py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors shadow-lg inline-flex items-center gap-2 w-full sm:w-auto"
+            >
+              ログインして使う <span>→</span>
+            </button>
+            <button
+              onClick={handleGuestStart}
+              disabled={isGuestLoading}
+              className="bg-white hover:bg-slate-50 text-primary-600 border-2 border-primary-500 px-8 py-4 rounded-lg text-base sm:text-lg font-semibold transition-colors shadow-lg inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+            >
+              {isGuestLoading ? '準備中...' : '登録せず使う'} <span>→</span>
+            </button>
+          </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-3">
             ※ クレジットカード登録不要
           </p>

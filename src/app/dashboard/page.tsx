@@ -257,9 +257,9 @@ export default function DashboardPage() {
     if (!loading && !user) {
       console.log('🟡 No user, showing login modal');
       setShowLoginModal(true);
-    } else if (user && typeof user.calculatedLimit !== 'number' && !hasRedirectedToProfile.current) {
-      console.log('🟡 No calculated limit, redirecting to profile', { calculatedLimit: user.calculatedLimit, type: typeof user.calculatedLimit });
-      // 限度額が計算されていない場合はプロフィール設定へ
+    } else if (user && user.preferences.categories && user.preferences.categories.length === 0 && !hasRedirectedToProfile.current) {
+      console.log('🟡 No categories selected, redirecting to profile');
+      // カテゴリが未選択の場合はプロフィール設定へ（オンボーディング未完了）
       hasRedirectedToProfile.current = true;
       router.push('/profile');
     } else if (user) {
@@ -344,6 +344,25 @@ export default function DashboardPage() {
 
       {/* メインコンテンツ */}
       <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 mt-4">
+        {/* ゲスト注釈バナー */}
+        {user?.isGuest && (
+          <div className="mb-6 bg-warning-50 dark:bg-warning-900/20 border-2 border-warning-400 dark:border-warning-600 rounded-xl p-4 sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl flex-shrink-0">⚠️</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm sm:text-base text-warning-800 dark:text-warning-200 mb-3">
+                  未登録での利用は、一定期間経つと好みや入力内容がリセットされます
+                </p>
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors text-sm"
+                >
+                  アカウントを作成して保存する
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 推薦セクション */}
         <div className="mb-8">

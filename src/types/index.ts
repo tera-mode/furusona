@@ -4,6 +4,8 @@ export interface User {
   email: string;
   displayName?: string;
   photoURL?: string;
+  isGuest?: boolean; // ゲストユーザーフラグ
+  guestId?: string; // ローカルストレージのゲストID（永続化用）
   familyStructure: {
     married?: boolean;
     dependents?: number;
@@ -128,6 +130,7 @@ export interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInAsGuest: () => Promise<void>; // ゲストログイン
   signOut: () => Promise<void>;
   updateUserData: (data: Partial<User>) => Promise<void>;
   refreshUserData: () => Promise<void>;

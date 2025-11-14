@@ -183,9 +183,36 @@ export default function ProfilePage() {
     }
   };
 
-  const handleOnboardingSkip = async () => {
-    // カテゴリのみ選択済みの状態でスキップ
-    router.push('/dashboard');
+  const handleOnboardingSkip = async (data: Partial<OnboardingData>) => {
+    if (!user) return;
+
+    setSaving(true);
+    try {
+      // Step 1のデータのみを保存
+      await updateUserData({
+        preferences: {
+          categories: data.categories || [],
+          allergies: data.allergies || [],
+          favoriteRegions: data.favoriteRegions || [],
+          customRequest: data.customRequest || '',
+          pastSelections: user.preferences.pastSelections || [],
+          favorites: user.preferences.favorites || [],
+          dislikes: user.preferences.dislikes || [],
+        },
+        calculatedLimit: 0, // スキップ時は0を設定
+        newsletter: data.newsletter ?? false,
+      });
+
+      // Firestoreから最新のupdatedAtを取得
+      await refreshUserData();
+
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -300,6 +327,7 @@ export default function ProfilePage() {
         <Onboarding
           onComplete={handleOnboardingComplete}
           onSkip={handleOnboardingSkip}
+          isGuest={user?.isGuest}
         />
         <LoginModal
           isOpen={showLoginModal}
@@ -515,12 +543,13 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="flex items-start gap-2 cursor-pointer">
+                <label className={`flex items-start gap-2 ${user?.isGuest ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}>
                   <input
                     type="checkbox"
                     checked={newsletter}
                     onChange={(e) => setNewsletter(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-primary-600 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500"
+                    disabled={user?.isGuest}
+                    className="mt-1 w-4 h-4 text-primary-600 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <div className="flex-1">
                     <div className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">
@@ -529,6 +558,11 @@ export default function ProfilePage() {
                     <div className="text-xs text-slate-600 dark:text-slate-400">
                       季節のおすすめや限度額リマインダーなどをお届けします
                     </div>
+                    {user?.isGuest && (
+                      <div className="text-xs text-warning-600 dark:text-warning-400 mt-1">
+                        ※ 登録すると利用できます
+                      </div>
+                    )}
                   </div>
                 </label>
               </div>

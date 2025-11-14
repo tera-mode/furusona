@@ -156,6 +156,15 @@ export async function GET(request: NextRequest) {
       ...doc.data(),
     })) as User[];
 
+    // ゲストユーザーを除外（メールアドレスがないユーザー、またはisGuest=trueのユーザー）
+    users = users.filter(user => {
+      if (user.isGuest === true) return false;
+      if (!user.email || user.email === '') return false;
+      return true;
+    });
+
+    console.log(`📧 Total users after filtering guests: ${users.length}`);
+
     // テストモードの場合、管理者メールアドレスのユーザーのみに絞り込む
     if (testMode) {
       const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;

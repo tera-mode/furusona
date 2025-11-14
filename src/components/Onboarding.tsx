@@ -5,7 +5,8 @@ import { CATEGORIES } from '@/lib/categoryMapping';
 
 interface OnboardingProps {
   onComplete: (data: OnboardingData) => void;
-  onSkip: () => void;
+  onSkip: (data: Partial<OnboardingData>) => void;
+  isGuest?: boolean; // ゲストユーザーフラグ
 }
 
 export interface OnboardingData {
@@ -25,7 +26,7 @@ export interface OnboardingData {
   newsletter: boolean;
 }
 
-export default function Onboarding({ onComplete, onSkip }: OnboardingProps) {
+export default function Onboarding({ onComplete, onSkip, isGuest }: OnboardingProps) {
   const [step, setStep] = useState<1 | 2>(1);
 
   // Step 1 state
@@ -386,12 +387,13 @@ export default function Onboarding({ onComplete, onSkip }: OnboardingProps) {
 
             {/* メルマガ購読 */}
             <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-              <label className="flex items-start gap-3 cursor-pointer group">
+              <label className={`flex items-start gap-3 ${isGuest ? 'cursor-not-allowed opacity-60' : 'cursor-pointer group'}`}>
                 <input
                   type="checkbox"
                   checked={newsletter}
                   onChange={(e) => setNewsletter(e.target.checked)}
-                  className="mt-1 w-5 h-5 text-primary-600 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500"
+                  disabled={isGuest}
+                  className="mt-1 w-5 h-5 text-primary-600 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <div className="flex-1">
                   <div className="font-medium text-slate-900 dark:text-slate-100 mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
@@ -404,9 +406,15 @@ export default function Onboarding({ onComplete, onSkip }: OnboardingProps) {
                       <li>💰 残りの限度額リマインダー</li>
                       <li>✨ 新着返礼品や人気ランキング情報</li>
                     </ul>
-                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
-                      ※ いつでも配信停止できます
-                    </p>
+                    {isGuest ? (
+                      <p className="text-xs text-warning-600 dark:text-warning-400 mt-2">
+                        ※ 登録すると利用できます
+                      </p>
+                    ) : (
+                      <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+                        ※ いつでも配信停止できます
+                      </p>
+                    )}
                   </div>
                 </div>
               </label>
@@ -422,7 +430,17 @@ export default function Onboarding({ onComplete, onSkip }: OnboardingProps) {
               ← 戻る
             </button>
             <button
-              onClick={onSkip}
+              onClick={() => {
+                // Step 1のデータを保存してスキップ
+                onSkip({
+                  categories,
+                  allergies: allergies ? allergies.split(',').map(a => a.trim()) : [],
+                  favoriteRegions: favoriteRegions ? favoriteRegions.split(',').map(r => r.trim()) : [],
+                  customRequest,
+                  calculatedLimit: 0, // スキップ時は0を設定
+                  newsletter: newsletter,
+                });
+              }}
               className="flex-1 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 py-4 rounded-xl font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
               後で設定する（スキップ）

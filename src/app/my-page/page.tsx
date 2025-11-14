@@ -86,18 +86,20 @@ export default function MyPage() {
         </h2>
 
         <div className="space-y-6">
-          {/* アカウント情報 */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-primary-100 dark:border-primary-800">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              アカウント情報
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-slate-600 dark:text-slate-400 w-24">メールアドレス</span>
-                <span className="text-sm text-slate-900 dark:text-slate-100">{user?.email}</span>
+          {/* アカウント情報（ログインユーザーのみ表示） */}
+          {!user?.isGuest && (
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-primary-100 dark:border-primary-800">
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
+                アカウント情報
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-slate-600 dark:text-slate-400 w-24">メールアドレス</span>
+                  <span className="text-sm text-slate-900 dark:text-slate-100">{user?.email}</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* プロフィール設定 */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-primary-100 dark:border-primary-800 hover:border-primary-300 dark:hover:border-primary-600 transition-colors">
