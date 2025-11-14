@@ -5,7 +5,8 @@ import Link from 'next/link';
 
 export default function TomobatarakiFufuArticle() {
   return (
-    <article className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-white">
+      <article className="max-w-4xl mx-auto px-4 py-8">
       {/* タイトルと更新日 */}
       <header className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -459,5 +460,6 @@ export default function TomobatarakiFufuArticle() {
         </div>
       </section>
     </article>
+    </div>
   );
 }
