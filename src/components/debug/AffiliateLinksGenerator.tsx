@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface RakutenProduct {
   itemCode: string;
@@ -22,6 +22,7 @@ export default function AffiliateLinksGenerator() {
   const [products, setProducts] = useState<RakutenProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<RakutenProduct | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const codeAreaRef = useRef<HTMLDivElement>(null);
 
   const searchProducts = async () => {
     setLoading(true);
@@ -109,6 +110,14 @@ export default function AffiliateLinksGenerator() {
     楽天で購入する →
   </a>
 </div>`;
+  };
+
+  const handleSelectProduct = (product: RakutenProduct) => {
+    setSelectedProduct(product);
+    // 少し遅延させてからスクロール（DOMの更新を待つ）
+    setTimeout(() => {
+      codeAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const copyToClipboard = (text: string, index: number) => {
@@ -215,7 +224,7 @@ export default function AffiliateLinksGenerator() {
                   </div>
                   <div className="flex flex-col gap-2">
                     <button
-                      onClick={() => setSelectedProduct(product)}
+                      onClick={() => handleSelectProduct(product)}
                       className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
                     >
                       コード生成
@@ -237,10 +246,15 @@ export default function AffiliateLinksGenerator() {
       )}
 
       {selectedProduct && (
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">
-            生成されたコード
-          </h3>
+        <div ref={codeAreaRef} className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              生成されたコード
+            </h3>
+            <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+              ✓ 選択: {selectedProduct.itemName.substring(0, 50)}...
+            </span>
+          </div>
 
           <div className="space-y-6">
             {/* HTMLコード */}
