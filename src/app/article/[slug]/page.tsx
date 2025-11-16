@@ -19,6 +19,7 @@ import ScheduleKigenArticle from './ScheduleKigenArticle';
 import OsusumeRankingArticle from './OsusumeRankingArticle';
 import TyuitenSonArticle from './TyuitenSonArticle';
 import HitorikurashiArticle from './HitorikurashiArticle';
+import OshuRomanArticle from './OshuRomanArticle';
 import { getArticleSetting } from '@/lib/article-settings';
 import { articleData, articleCategories, CategorySlug } from '@/lib/article-data';
 
@@ -197,6 +198,8 @@ export default async function ArticlePage({ params }: Props) {
       case 'furusato-tyuiten-son':
         return TyuitenSonArticle;
       case 'furusato-hitorikurashi':
+      case 'furusato-oshu-roman':
+        return OshuRomanArticle;
         return HitorikurashiArticle;
       default:
         notFound();

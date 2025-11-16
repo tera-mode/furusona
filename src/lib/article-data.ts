@@ -152,5 +152,12 @@ export const articleData: Record<string, {
     published: true,
     category: 'limits',
     date: '2025-11-10'
+  },
+  'furusato-oshu-roman': {
+    title: '奥州ロマン ふるさと納税【2025年最新】幻のりんご返礼品おすすめ5選',
+    description: '奥州ロマンは糖度15〜17度超の幻のりんご。岩手県奥州市の江刺りんごブランドの新品種で、蜂蜜のような甘さとシャキシャキ食感が特徴。ふるさと納税でお得に入手できるおすすめ返礼品5選を紹介。',
+    published: true,
+    category: 'products',
+    date: '2025-11-16'
   }
 };
