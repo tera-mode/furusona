@@ -358,6 +358,58 @@ export default function OshuRomanArticle() {
         </div>
       </section>
 
+      {/* ふるそなPR */}
+      <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
+        <div className="text-center mb-6">
+          <Link href="/" className="inline-block mb-4">
+            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+          </Link>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            奥州ロマンをAIで探す！76万点から最適な返礼品を自動提案
+          </h3>
+          <p className="text-gray-700 mb-6">
+            あなたの好みや家族構成に合わせて、奥州ロマンを含む最適なりんご返礼品をAIが自動で提案。
+            限度額内で最高の返礼品を見逃しません。
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
+          <div className="text-center">
+            <div className="text-4xl mb-3">🍎</div>
+            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <p className="text-sm text-gray-700">
+              76万点から奥州ロマン等の希少品種を自動で発見
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl mb-3">📊</div>
+            <h4 className="font-bold text-gray-900 mb-2">限度額シミュレーション</h4>
+            <p className="text-sm text-gray-700">
+              年収と家族構成を入力するだけで正確な限度額を計算
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl mb-3">📧</div>
+            <h4 className="font-bold text-gray-900 mb-2">旬のタイミングで通知</h4>
+            <p className="text-sm text-gray-700">
+              楽天マラソン等のお得なタイミングをメール通知
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <Link
+            href="/"
+            className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+          >
+            無料で始める →
+          </Link>
+          <p className="text-sm text-gray-600 mt-4">
+            完全無料 | クレジットカード登録不要 | 登録後すぐに利用開始
+          </p>
+        </div>
+      </div>
+
       {/* セクション5: 失敗しない選び方 */}
       <section id="how-to-choose" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-orange-500">
