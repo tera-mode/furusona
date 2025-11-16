@@ -198,9 +198,9 @@ export default async function ArticlePage({ params }: Props) {
       case 'furusato-tyuiten-son':
         return TyuitenSonArticle;
       case 'furusato-hitorikurashi':
+        return HitorikurashiArticle;
       case 'furusato-oshu-roman':
         return OshuRomanArticle;
-        return HitorikurashiArticle;
       default:
         notFound();
     }
