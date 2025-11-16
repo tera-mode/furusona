@@ -48,7 +48,7 @@ export default function OshuRomanArticle() {
           <li><a href="#what-is" className="text-primary-600 hover:underline">1. 奥州ロマンとは？</a></li>
           <li><a href="#features" className="text-primary-600 hover:underline">2. 奥州ロマンの特徴</a></li>
           <li><a href="#esashi-apple" className="text-primary-600 hover:underline">3. 江刺りんごブランドとの関係</a></li>
-          <li><a href="#osusume-henreihin" className="text-primary-600 hover:underline">4. おすすめ返礼品5選</a></li>
+          <li><a href="#osusume-henreihin" className="text-primary-600 hover:underline">4. おすすめ返礼品3選</a></li>
           <li><a href="#how-to-choose" className="text-primary-600 hover:underline">5. 失敗しない選び方</a></li>
           <li><a href="#faq" className="text-primary-600 hover:underline">6. よくある質問</a></li>
         </ol>
@@ -195,178 +195,118 @@ export default function OshuRomanArticle() {
       {/* セクション4: おすすめ返礼品 */}
       <section id="osusume-henreihin" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-orange-500">
-          おすすめ返礼品5選
+          おすすめ返礼品3選
         </h2>
 
         <p className="text-gray-700 mb-6">
           岩手県奥州市のふるさと納税では、江刺りんごを中心に様々なりんご返礼品が用意されています。
-          奥州ロマンは希少品種のため、江刺りんごの詰め合わせや食べ比べセットに含まれることが多いです。
+          奥州ロマンは希少品種のため、専用商品や江刺りんごの詰め合わせセットがおすすめです。
         </p>
 
-        <div className="space-y-4">
-          <div className="bg-white p-6 rounded-lg border-2 border-orange-200">
+        <div className="space-y-6">
+          {/* 1位: 峠のりんご屋さん 奥州ロマン 3kg */}
+          <div className="bg-white p-6 rounded-lg border-2 border-orange-200 shadow-md">
             <div className="flex justify-between items-start mb-3">
               <div>
                 <span className="inline-block bg-orange-500 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">
                   1位
                 </span>
-                <h3 className="text-lg font-bold text-gray-900">
-                  <a 
-                    href="https://search.rakuten.co.jp/search/mall/%E5%B2%A9%E6%89%8B%E7%9C%8C+%E5%A5%A5%E5%B7%9E%E5%B8%82+%E3%82%8A%E3%82%93%E3%81%94+%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E7%B4%8D%E7%A8%8E/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-orange-600 hover:underline"
-                  >
-                    奥州市産江刺りんご サンふじ（秀品） 5kg
-                  </a>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  峠のりんご屋さん 奥州ロマン 3kg（10〜12玉入り）
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">最高級ブランド・化粧箱入り</p>
-              </div>
-              <span className="text-orange-600 font-bold text-lg whitespace-nowrap ml-4">
-                15,000円
-              </span>
-            </div>
-            <p className="text-gray-700 mb-3">
-              江刺りんごの代表格「サンふじ」の秀品。厳しい基準をクリアした最高級品。
-              贈答用にも最適な銀色の化粧箱入り。
-            </p>
-            <div className="bg-orange-50 p-3 rounded">
-              <p className="text-sm text-gray-700">
-                <strong>おすすめポイント</strong>: 江刺りんごブランドの安定した美味しさ。初めての方にも最適。
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <span className="inline-block bg-orange-400 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">
-                  2位
-                </span>
-                <h3 className="text-lg font-bold text-gray-900">
-                  <a 
-                    href="https://search.rakuten.co.jp/search/mall/%E5%B2%A9%E6%89%8B%E7%9C%8C+%E5%A5%A5%E5%B7%9E%E5%B8%82+%E3%82%8A%E3%82%93%E3%81%94+%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E7%B4%8D%E7%A8%8E/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-orange-600 hover:underline"
-                  >
-                    奥州市産 江刺りんご 品種おまかせ 10kg
-                  </a>
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">大容量・コスパ◎</p>
-              </div>
-              <span className="text-orange-600 font-bold text-lg whitespace-nowrap ml-4">
-                20,000円
-              </span>
-            </div>
-            <p className="text-gray-700 mb-3">
-              旬の江刺りんごをたっぷり10kg。品種おまかせなので、時期により奥州ロマンが入ることも。
-              家族で楽しむのに最適な大容量。
-            </p>
-            <div className="bg-blue-50 p-3 rounded">
-              <p className="text-sm text-gray-700">
-                <strong>おすすめポイント</strong>: 量重視の方に。時期によって様々な品種が楽しめる。
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <span className="inline-block bg-orange-300 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">
-                  3位
-                </span>
-                <h3 className="text-lg font-bold text-gray-900">
-                  <a 
-                    href="https://search.rakuten.co.jp/search/mall/%E5%B2%A9%E6%89%8B%E7%9C%8C+%E5%A5%A5%E5%B7%9E%E5%B8%82+%E3%82%8A%E3%82%93%E3%81%94+%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E7%B4%8D%E7%A8%8E/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-orange-600 hover:underline"
-                  >
-                    江刺りんご 食べ比べセット 3kg（3品種×1kg）
-                  </a>
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">複数品種を楽しめる</p>
+                <p className="text-sm text-gray-600">家庭用 | 岩手県産</p>
               </div>
               <span className="text-orange-600 font-bold text-lg whitespace-nowrap ml-4">
                 12,000円
               </span>
             </div>
-            <p className="text-gray-700 mb-3">
-              サンふじ、シナノゴールド、奥州ロマンなど、複数品種を1kgずつ詰め合わせ。
-              それぞれの特徴を食べ比べできる贅沢なセット。
+            <p className="text-gray-700 mb-4">
+              <strong>奥州ロマン専用の返礼品！</strong>峠のりんご屋さんが厳選した幻のりんご「奥州ロマン」を3kg（10〜12玉）お届け。
+              糖度15〜17度超の驚異的な甘さを、ご家庭でじっくりお楽しみいただけます。
             </p>
-            <div className="bg-yellow-50 p-3 rounded">
+            <div className="bg-orange-50 p-3 rounded mb-4">
               <p className="text-sm text-gray-700">
-                <strong>おすすめポイント</strong>: 奥州ロマンを確実に試したい方に。複数品種の違いを楽しめる。
+                <strong>おすすめポイント</strong>: 奥州ロマンを確実に入手したい方に最適。専用商品なので品種間違いの心配なし。
               </p>
             </div>
+            <a
+              href="https://hb.afl.rakuten.co.jp/ichiba/4e3b9c40.c8aa486a.4e3b9c41.987b9f11/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ff032093-ichinoseki%2Fichinoseki01452%2F"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              className="inline-block w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-center transition-colors"
+            >
+              楽天で購入する →
+            </a>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border-2 border-gray-200">
+          {/* 2位: 奥州市産りんご サンふじ 約2.5kg */}
+          <div className="bg-white p-6 rounded-lg border-2 border-gray-200 shadow-md">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <span className="inline-block bg-gray-400 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">
-                  4位
+                <span className="inline-block bg-orange-400 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">
+                  2位
                 </span>
-                <h3 className="text-lg font-bold text-gray-900">
-                  <a 
-                    href="https://search.rakuten.co.jp/search/mall/%E5%B2%A9%E6%89%8B%E7%9C%8C+%E5%A5%A5%E5%B7%9E%E5%B8%82+%E3%82%8A%E3%82%93%E3%81%94+%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E7%B4%8D%E7%A8%8E/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-orange-600 hover:underline"
-                  >
-                    奥州市産 りんごジュース 1L×6本
-                  </a>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  奥州市産りんご 赤い誘惑「サンふじ」約2.5kg（7-10玉）
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">加工品・長期保存可能</p>
+                <p className="text-sm text-gray-600">優品 | 自宅用・贈答用</p>
               </div>
               <span className="text-orange-600 font-bold text-lg whitespace-nowrap ml-4">
-                10,000円
+                13,000円
               </span>
             </div>
-            <p className="text-gray-700 mb-3">
-              江刺りんご100%使用のストレートジュース。奥州ロマンを含む複数品種をブレンド。
-              濃厚な甘みと香りが楽しめます。
+            <p className="text-gray-700 mb-4">
+              江刺りんごの代表格「サンふじ」の優品。甘みと酸味のバランスが絶妙で、
+              蜜が入りやすいのが特徴。贈答用にも自宅用にも最適な人気商品です。
             </p>
-            <div className="bg-green-50 p-3 rounded">
+            <div className="bg-blue-50 p-3 rounded mb-4">
               <p className="text-sm text-gray-700">
-                <strong>おすすめポイント</strong>: 長期保存可能。生のりんごが苦手な方や、お子様にも。
+                <strong>おすすめポイント</strong>: 江刺りんごブランドの安定した美味しさ。初めての方にも最適。
               </p>
             </div>
+            <a
+              href="https://hb.afl.rakuten.co.jp/ichiba/4e3b993e.5af34d9e.4e3b993f.a74f432b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ff032158-oshu%2Fitem1094%2F"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              className="inline-block w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-center transition-colors"
+            >
+              楽天で購入する →
+            </a>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border-2 border-gray-200">
+          {/* 3位: 奥州市のりんご定期便 3回 */}
+          <div className="bg-white p-6 rounded-lg border-2 border-gray-200 shadow-md">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <span className="inline-block bg-gray-400 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">
-                  5位
+                <span className="inline-block bg-orange-300 text-white font-bold px-3 py-1 rounded-full text-sm mb-2">
+                  3位
                 </span>
-                <h3 className="text-lg font-bold text-gray-900">
-                  <a 
-                    href="https://search.rakuten.co.jp/search/mall/%E5%B2%A9%E6%89%8B%E7%9C%8C+%E5%A5%A5%E5%B7%9E%E5%B8%82+%E3%82%8A%E3%82%93%E3%81%94+%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E7%B4%8D%E7%A8%8E/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-orange-600 hover:underline"
-                  >
-                    江刺りんご 訳あり品 10kg
-                  </a>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  奥州市のりんご定期便 3回（2025年12月〜2026年2月）
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">コスパ最強・家庭用</p>
+                <p className="text-sm text-gray-600">江刺りんご食べ比べコース | サンふじ・王林・シナノゴールド</p>
               </div>
               <span className="text-orange-600 font-bold text-lg whitespace-nowrap ml-4">
-                10,000円
+                41,000円
               </span>
             </div>
-            <p className="text-gray-700 mb-3">
-              小傷や色むらなどで規格外となった訳あり品。味は正規品と変わらず、コスパ抜群。
-              ジュースやお菓子作りにも最適。
+            <p className="text-gray-700 mb-4">
+              12月から2月にかけて、旬の江刺りんごを3回に分けてお届け。
+              サンふじ、王林、シナノゴールドなど、時期ごとの最高品質りんごを食べ比べできる贅沢な定期便です。
             </p>
-            <div className="bg-blue-50 p-3 rounded">
+            <div className="bg-yellow-50 p-3 rounded mb-4">
               <p className="text-sm text-gray-700">
-                <strong>おすすめポイント</strong>: 味重視でコスパを求める方に。加工用にも◎
+                <strong>おすすめポイント</strong>: 冬の間、旬のりんごを楽しめる。複数品種の食べ比べで江刺りんごの魅力を満喫。
               </p>
             </div>
+            <a
+              href="https://hb.afl.rakuten.co.jp/ichiba/4e3b993e.5af34d9e.4e3b993f.a74f432b/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ff032158-oshu%2Fitem0785%2F"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              className="inline-block w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-center transition-colors"
+            >
+              楽天で購入する →
+            </a>
           </div>
         </div>
       </section>
