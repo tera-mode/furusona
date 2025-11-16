@@ -1,0 +1,59 @@
+# Googleトレンド自動スクレイピング & メール送信
+# 毎日午前10時（JST）= 午前1時（UTC）に実行
+
+name: Daily Google Trends Scraping
+
+on:
+  schedule:
+    # 毎日午前1時（UTC）= 午前10時（JST）に実行
+    - cron: '0 1 * * *'
+
+  # 手動実行も可能
+  workflow_dispatch:
+    inputs:
+      keyword:
+        description: 'スクレイピング対象キーワード'
+        required: false
+        default: 'ふるさと納税'
+
+jobs:
+  scrape-trends:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Scrape Google Trends and Send Email
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          KEYWORD: ${{ github.event.inputs.keyword || 'ふるさと納税' }}
+        run: |
+          echo "🔍 Scraping Google Trends for keyword: $KEYWORD"
+
+          # APIエンドポイントを構築
+          URL="${APP_URL}/api/trends/scrape?secret=${CRON_SECRET}&keyword=${KEYWORD}"
+
+          # APIを呼び出し
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "$URL")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "📡 HTTP Status: $HTTP_CODE"
+          echo "📄 Response Body:"
+          echo "$BODY" | jq '.' || echo "$BODY"
+
+          # HTTPステータスコードをチェック
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "✅ Successfully scraped Google Trends"
+          else
+            echo "❌ Failed to scrape Google Trends"
+            exit 1
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Trends scraping job failed!"
+          echo "Check the logs for more details."
