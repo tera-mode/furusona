@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function OshuRomanArticle() {
   return (
@@ -14,6 +15,18 @@ export default function OshuRomanArticle() {
         </h1>
         <p className="text-sm text-gray-600">更新日: 2025年11月16日</p>
       </header>
+
+      {/* ヒーロー画像 */}
+      <div className="mb-8 rounded-lg overflow-hidden shadow-lg">
+        <Image
+          src="/img/hero/hero_apple.jpg"
+          alt="奥州ロマン - 幻のりんご"
+          width={1200}
+          height={600}
+          className="w-full h-auto object-cover"
+          priority
+        />
+      </div>
 
       {/* 導入文 */}
       <div className="mb-8 p-6 bg-orange-50 rounded-lg">
