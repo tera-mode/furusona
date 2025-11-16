@@ -258,6 +258,14 @@ firebase deploy --only firestore:indexes
 
 ## 最新の更新
 
+### v1.15.0 (2025-11-16)
+- **Google Trendsスクレイピング機能**: ふるさと納税の関連キーワードを自動収集
+  - 過去24時間の急上昇キーワード取得（relatedQueries APIで「注目」タブ）
+  - 管理者専用メール送信（一般ユーザーへの影響なし）
+  - GitHub Actionsで毎日10時（JST）に自動実行
+  - `/api/trends/scrape` エンドポイント追加
+
+
 ### v1.14.0 (2025-11-14)
 - **ゲストログイン機能実装**: Firebase Anonymous認証による登録不要の即時利用開始
   - **トップページUI改修**: 「ログインして使う」「登録せず使う」の2択ボタンを追加
