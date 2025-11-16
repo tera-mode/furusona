@@ -6,13 +6,14 @@ import { useAuth } from '@/hooks/useAuth';
 import AlgorithmVisualizer from '@/components/debug/AlgorithmVisualizer';
 import RecommendationLogs from '@/components/debug/RecommendationLogs';
 import ArticleManager from '@/components/debug/ArticleManager';
+import AffiliateLinksGenerator from '@/components/debug/AffiliateLinksGenerator';
 
 export default function DebugPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [activeTab, setActiveTab] = useState<'algorithm' | 'logs' | 'articles' | 'email'>('algorithm');
+  const [activeTab, setActiveTab] = useState<'algorithm' | 'logs' | 'articles' | 'affiliate' | 'email'>('algorithm');
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -116,6 +117,16 @@ export default function DebugPage() {
               記事管理
             </button>
             <button
+              onClick={() => setActiveTab('affiliate')}
+              className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
+                activeTab === 'affiliate'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              アフィリエイトリンク
+            </button>
+            <button
               onClick={() => router.push('/debug/email')}
               className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
                 activeTab === 'email'
@@ -152,6 +163,7 @@ export default function DebugPage() {
         {activeTab === 'algorithm' && <AlgorithmVisualizer />}
         {activeTab === 'logs' && <RecommendationLogs />}
         {activeTab === 'articles' && <ArticleManager />}
+        {activeTab === 'affiliate' && <AffiliateLinksGenerator />}
       </main>
     </div>
   );
