@@ -20,6 +20,7 @@ import OsusumeRankingArticle from './OsusumeRankingArticle';
 import TyuitenSonArticle from './TyuitenSonArticle';
 import HitorikurashiArticle from './HitorikurashiArticle';
 import OshuRomanArticle from './OshuRomanArticle';
+import NenmatsuChoseiArticle from './NenmatsuChoseiArticle';
 import { getArticleSetting } from '@/lib/article-settings';
 import { articleData, articleCategories, CategorySlug } from '@/lib/article-data';
 
@@ -201,6 +202,8 @@ export default async function ArticlePage({ params }: Props) {
         return HitorikurashiArticle;
       case 'furusato-oshu-roman':
         return OshuRomanArticle;
+      case 'furusato-nenmatsu-chosei':
+        return NenmatsuChoseiArticle;
       default:
         notFound();
     }

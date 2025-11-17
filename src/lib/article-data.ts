@@ -159,5 +159,12 @@ export const articleData: Record<string, {
     published: true,
     category: 'products',
     date: '2025-11-16'
+  },
+  'furusato-nenmatsu-chosei': {
+    title: 'ふるさと納税は年末調整できる？【2025年版】確定申告との違いを徹底解説',
+    description: 'ふるさと納税は年末調整ではできません。ワンストップ特例制度と確定申告の2つの方法で控除を受ける必要があります。年末調整との違い、手続き方法、期限を詳しく解説します。',
+    published: true,
+    category: 'procedures',
+    date: '2025-11-17'
   }
 };
