@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { articleData, articleCategories, CategorySlug } from '@/lib/article-data';
 
 export default function InfoTopPage() {
@@ -37,7 +38,7 @@ export default function InfoTopPage() {
           <div className="flex items-center justify-between">
             <div>
               <Link href="/" className="text-2xl font-bold text-primary-600 hover:text-primary-700">
-                ふるそな
+                あなたのふるさと納税AI
               </Link>
               <h1 className="text-lg text-gray-600 mt-1">ふるさと納税情報サイト</h1>
             </div>
@@ -45,27 +46,42 @@ export default function InfoTopPage() {
               href="/"
               className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded transition-colors"
             >
-              AIおすすめ診断
+              AIで返礼品を探す
             </Link>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* ヒーローセクション */}
-        <section className="mb-12 text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+      {/* ヒーローセクション */}
+      <section className="relative py-16 sm:py-20 overflow-hidden mb-12">
+        {/* 背景画像 */}
+        <div className="absolute inset-0">
+          <Image
+            src="/img/hero.jpg"
+            alt=""
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+
+        {/* 暗いオーバーレイ */}
+        <div className="absolute inset-0 bg-black/30"></div>
+
+        {/* グラデーションオーバーレイ */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-transparent"></div>
+
+        <div className="relative max-w-7xl mx-auto px-4 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             ふるさと納税の情報がすべてここに
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-lg sm:text-xl text-white/95 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">
             初心者ガイドから返礼品ランキング、手続き方法まで徹底解説
           </p>
-          <div className="inline-block bg-white rounded-lg shadow-sm p-6">
-            <p className="text-gray-700 mb-2">
-              <strong className="text-primary-600">全{publishedArticles.length}記事</strong>を6つのカテゴリに分けて紹介
-            </p>
-          </div>
-        </section>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 py-12">
 
         {/* 新着記事 */}
         <section className="mb-16">
@@ -145,13 +161,13 @@ export default function InfoTopPage() {
             AIがあなたにぴったりの返礼品を提案
           </h2>
           <p className="text-gray-700 mb-6">
-            76万点以上の返礼品から、あなたの好みに合わせて最適な商品を1分で診断
+            76万点以上の返礼品から、あなたの好みに合わせて最適な商品をAIが提案
           </p>
           <Link
             href="/"
             className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
           >
-            無料でAI診断を始める →
+            AIで返礼品を探す →
           </Link>
         </section>
       </div>
@@ -159,7 +175,7 @@ export default function InfoTopPage() {
       {/* フッター */}
       <footer className="bg-white border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 py-8 text-center text-gray-600 text-sm">
-          <p>&copy; 2025 ふるそな All rights reserved.</p>
+          <p>&copy; 2025 あなたのふるさと納税AI All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -174,7 +174,7 @@ function generateTrendsEmailHtml(trendsData: TrendsResult): string {
     }
 
     <div class="footer">
-      <p>このメールは<strong>ふるそな</strong>から自動送信されています。</p>
+      <p>このメールは<strong>あなたのふるさと納税AI</strong>から自動送信されています。</p>
     </div>
   </div>
 </body>
@@ -221,7 +221,7 @@ function generateTrendsEmailText(trendsData: TrendsResult): string {
   }
 
   text += `\n---\n`;
-  text += `このメールは「ふるそな」から自動送信されています。`;
+  text += `このメールは「あなたのふるさと納税AI」から自動送信されています。`;
 
   return text;
 }

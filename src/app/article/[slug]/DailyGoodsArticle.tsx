@@ -507,11 +507,11 @@ export default function DailyGoodsArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             物価高対策！日用品で限度額を無駄なく使い切る
@@ -525,7 +525,7 @@ export default function DailyGoodsArticle() {
         <div className="grid md:grid-cols-3 gap-6 mb-6">
           <div className="text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               端数調整に最適な日用品を自動で提案
             </p>
@@ -664,7 +664,7 @@ export default function DailyGoodsArticle() {
 
         <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
           <p className="text-sm text-gray-700">
-            🧻 <strong>ふるそなのAI機能</strong>なら、限度額の端数を自動計算し、
+            🧻 <strong>あなたのふるさと納税AIのAI機能</strong>なら、限度額の端数を自動計算し、
             最適な日用品を提案します。無駄なく使い切りましょう。
           </p>
         </div>

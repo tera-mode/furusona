@@ -85,6 +85,6 @@ export const yearEndRushTemplate: Omit<EmailTemplate, 'createdAt' | 'updatedAt'>
 詳しくはこちら: ${process.env.NEXT_PUBLIC_APP_URL || 'https://furusona.jp'}/dashboard
 
 ━━━━━━━━━━━━━━━━━━━━
-ふるそな
+あなたのふるさと納税AI
   `,
 };

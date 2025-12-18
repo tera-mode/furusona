@@ -98,7 +98,7 @@ export default function SimulationArticle() {
           <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
             <Image
               src="/img/furusona-logo-small.png"
-              alt="ふるそな"
+              alt="あなたのふるさと納税AI"
               width={120}
               height={40}
               className="h-8 w-auto"
@@ -278,7 +278,7 @@ export default function SimulationArticle() {
             {/* 計算結果直下のCTA */}
             <div className="bg-gradient-to-r from-primary-50 to-warning-50 rounded-lg p-6 border border-primary-200">
               <h3 className="font-bold text-gray-900 mb-2 text-lg">
-                🎯 この限度額に合わせたおすすめ返礼品をAIが診断！
+                🎯 この限度額に合わせたおすすめ返礼品をAIが提案！
               </h3>
               <p className="text-sm text-gray-700 mb-4">
                 限度額{formatCurrency(result)}円を有効活用できる、あなたにぴったりの返礼品をAIが提案します。
@@ -289,7 +289,7 @@ export default function SimulationArticle() {
                 rel="noopener noreferrer"
                 className="block w-full bg-primary-500 hover:bg-primary-600 text-white text-center font-bold py-3 rounded-lg transition-colors shadow-md"
               >
-                無料でAI診断を始める →
+                AIで返礼品を探す →
               </Link>
             </div>
           </section>
@@ -375,21 +375,20 @@ export default function SimulationArticle() {
           </div>
         </section>
 
-        {/* ふるそなPRセクション */}
+        {/* あなたのふるさと納税AIPRセクション */}
         <section className="bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg p-8 mb-10 border border-primary-200">
           <div className="text-center mb-6">
             <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
               <Image
                 src="/img/furusona-logo-small.png"
-                alt="ふるそな"
+                alt="あなたのふるさと納税AI"
                 width={160}
                 height={53}
                 className="h-10 w-auto"
               />
             </Link>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              もう、12月に慌てない。<br />
-              AIがあなたにおすすめの<br className="sm:hidden" />ふるさと納税を診断
+              AIがあなたにおすすめの<br className="sm:hidden" />ふるさと納税を提案
             </h2>
             <p className="text-gray-600 mb-6">
               限度額シミュレーションから返礼品の選び方まで。<br />
@@ -402,9 +401,9 @@ export default function SimulationArticle() {
               <div className="flex items-start gap-3">
                 <span className="text-3xl">👌</span>
                 <div>
-                  <h3 className="font-bold text-gray-900 mb-1">AIおすすめ診断</h3>
+                  <h3 className="font-bold text-gray-900 mb-1">AIが返礼品をおすすめ</h3>
                   <p className="text-sm text-gray-600">
-                    好みのカテゴリーを選ぶだけで、AIがあなたにおすすめの返礼品を自動で診断
+                    好みのカテゴリーを選ぶだけで、AIがあなたにおすすめの返礼品を自動で選定
                   </p>
                 </div>
               </div>
@@ -528,7 +527,7 @@ export default function SimulationArticle() {
           <div className="text-center mb-6">
             <Image
               src="/img/furusona-logo-white-small.png"
-              alt="ふるそな"
+              alt="あなたのふるさと納税AI"
               width={180}
               height={60}
               className="h-8 w-auto mx-auto mb-4"

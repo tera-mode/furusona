@@ -311,11 +311,11 @@ export default function OshuRomanArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             奥州ロマンをAIで探す！76万点から最適な返礼品を自動提案
@@ -329,7 +329,7 @@ export default function OshuRomanArticle() {
         <div className="grid md:grid-cols-3 gap-6 mb-6">
           <div className="text-center">
             <div className="text-4xl mb-3">🍎</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               76万点から奥州ロマン等の希少品種を自動で発見
             </p>
@@ -540,7 +540,7 @@ export default function OshuRomanArticle() {
 
         <div className="bg-orange-50 border-l-4 border-orange-500 p-4">
           <p className="text-sm text-gray-700">
-            🍎 <strong>ふるそなのAI機能</strong>なら、あなたの好みや家族構成に合わせて、
+            🍎 <strong>あなたのふるさと納税AIのAI機能</strong>なら、あなたの好みや家族構成に合わせて、
             最適なりんご返礼品を自動で提案します。奥州ロマンを含む様々な品種から選べます。
           </p>
         </div>

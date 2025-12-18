@@ -434,7 +434,7 @@ export default function ScheduleKigenArticle() {
               </li>
               <li className="flex items-start">
                 <span className="mr-2">☐</span>
-                <span><strong>ふるそなで最適な返礼品を選ぶ</strong></span>
+                <span><strong>あなたのふるさと納税AIで最適な返礼品を選ぶ</strong></span>
               </li>
             </ul>
           </div>
@@ -505,17 +505,17 @@ export default function ScheduleKigenArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             もう、12月に慌てない。期限をリマインドして安心管理
           </h3>
           <p className="text-gray-700 mb-6">
-            ふるそなが重要な期限をメールで通知。ワンストップ申請の期限も逃しません
+            あなたのふるさと納税AIが重要な期限をメールで通知。ワンストップ申請の期限も逃しません
           </p>
         </div>
 
@@ -529,7 +529,7 @@ export default function ScheduleKigenArticle() {
           </div>
           <div className="text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               11月に最適な返礼品を自動提案
             </p>
@@ -621,7 +621,7 @@ export default function ScheduleKigenArticle() {
 
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Q: ふるそなを使うメリットは？
+              Q: あなたのふるさと納税AIを使うメリットは？
             </h3>
             <p className="text-gray-700">
               A: 寄付履歴を管理し、重要な期限をリマインドしてくれます。期限を忘れる心配がありません。

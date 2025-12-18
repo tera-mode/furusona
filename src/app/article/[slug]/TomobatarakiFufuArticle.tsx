@@ -167,7 +167,7 @@ export default function TomobatarakiFufuArticle() {
             <p className="text-sm text-gray-700">
               💡 <strong>計算のポイント</strong><br />
               扶養控除は適用しません。共働きなので独身・共働きの欄を参照してください。
-              ふるそななら夫婦それぞれの限度額を自動計算します。
+              あなたのふるさと納税AIなら夫婦それぞれの限度額を自動計算します。
             </p>
           </div>
         </div>
@@ -318,11 +318,11 @@ export default function TomobatarakiFufuArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             夫婦それぞれの限度額を一括管理
@@ -342,7 +342,7 @@ export default function TomobatarakiFufuArticle() {
           </div>
           <div className="text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               家族の好みに合わせた最適な返礼品を提案
             </p>
@@ -434,7 +434,7 @@ export default function TomobatarakiFufuArticle() {
 
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Q: ふるそなで夫婦の寄付を一緒に管理できる？
+              Q: あなたのふるさと納税AIで夫婦の寄付を一緒に管理できる？
             </h3>
             <p className="text-gray-700">
               A: できます。それぞれアカウントを作成し、家族として管理できます。

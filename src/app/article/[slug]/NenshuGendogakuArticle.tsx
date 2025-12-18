@@ -294,7 +294,7 @@ export default function NenshuGendogakuArticle() {
 
         <div className="mb-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            方法1: ふるそなのAI計算機（おすすめ）
+            方法1: あなたのふるさと納税AIのAI計算機（おすすめ）
           </h3>
           <p className="text-gray-700 mb-4">
             年収と家族構成を入力するだけで、<strong>AIが正確な限度額を自動計算</strong>します。
@@ -378,11 +378,11 @@ export default function NenshuGendogakuArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             AIがあなたの正確な限度額を計算します
@@ -402,7 +402,7 @@ export default function NenshuGendogakuArticle() {
           </div>
           <div className="text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               あなたの好みに合わせた最適な返礼品を提案
             </p>
@@ -494,7 +494,7 @@ export default function NenshuGendogakuArticle() {
 
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Q: ふるそなを使うとどう便利？
+              Q: あなたのふるさと納税AIを使うとどう便利？
             </h3>
             <p className="text-gray-700">
               A: AIが限度額を自動計算し、最適な返礼品を提案します。楽天マラソンなどお得なタイミングも通知するため、計画的にふるさと納税ができます。

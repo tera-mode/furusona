@@ -4,13 +4,13 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
-  title: "ふるそな - ふるさと納税おすすめ診断・限度額シミュレーション【無料】",
-  description: "もう12月に慌てない！AIがあなたにぴったりの返礼品を診断。限度額計算から楽天ふるさと納税の選び方まで完全サポート。確定申告・ワンストップ特例も簡単。完全無料。",
+  title: "あなたのふるさと納税AI - AIがあなたの返礼品選びをサポート【無料】",
+  description: "AIがあなたにぴったりの返礼品を提案。限度額計算から楽天ふるさと納税の選び方まで完全サポート。確定申告・ワンストップ特例も簡単。完全無料。",
   keywords: [
     "ふるさと納税",
     "おすすめ",
     "返礼品",
-    "診断",
+    "AI",
     "選び方",
     "限度額計算",
     "シミュレーション",
@@ -37,10 +37,10 @@ export const metadata: Metadata = {
     apple: "/img/furusona-fav.png",
   },
   openGraph: {
-    title: "ふるそな - ふるさと納税おすすめ診断・限度額シミュレーション【無料】",
-    description: "もう12月に慌てない！AIがあなたにぴったりの返礼品を診断。限度額計算から楽天ふるさと納税の選び方まで完全サポート。完全無料。",
+    title: "あなたのふるさと納税AI - AIがあなたの返礼品選びをサポート【無料】",
+    description: "AIがあなたにぴったりの返礼品を提案。限度額計算から楽天ふるさと納税の選び方まで完全サポート。完全無料。",
     url: "https://furusona.jp",
-    siteName: "ふるそな",
+    siteName: "あなたのふるさと納税AI",
     locale: "ja_JP",
     type: "website",
     images: [
@@ -48,14 +48,14 @@ export const metadata: Metadata = {
         url: "/img/furusona-logo.png",
         width: 1200,
         height: 630,
-        alt: "ふるそな - AIふるさと納税アシスタント",
+        alt: "あなたのふるさと納税AI - AIふるさと納税アシスタント",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ふるそな - ふるさと納税おすすめ診断【無料】",
-    description: "AIがあなたにぴったりの返礼品を診断。限度額計算・確定申告サポートも。完全無料。",
+    title: "あなたのふるさと納税AI - AIがあなたの返礼品選びをサポート【無料】",
+    description: "AIがあなたにぴったりの返礼品を提案。限度額計算・確定申告サポートも。完全無料。",
     images: ["/img/furusona-logo.png"],
   },
   robots: {

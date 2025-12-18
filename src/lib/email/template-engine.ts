@@ -228,7 +228,7 @@ export function wrapEmailHTML(content: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ふるそな</title>
+  <title>あなたのふるさと納税AI</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 20px;">
@@ -238,7 +238,7 @@ export function wrapEmailHTML(content: string): string {
           <!-- Header -->
           <tr>
             <td style="background-color: #3b82f6; padding: 24px; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 24px;">ふるそな</h1>
+              <h1 style="color: white; margin: 0; font-size: 24px;">あなたのふるさと納税AI</h1>
               <p style="color: #dbeafe; margin: 8px 0 0 0; font-size: 14px;">あなたにぴったりの返礼品を</p>
             </td>
           </tr>
@@ -251,7 +251,7 @@ export function wrapEmailHTML(content: string): string {
           <!-- Footer -->
           <tr>
             <td style="background-color: #f3f4f6; padding: 24px; text-align: center;">
-              <p style="color: #6b7280; font-size: 12px; margin: 0 0 8px 0;">このメールは、ふるそなからの自動配信です。</p>
+              <p style="color: #6b7280; font-size: 12px; margin: 0 0 8px 0;">このメールは、あなたのふるさと納税AIからの自動配信です。</p>
               <p style="color: #6b7280; font-size: 12px; margin: 0;">
                 <a href="{{unsubscribeUrl}}" style="color: #3b82f6; text-decoration: none;">配信停止</a> |
                 <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://furusona.jp'}" style="color: #3b82f6; text-decoration: none;">サイトを見る</a>

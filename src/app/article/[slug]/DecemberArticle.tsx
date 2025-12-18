@@ -410,7 +410,7 @@ export default function DecemberArticle() {
             </h3>
             <p className="text-sm text-gray-700 mb-3">
               <strong>対処法:</strong> 米・日用品など定番品は在庫が豊富。
-              ふるそなのAIで代替品を即座に提案してもらいましょう。
+              あなたのふるさと納税AIのAIで代替品を即座に提案してもらいましょう。
             </p>
           </div>
 
@@ -489,14 +489,14 @@ export default function DecemberArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            もう、12月に慌てない。AIがあなたに最適な返礼品を診断
+            もう、12月に慌てない。AIがあなたに最適な返礼品を提案
           </h3>
           <p className="text-gray-700 mb-6">
             限度額を自動計算し、在庫のある返礼品から最適なものをAIが提案。
@@ -507,7 +507,7 @@ export default function DecemberArticle() {
         <div className="grid md:grid-cols-3 gap-6 mb-6">
           <div className="text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               在庫が豊富で確実に届く返礼品を優先表示
             </p>
@@ -583,7 +583,7 @@ export default function DecemberArticle() {
         <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
           <p className="text-sm text-gray-700">
             ⏰ <strong>今日が12月28日以降の場合は、今すぐ行動しましょう！</strong><br />
-            ふるそなのAIなら、限度額計算から返礼品選びまで3分で完了します。
+            あなたのふるさと納税AIのAIなら、限度額計算から返礼品選びまで3分で完了します。
           </p>
         </div>
       </section>

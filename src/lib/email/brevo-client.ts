@@ -42,7 +42,7 @@ export async function sendEmail(params: SendEmailParams) {
   try {
     // デフォルトの送信者情報
     const fromEmail = params.from || process.env.BREVO_FROM_EMAIL || 'noreply@furusona.jp';
-    const fromName = params.fromName || process.env.BREVO_FROM_NAME || 'ふるそな';
+    const fromName = params.fromName || process.env.BREVO_FROM_NAME || 'あなたのふるさと納税AI';
 
     // 受信者のフォーマット
     const toArray = Array.isArray(params.to) ? params.to : [params.to];

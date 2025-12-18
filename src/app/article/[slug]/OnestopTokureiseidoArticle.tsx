@@ -411,17 +411,17 @@ export default function OnestopTokureiseidoArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             期限を忘れない！AIがワンストップ申請をリマインド
           </h3>
           <p className="text-gray-700 mb-6">
-            ふるそななら、寄付履歴を自動管理し、ワンストップ申請の期限（1月10日）をメールでお知らせ。
+            あなたのふるさと納税AIなら、寄付履歴を自動管理し、ワンストップ申請の期限（1月10日）をメールでお知らせ。
             申請忘れを防ぎます。
           </p>
         </div>
@@ -443,7 +443,7 @@ export default function OnestopTokureiseidoArticle() {
           </div>
           <div className="text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               あなたの好みに合わせた最適な返礼品を提案
             </p>
@@ -528,7 +528,7 @@ export default function OnestopTokureiseidoArticle() {
 
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Q: ふるそなを使うメリットは？
+              Q: あなたのふるさと納税AIを使うメリットは？
             </h3>
             <p className="text-gray-700">
               A: 寄付履歴を自動管理し、期限をリマインドしてくれます。5自治体を超えないようアラートも出るため、失敗を防げます。

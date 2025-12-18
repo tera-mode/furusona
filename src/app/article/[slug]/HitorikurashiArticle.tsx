@@ -456,11 +456,11 @@ export default function HitorikurashiArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             一人暮らしに最適な返礼品をAIが提案
@@ -473,7 +473,7 @@ export default function HitorikurashiArticle() {
         <div className="grid md:grid-cols-3 gap-6 mb-6">
           <div className="text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               一人暮らしに最適な量と種類を自動提案
             </p>
@@ -572,7 +572,7 @@ export default function HitorikurashiArticle() {
 
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Q: ふるそなを使うメリットは？
+              Q: あなたのふるさと納税AIを使うメリットは？
             </h3>
             <p className="text-gray-700">
               A: 一人暮らしに最適な返礼品をAIが提案します。保管スペース、量、好みを考慮するため、失敗しません。

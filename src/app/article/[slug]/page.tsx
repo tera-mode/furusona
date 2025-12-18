@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: article.description,
       type: 'article',
       url: url,
-      siteName: 'ふるそな',
+      siteName: 'あなたのふるさと納税AI',
       images: [
         {
           url: ogImage,
@@ -108,12 +108,12 @@ export default async function ArticlePage({ params }: Props) {
     "image": "https://furusona.com/img/og-furusato-simulation.png",
     "author": {
       "@type": "Organization",
-      "name": "ふるそな",
+      "name": "あなたのふるさと納税AI",
       "url": "https://furusona.jp"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "ふるそな",
+      "name": "あなたのふるさと納税AI",
       "logo": {
         "@type": "ImageObject",
         "url": "https://furusona.com/img/og-furusato-simulation.png"

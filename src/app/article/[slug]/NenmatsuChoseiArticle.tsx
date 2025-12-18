@@ -449,17 +449,17 @@ export default function NenmatsuChoseiArticle() {
           </div>
         </section>
 
-        {/* ふるそなPR */}
+        {/* あなたのふるさと納税AIPR */}
         <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
           <div className="text-center mb-6">
             <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
-              <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+              <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
             </Link>
             <h3 className="text-2xl font-bold text-gray-900 mb-3">
               ふるさと納税の手続き、もう迷わない
             </h3>
             <p className="text-gray-700 mb-6">
-              ふるそななら、限度額計算から返礼品選び、期限管理まで全てサポート。
+              あなたのふるさと納税AIなら、限度額計算から返礼品選び、期限管理まで全てサポート。
               ワンストップ特例の期限も自動でリマインドします。
             </p>
           </div>
@@ -474,7 +474,7 @@ export default function NenmatsuChoseiArticle() {
             </div>
             <div className="text-center">
               <div className="text-4xl mb-3">🎯</div>
-              <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+              <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
               <p className="text-sm text-gray-700">
                 あなたの好みに合わせて最適な返礼品をAIが自動提案
               </p>
@@ -560,9 +560,9 @@ export default function NenmatsuChoseiArticle() {
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Q7: ふるそなを使うメリットは？</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Q7: あなたのふるさと納税AIを使うメリットは？</h3>
               <p className="text-gray-700">
-                <strong>A:</strong> ふるそなは限度額の自動計算、AIによる返礼品推薦、ワンストップ申請期限のリマインダー機能など、
+                <strong>A:</strong> あなたのふるさと納税AIは限度額の自動計算、AIによる返礼品推薦、ワンストップ申請期限のリマインダー機能など、
                 ふるさと納税を簡単に、確実に活用できるサービスです。無料で使えるので、ぜひお試しください。
               </p>
             </div>
@@ -595,7 +595,7 @@ export default function NenmatsuChoseiArticle() {
             </li>
             <li className="flex items-start">
               <span className="mr-2 text-blue-600">✓</span>
-              <span><strong>ふるそな</strong>なら期限管理や限度額計算が自動でできて安心</span>
+              <span><strong>あなたのふるさと納税AI</strong>なら期限管理や限度額計算が自動でできて安心</span>
             </li>
           </ul>
         </section>

@@ -20,7 +20,7 @@ export default function HomePage() {
     name: 'LAIV LLC',
     legalName: '合同会社LAIV',
     url: 'https://furusona.jp',
-    logo: 'https://furusona.jp/img/furusona-logo.png',
+    logo: 'https://furusona.jp/img/your-hurusato-logo.png',
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer service',
@@ -34,7 +34,7 @@ export default function HomePage() {
   const webSiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'ふるそな',
+    name: 'あなたのふるさと納税AI',
     url: 'https://furusona.jp',
     description: 'もう12月に慌てない。AIがあなた専属でふるさと納税をサポート',
     publisher: {
@@ -46,7 +46,7 @@ export default function HomePage() {
   const softwareAppSchema = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'ふるそな',
+    name: 'あなたのふるさと納税AI',
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Web',
     offers: {
@@ -103,7 +103,7 @@ export default function HomePage() {
         name: 'どんな返礼品がおすすめですか？',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: '人気の返礼品は、牛肉（黒毛和牛・宮崎牛など）、海鮮（カニ・いくら・海鮮セット）、お米、日用品（トイレットペーパー・ティッシュ）などです。AIがあなたの家族構成や好みに合わせて最適な返礼品を診断します。',
+          text: '人気の返礼品は、牛肉（黒毛和牛・宮崎牛など）、海鮮（カニ・いくら・海鮮セット）、お米、日用品（トイレットペーパー・ティッシュ）などです。AIがあなたの家族構成や好みに合わせて最適な返礼品を提案します。',
         },
       },
     ],
@@ -169,17 +169,17 @@ export default function HomePage() {
         <header className="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50">
         <div className="max-w-[800px] mx-auto px-4 py-4 flex justify-between items-center">
           <Image
-            src="/img/furusona-logo-small.png"
-            alt="ふるそな"
-            width={180}
+            src="/img/your-hurusato-logo-small.png"
+            alt="あなたのふるさと納税AI"
+            width={240}
             height={60}
             priority
             className="h-8 sm:h-10 w-auto dark:hidden"
           />
           <Image
-            src="/img/furusona-logo-white-small.png"
-            alt="ふるそな"
-            width={180}
+            src="/img/your-hurusato-logo-w-small.png"
+            alt="あなたのふるさと納税AI"
+            width={240}
             height={60}
             priority
             className="h-8 sm:h-10 w-auto hidden dark:block"
@@ -203,30 +203,35 @@ export default function HomePage() {
       </header>
 
       {/* ヒーローセクション */}
-      <section className="relative bg-gradient-to-br from-primary-50 to-warning-50 dark:from-slate-800 dark:to-slate-700 py-16 sm:py-20 overflow-hidden">
-        {/* 背景画像プレースホルダー（画像追加時にコメント解除）
-        <div className="absolute inset-0 opacity-20">
+      <section className="relative py-16 sm:py-20 overflow-hidden">
+        {/* 背景画像 */}
+        <div className="absolute inset-0">
           <Image
-            src="/img/hero-bg.webp"
+            src="/img/hero.jpg"
             alt=""
             fill
             className="object-cover"
             priority
           />
         </div>
-        */}
+
+        {/* 暗いオーバーレイ（文字を目立たせる） */}
+        <div className="absolute inset-0 bg-black/30"></div>
+
+        {/* グラデーションオーバーレイ（上部をさらに暗く） */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-transparent"></div>
+
         <div className="relative max-w-[800px] mx-auto px-4 text-center">
-          <div className="inline-block bg-accent-500 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full mb-4">
+          <div className="inline-block bg-accent-500 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full mb-4 shadow-lg">
             完全無料
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-slate-100 mb-4 leading-tight">
-            もう、12月に慌てない。<br />
-            <span className="text-primary-600 dark:text-primary-400">AIがあなたにおすすめの</span><br />
-            ふるさと納税を診断
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            <span className="text-warning-300">AIがあなたにぴったりの</span><br />
+            ふるさと納税返礼品を提案
           </h1>
-          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-            限度額シミュレーションから返礼品の選び方まで。<br />
-            楽天ふるさと納税の中から、あなたにぴったりの返礼品をAIが診断します
+          <p className="text-base sm:text-lg text-white/95 mb-8 leading-relaxed drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">
+            限度額の自動計算から、好みに合わせた返礼品のおすすめまで。<br />
+            楽天ふるさと納税の中から、AIがあなた専属でサポートします
           </p>
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
             <button
@@ -243,9 +248,6 @@ export default function HomePage() {
               {isGuestLoading ? '準備中...' : '登録せず使う'} <span>→</span>
             </button>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-3">
-            ※ クレジットカード登録不要
-          </p>
         </div>
       </section>
 
@@ -293,7 +295,7 @@ export default function HomePage() {
       <section className="py-12 sm:py-16 bg-gradient-to-br from-primary-50 to-warning-50 dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-[800px] mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-            <span className="text-primary-600 dark:text-primary-400">ふるそな</span>が、すべて解決します
+            <span className="text-primary-600 dark:text-primary-400">あなたのふるさと納税AI</span>が、すべて解決します
           </h2>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
             あなた専属のAIアシスタントが、ふるさと納税を完全サポート
@@ -312,13 +314,13 @@ export default function HomePage() {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
                 <span className="text-2xl sm:text-3xl mr-2">👌</span>
-                AIおすすめ診断
+                AIが返礼品を提案
               </h3>
               <h4 className="text-lg sm:text-xl font-bold text-primary-600 dark:text-primary-400 mb-3">
-                あなたにぴったりの返礼品を診断
+                あなたの好みに合わせて最適な商品を選定
               </h4>
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                好みのカテゴリー（牛肉・海鮮・日用品など）を選ぶだけで、AIがあなたにおすすめの返礼品を自動で診断。楽天ふるさと納税の膨大な商品から、本当に欲しいものを見つけ出します。
+                好みのカテゴリー（牛肉・海鮮・日用品など）を選ぶだけで、AIがあなたに合った返礼品を自動でおすすめ。楽天ふるさと納税の膨大な商品から、本当に欲しいものを見つけ出します。
               </p>
             </div>
 
@@ -494,7 +496,7 @@ export default function HomePage() {
                 <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                人気の返礼品は、牛肉（黒毛和牛・宮崎牛など）、海鮮（カニ・いくら・海鮮セット）、お米、日用品（トイレットペーパー・ティッシュ）などです。AIが 好みに合わせて最適な返礼品を診断します。
+                人気の返礼品は、牛肉（黒毛和牛・宮崎牛など）、海鮮（カニ・いくら・海鮮セット）、お米、日用品（トイレットペーパー・ティッシュ）などです。AIがあなたの好みに合わせて最適な返礼品を提案します。
               </p>
             </details>
           </div>
@@ -518,9 +520,9 @@ export default function HomePage() {
         <div className="max-w-[800px] mx-auto px-4">
           <div className="text-center mb-6">
             <Image
-              src="/img/furusona-logo-white-small.png"
-              alt="ふるそな"
-              width={180}
+              src="/img/your-hurusato-logo-w-small.png"
+              alt="あなたのふるさと納税AI"
+              width={240}
               height={60}
               className="h-8 w-auto mx-auto mb-4"
             />

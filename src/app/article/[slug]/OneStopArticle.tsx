@@ -12,7 +12,7 @@ export default function OneStopArticle() {
           <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
             <Image
               src="/img/furusona-logo-small.png"
-              alt="ふるそな"
+              alt="あなたのふるさと納税AI"
               width={120}
               height={40}
               className="h-8 w-auto"
@@ -261,14 +261,14 @@ export default function OneStopArticle() {
               <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
                 <Image
                   src="/img/furusona-logo-small.png"
-                  alt="ふるそな"
+                  alt="あなたのふるさと納税AI"
                   width={160}
                   height={53}
                   className="h-10 w-auto"
                 />
               </Link>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                ふるそななら、ワンストップ申請も簡単管理
+                あなたのふるさと納税AIなら、ワンストップ申請も簡単管理
               </h2>
               <p className="text-gray-600 mb-6">
                 寄付履歴を自動で管理。<br />
@@ -404,7 +404,7 @@ export default function OneStopArticle() {
           <div className="text-center mb-6">
             <Image
               src="/img/furusona-logo-white-small.png"
-              alt="ふるそな"
+              alt="あなたのふるさと納税AI"
               width={180}
               height={60}
               className="h-8 w-auto mx-auto mb-4"

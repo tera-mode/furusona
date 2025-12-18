@@ -198,7 +198,7 @@ export default function FurusatoBeginnerGuideArticle() {
               <p className="text-sm text-gray-700 mb-2"><strong>計算方法:</strong></p>
               <ul className="text-sm text-gray-700 space-y-1">
                 <li>• 総務省のふるさと納税ポータルサイトで簡易計算</li>
-                <li>• <strong>ふるそなのAI計算機で自動計算（おすすめ）</strong></li>
+                <li>• <strong>あなたのふるさと納税AIのAI計算機で自動計算（おすすめ）</strong></li>
                 <li>• 各ふるさと納税サイトのシミュレーター</li>
               </ul>
             </div>
@@ -225,7 +225,7 @@ export default function FurusatoBeginnerGuideArticle() {
             </div>
             <div className="bg-green-50 border-l-4 border-green-500 p-4 ml-16 mt-4">
               <p className="text-sm text-gray-700">
-                💡 <strong>ふるそなのAI推薦が便利</strong><br />
+                💡 <strong>あなたのふるさと納税AIのAI推薦が便利</strong><br />
                 あなたの好みを学習して、最適な返礼品を自動で提案します。
               </p>
             </div>
@@ -312,7 +312,7 @@ export default function FurusatoBeginnerGuideArticle() {
               <strong>問題:</strong> 自己負担が2,000円を大きく超えてしまう
             </p>
             <p className="text-sm text-gray-700">
-              <strong>対策:</strong> 事前に正確な限度額を計算。ふるそなのAI計算機がおすすめ
+              <strong>対策:</strong> 事前に正確な限度額を計算。あなたのふるさと納税AIのAI計算機がおすすめ
             </p>
           </div>
 
@@ -332,7 +332,7 @@ export default function FurusatoBeginnerGuideArticle() {
               <strong>問題:</strong> 申請書の提出期限（1月10日必着）を過ぎて控除されない
             </p>
             <p className="text-sm text-gray-700">
-              <strong>対策:</strong> カレンダーに記録、ふるそなのリマインダー機能を活用
+              <strong>対策:</strong> カレンダーに記録、あなたのふるさと納税AIのリマインダー機能を活用
             </p>
           </div>
 
@@ -352,7 +352,7 @@ export default function FurusatoBeginnerGuideArticle() {
               <strong>問題:</strong> レビューを見ずに選んで失敗
             </p>
             <p className="text-sm text-gray-700">
-              <strong>対策:</strong> レビューを確認、ふるそなのAIで最適な商品を選ぶ
+              <strong>対策:</strong> レビューを確認、あなたのふるさと納税AIのAIで最適な商品を選ぶ
             </p>
           </div>
         </div>
@@ -457,11 +457,11 @@ export default function FurusatoBeginnerGuideArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             AIで返礼品選びを時短！1分で最適な返礼品が見つかる
@@ -474,7 +474,7 @@ export default function FurusatoBeginnerGuideArticle() {
         <div className="grid md:grid-cols-3 gap-6 mb-6">
           <div className="text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               好みを学習して失敗しない返礼品を提案
             </p>
@@ -567,7 +567,7 @@ export default function FurusatoBeginnerGuideArticle() {
               Q: 初めてだけど何を選べばいい？
             </h3>
             <p className="text-gray-700">
-              A: ふるそなのAIが好みに合わせて提案します。米、日用品、肉など失敗しにくい定番返礼品がおすすめです。
+              A: あなたのふるさと納税AIのAIが好みに合わせて提案します。米、日用品、肉など失敗しにくい定番返礼品がおすすめです。
             </p>
           </div>
 

@@ -59,10 +59,10 @@ export const taxReminderTemplate: Omit<EmailTemplate, 'createdAt' | 'updatedAt'>
       </p>
     </div>
 
-    <h3 style="color: #1f2937; font-size: 18px; margin: 0 0 16px 0;">📄 ふるそなでの寄付履歴確認</h3>
+    <h3 style="color: #1f2937; font-size: 18px; margin: 0 0 16px 0;">📄 あなたのふるさと納税AIでの寄付履歴確認</h3>
 
     <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
-      ふるそなのマイページから、今年の寄付履歴を確認できます。<br>
+      あなたのふるさと納税AIのマイページから、今年の寄付履歴を確認できます。<br>
       確定申告の際の参考にご活用ください。
     </p>
 
@@ -101,6 +101,6 @@ export const taxReminderTemplate: Omit<EmailTemplate, 'createdAt' | 'updatedAt'>
 寄付履歴の確認: ${process.env.NEXT_PUBLIC_APP_URL || 'https://furusona.jp'}/past-records
 
 ━━━━━━━━━━━━━━━━━━━━
-ふるそな
+あなたのふるさと納税AI
   `,
 };

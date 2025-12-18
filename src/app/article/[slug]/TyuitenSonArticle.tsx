@@ -93,7 +93,7 @@ export default function TyuitenSonArticle() {
             </div>
             <div className="bg-green-50 p-4 rounded-lg">
               <p className="text-sm text-gray-700">
-                <strong>✓ 対策:</strong> <strong>ふるそなで正確な限度額を計算</strong>しましょう。
+                <strong>✓ 対策:</strong> <strong>あなたのふるさと納税AIで正確な限度額を計算</strong>しましょう。
                 年収、家族構成、各種控除を入力すれば自動で計算できます。
               </p>
             </div>
@@ -187,7 +187,7 @@ export default function TyuitenSonArticle() {
             </div>
             <div className="bg-green-50 p-4 rounded-lg">
               <p className="text-sm text-gray-700">
-                <strong>✓ 対策:</strong> <strong>ふるそなのリマインダー機能で期限管理</strong>しましょう。
+                <strong>✓ 対策:</strong> <strong>あなたのふるさと納税AIのリマインダー機能で期限管理</strong>しましょう。
                 1月10日必着を忘れずに！
               </p>
             </div>
@@ -287,7 +287,7 @@ export default function TyuitenSonArticle() {
             </div>
             <div className="bg-green-50 p-4 rounded-lg">
               <p className="text-sm text-gray-700">
-                <strong>✓ 対策:</strong> <strong>ふるそなのAIが旬の返礼品を提案</strong>します。
+                <strong>✓ 対策:</strong> <strong>あなたのふるさと納税AIのAIが旬の返礼品を提案</strong>します。
                 発送時期も考慮した最適な商品が見つかります。
               </p>
             </div>
@@ -433,14 +433,14 @@ export default function TyuitenSonArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            ふるそなで失敗を防ぐ
+            あなたのふるさと納税AIで失敗を防ぐ
           </h3>
           <p className="text-gray-700 mb-6">
             AIが限度額計算、期限管理、寄付履歴管理をサポート。失敗を大幅に減らせます
@@ -549,7 +549,7 @@ export default function TyuitenSonArticle() {
 
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Q: ふるそなを使えば失敗しない？
+              Q: あなたのふるさと納税AIを使えば失敗しない？
             </h3>
             <p className="text-gray-700">
               A: 限度額計算、期限管理、寄付履歴管理で失敗を大幅に減らせます。

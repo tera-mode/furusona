@@ -33,7 +33,7 @@ export default function AiArticle() {
         <ol className="space-y-2 text-gray-700">
           <li><a href="#problem" className="text-primary-600 hover:underline">1. ふるさと納税の返礼品選びが大変な理由</a></li>
           <li><a href="#ai-solution" className="text-primary-600 hover:underline">2. AIが解決する3つの課題</a></li>
-          <li><a href="#furusona-ai" className="text-primary-600 hover:underline">3. ふるそなのAI機能5つ</a></li>
+          <li><a href="#furusona-ai" className="text-primary-600 hover:underline">3. あなたのふるさと納税AIのAI機能5つ</a></li>
           <li><a href="#how-to-use" className="text-primary-600 hover:underline">4. AIふるさと納税の使い方</a></li>
           <li><a href="#comparison" className="text-primary-600 hover:underline">5. 他のAIサービスとの比較</a></li>
           <li><a href="#case-study" className="text-primary-600 hover:underline">6. AI推薦の実例</a></li>
@@ -142,14 +142,14 @@ export default function AiArticle() {
         </div>
       </section>
 
-      {/* セクション3: ふるそなのAI機能5つ */}
+      {/* セクション3: あなたのふるさと納税AIのAI機能5つ */}
       <section id="furusona-ai" className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-orange-500">
-          ふるそなのAI機能5つ
+          あなたのふるさと納税AIのAI機能5つ
         </h2>
 
         <p className="text-gray-700 mb-6">
-          ふるそなは<strong>Claude API</strong>を活用した高度なパーソナライズ推薦を実現しています。
+          あなたのふるさと納税AIは<strong>Claude API</strong>を活用した高度なパーソナライズ推薦を実現しています。
         </p>
 
         <div className="space-y-6 mb-6">
@@ -315,7 +315,7 @@ export default function AiArticle() {
         </h2>
 
         <p className="text-gray-700 mb-6">
-          2025年現在、複数のふるさと納税AIサービスが登場していますが、ふるそなには独自の強みがあります。
+          2025年現在、複数のふるさと納税AIサービスが登場していますが、あなたのふるさと納税AIには独自の強みがあります。
         </p>
 
         <div className="overflow-x-auto">
@@ -331,7 +331,7 @@ export default function AiArticle() {
             </thead>
             <tbody>
               <tr className="bg-orange-50">
-                <td className="border border-gray-300 px-4 py-3 font-bold">ふるそな</td>
+                <td className="border border-gray-300 px-4 py-3 font-bold">あなたのふるさと納税AI</td>
                 <td className="border border-gray-300 px-4 py-3">Claude API</td>
                 <td className="border border-gray-300 px-4 py-3">楽天全商品</td>
                 <td className="border border-gray-300 px-4 py-3 text-green-600">◎</td>
@@ -357,7 +357,7 @@ export default function AiArticle() {
 
         <div className="mt-6 bg-orange-50 p-6 rounded-lg">
           <h3 className="text-lg font-bold text-gray-900 mb-3">
-            ふるそなの3つの差別化ポイント
+            あなたのふるさと納税AIの3つの差別化ポイント
           </h3>
           <ul className="space-y-3 text-gray-700">
             <li className="flex items-start">
@@ -469,25 +469,25 @@ export default function AiArticle() {
         </div>
       </section>
 
-      {/* ふるそなPR */}
+      {/* あなたのふるさと納税AIPR */}
       <div className="mb-12 p-8 bg-gradient-to-br from-primary-50 to-warning-50 rounded-lg shadow-sm">
         <div className="text-center mb-6">
           <Link href="/" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary-600">ふるそな</span>
+            <span className="text-2xl font-bold text-primary-600">あなたのふるさと納税AI</span>
           </Link>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
             AIで返礼品選びを時短！1分で最適な返礼品が見つかる
           </h3>
           <p className="text-gray-700 mb-6">
             もう、2〜3時間かけて返礼品を探す必要はありません。
-            ふるそなのAIが、あなたにぴったりの返礼品を自動で提案します。
+            あなたのふるさと納税AIのAIが、あなたにぴったりの返礼品を自動で提案します。
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 mb-6">
           <div className="text-center">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-bold text-gray-900 mb-2">AIおすすめ診断</h4>
+            <h4 className="font-bold text-gray-900 mb-2">AIが返礼品をおすすめ</h4>
             <p className="text-sm text-gray-700">
               あなたの好み・家族構成から最適な返礼品を自動提案
             </p>
@@ -543,7 +543,7 @@ export default function AiArticle() {
               Q2. 本当に無料で使えるのですか？
             </h3>
             <p className="text-gray-700">
-              A. はい、ふるそなのAI機能はすべて無料です。
+              A. はい、あなたのふるさと納税AIのAI機能はすべて無料です。
               楽天ふるさと納税へのアフィリエイトで収益を得ているため、ユーザーには一切費用がかかりません。
             </p>
           </div>
@@ -624,7 +624,7 @@ export default function AiArticle() {
         </p>
 
         <p className="text-gray-700 mb-6">
-          ふるそなは、Claude APIの高度な理解力と楽天ポイント最適化で、
+          あなたのふるさと納税AIは、Claude APIの高度な理解力と楽天ポイント最適化で、
           あなたに最適なふるさと納税体験を提供します。
         </p>
 

@@ -121,7 +121,7 @@ export default function LoginModal({ isOpen, onClose, canClose = false, initialM
             {mode === 'signin' ? 'ログイン' : '新規登録'}
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            ふるそなをご利用いただくには認証が必要です
+            あなたのふるさと納税AIをご利用いただくには認証が必要です
           </p>
         </div>
 
