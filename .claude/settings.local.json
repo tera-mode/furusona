@@ -50,7 +50,8 @@
       "Bash(for file in *.tsx)",
       "Bash(do sed -i 's/ふるそな/あなたのふるさと納税AI/g' \"$file\")",
       "Bash(done)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm audit:*)"
     ],
     "deny": [],
     "ask": []

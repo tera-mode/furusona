@@ -251,6 +251,35 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 利用技術セクション */}
+      <section className="py-8 sm:py-10 bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-700">
+        <div className="max-w-[800px] mx-auto px-4">
+          <p className="text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-4 font-medium">
+            テクノロジー
+          </p>
+          <div className="flex items-center justify-center gap-8 sm:gap-12">
+            <div className="flex items-center justify-center">
+              <Image
+                src="/img/google-gemini-logo.png"
+                alt="Google Gemini"
+                width={180}
+                height={60}
+                className="h-12 sm:h-15 w-auto opacity-70 hover:opacity-100 transition-opacity"
+              />
+            </div>
+            <div className="flex items-center justify-center">
+              <Image
+                src="/img/rakuten-furusato-logo.png"
+                alt="楽天ふるさと納税"
+                width={210}
+                height={60}
+                className="h-12 sm:h-15 w-auto opacity-70 hover:opacity-100 transition-opacity"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 課題セクション */}
       <section className="py-12 sm:py-16 bg-slate-50 dark:bg-slate-800">
         <div className="max-w-[800px] mx-auto px-4">
