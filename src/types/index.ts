@@ -99,6 +99,24 @@ export interface CachedProduct {
   updatedAt: Date;
 }
 
+// Dashboard Access (アクティブユーザー追跡用)
+export interface DashboardAccess {
+  id?: string;
+  userId: string;
+  timestamp: Date;
+  isGuest: boolean;
+  date: string; // YYYY-MM-DD形式
+}
+
+// User Statistics (デバッグ画面用)
+export interface UserStats {
+  newGuests: { yesterday: number; last7Days: number; thisMonth: number; allTime: number };
+  activeGuests: { yesterday: number; last7Days: number; thisMonth: number; allTime: number };
+  newMembers: { yesterday: number; last7Days: number; thisMonth: number; allTime: number };
+  activeMembers: { yesterday: number; last7Days: number; thisMonth: number; allTime: number };
+  lastUpdated: string;
+}
+
 // Claude Recommendation
 export interface Recommendation {
   itemCode: string;

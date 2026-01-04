@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useDashboardTracking } from '@/hooks/useDashboardTracking';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import LoginModal from '@/components/auth/LoginModal';
@@ -14,6 +15,9 @@ export default function DashboardPage() {
   const { user, loading, updateUserData } = useAuth();
   const router = useRouter();
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // ダッシュボードアクセスをトラッキング
+  useDashboardTracking(user);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [error, setError] = useState<string | null>(null);
