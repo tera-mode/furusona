@@ -44,6 +44,7 @@ async function getNewUsers(
 
 /**
  * アクティブユーザー数を取得
+ * 注: 複合インデックスの問題を回避するため、クライアント側でフィルタリング
  */
 async function getActiveUsers(
   isGuest: boolean,
@@ -52,31 +53,68 @@ async function getActiveUsers(
 ): Promise<number> {
   try {
     const startDate = formatDateForFirestore(start);
+    const endDate = end ? formatDateForFirestore(end) : null;
 
-    let query = adminDb
+    console.log('🔍 Fetching active users:', {
+      isGuest,
+      startDate,
+      endDate,
+      startDateTime: start.toISOString(),
+      endDateTime: end?.toISOString()
+    });
+
+    // isGuestのみでフィルタリング（複合インデックス不要）
+    const query = adminDb
       .collection('dashboardAccess')
-      .where('isGuest', '==', isGuest)
-      .where('date', '>=', startDate);
-
-    if (end) {
-      const endDate = formatDateForFirestore(end);
-      query = query.where('date', '<', endDate);
-    }
+      .where('isGuest', '==', isGuest);
 
     const snapshot = await query.get();
 
-    // ユニークなuserIdを抽出
+    console.log('📊 Query result (before date filter):', {
+      isGuest,
+      docCount: snapshot.size
+    });
+
+    // クライアント側で日付フィルタリング
     const uniqueUserIds = new Set<string>();
+    let filteredCount = 0;
+
     snapshot.docs.forEach(doc => {
-      const userId = doc.data().userId;
-      if (userId) {
-        uniqueUserIds.add(userId);
+      const data = doc.data();
+      const docDate = data.date;
+
+      // 日付範囲チェック
+      let isInRange = docDate >= startDate;
+      if (endDate) {
+        isInRange = isInRange && docDate < endDate;
+      }
+
+      if (isInRange) {
+        filteredCount++;
+        const userId = data.userId;
+        if (userId) {
+          uniqueUserIds.add(userId);
+        }
+
+        // 最初の数件のみログ出力（デバッグ用）
+        if (filteredCount <= 5) {
+          console.log('📄 Document data:', { id: doc.id, date: docDate, userId });
+        }
       }
     });
 
+    console.log('✅ Filtered documents:', filteredCount);
+    console.log('✅ Unique users found:', uniqueUserIds.size);
+
     return uniqueUserIds.size;
   } catch (error) {
-    console.error('Error fetching active users:', error);
+    console.error('❌ Error fetching active users:', {
+      isGuest,
+      start: start.toISOString(),
+      end: end?.toISOString(),
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return 0;
   }
 }
