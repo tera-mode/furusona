@@ -15,16 +15,13 @@
       "Bash(git commit:*)",
       "Bash(git branch:*)",
       "Bash(git remote add:*)",
-      "Bash(git push:*)",
       "Bash(test:*)",
       "Bash(npm run build:*)",
       "Bash(git log:*)",
       "Bash(git filter-branch:*)",
       "Bash(git checkout:*)",
-      "Bash(vercel:*)",
       "Bash(move:*)",
       "Bash(node test-gemini.js)",
-      "Bash(firebase deploy:*)",
       "WebFetch(domain:event.rakuten.co.jp)",
       "WebFetch(domain:webservice.rakuten.co.jp)",
       "Bash(git reset:*)",
@@ -60,9 +57,27 @@
       "Bash(npx vercel --prod)",
       "WebFetch(domain:github.com)",
       "Bash(paste:*)",
-      "Bash(node test-trends-debug.js:*)"
+      "Bash(node test-trends-debug.js:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(vercel:*)",
+      "Bash(npx vercel --prod)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/load-instructions.sh"
+          }
+        ]
+      }
+    ]
   }
 }
