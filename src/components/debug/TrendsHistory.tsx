@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import type { GoogleTrendsDocument, TrendingKeyword } from '@/types/trends';
 import { generateTrendsRankingArticle } from '@/lib/article-templates/trends-ranking';
 
@@ -170,9 +170,8 @@ export default function TrendsHistory() {
           </thead>
           <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
             {trends.map((trend) => (
-              <>
+              <Fragment key={trend.date}>
                 <tr
-                  key={trend.date}
                   className="hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
                   onClick={() => toggleRow(trend.date)}
                 >
@@ -272,7 +271,7 @@ export default function TrendsHistory() {
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>
