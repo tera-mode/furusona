@@ -55,9 +55,20 @@ export async function GET(request: NextRequest) {
     const recipientEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'tera.mode@gmail.com';
 
     console.log('[Trends API] Starting scrape for:', keyword);
+    console.log('[Trends API] Timestamp:', new Date().toISOString());
 
     // 3. トレンドをスクレイピング
-    const trendsData = await scrapeGoogleTrends(keyword, 'JP', 'now 1-d');
+    let trendsData;
+    try {
+      trendsData = await scrapeGoogleTrends(keyword, 'JP', 'now 1-d');
+    } catch (scrapeError) {
+      console.error('[Trends API] Scraping failed:', {
+        error: scrapeError,
+        message: scrapeError instanceof Error ? scrapeError.message : 'Unknown error',
+        stack: scrapeError instanceof Error ? scrapeError.stack : undefined,
+      });
+      throw scrapeError; // Re-throw to be caught by outer catch
+    }
 
     // 4. 重要なキーワードのみフィルタリング
     const filteredRising = filterSignificantKeywords(trendsData.risingQueries, minValue);

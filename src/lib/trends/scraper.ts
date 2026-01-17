@@ -85,10 +85,24 @@ export async function scrapeGoogleTrends(
       geo,
     };
   } catch (error) {
-    console.error('[Trends] Scraping error:', error);
-    throw new Error(
-      `Failed to scrape Google Trends: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
+    console.error('[Trends] Scraping error:', {
+      error,
+      errorType: error?.constructor?.name,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      keyword,
+      geo,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+    });
+
+    // エラーメッセージを詳細化
+    let detailedMessage = `Failed to scrape Google Trends for "${keyword}"`;
+    if (error instanceof Error) {
+      detailedMessage += `: ${error.message}`;
+    }
+
+    throw new Error(detailedMessage);
   }
 }
 

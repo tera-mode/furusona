@@ -31,24 +31,68 @@ jobs:
           KEYWORD: ${{ github.event.inputs.keyword || 'ふるさと納税' }}
         run: |
           echo "🔍 Scraping Google Trends for keyword: $KEYWORD"
+          echo "🌐 Target URL: ${APP_URL}/api/trends/scrape"
+          echo "⏰ Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
           # APIエンドポイントを構築
           URL="${APP_URL}/api/trends/scrape?secret=${CRON_SECRET}&keyword=${KEYWORD}"
 
-          # APIを呼び出し
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "$URL")
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | sed '$d')
+          # 環境変数チェック
+          if [ -z "$APP_URL" ]; then
+            echo "❌ ERROR: APP_URL is not set"
+            exit 1
+          fi
+          if [ -z "$CRON_SECRET" ]; then
+            echo "❌ ERROR: CRON_SECRET is not set"
+            exit 1
+          fi
 
-          echo "📡 HTTP Status: $HTTP_CODE"
+          echo "📡 Calling API endpoint..."
+
+          # APIを呼び出し（詳細モード、タイムアウト30秒）
+          RESPONSE=$(curl -s -w "\n%{http_code}\n%{time_total}\n%{size_download}" \
+            --max-time 30 \
+            --connect-timeout 10 \
+            -X GET "$URL" 2>&1) || CURL_EXIT=$?
+
+          # curl自体のエラーチェック
+          if [ ! -z "$CURL_EXIT" ]; then
+            echo "❌ curl command failed with exit code: $CURL_EXIT"
+            echo "Common curl exit codes:"
+            echo "  6: Couldn't resolve host"
+            echo "  7: Failed to connect to host"
+            echo "  28: Operation timeout"
+            echo "  35: SSL connect error"
+            exit 1
+          fi
+
+          # レスポンス解析
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n3 | head -n1)
+          TIME_TOTAL=$(echo "$RESPONSE" | tail -n2 | head -n1)
+          SIZE_DOWNLOAD=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d' | sed '$d' | sed '$d')
+
+          echo "📊 Response Metrics:"
+          echo "  - HTTP Status: $HTTP_CODE"
+          echo "  - Response Time: ${TIME_TOTAL}s"
+          echo "  - Response Size: ${SIZE_DOWNLOAD} bytes"
+          echo ""
           echo "📄 Response Body:"
-          echo "$BODY" | jq '.' || echo "$BODY"
+          echo "$BODY" | jq '.' 2>/dev/null || echo "$BODY"
 
           # HTTPステータスコードをチェック
           if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo ""
             echo "✅ Successfully scraped Google Trends"
           else
-            echo "❌ Failed to scrape Google Trends"
+            echo ""
+            echo "❌ Failed to scrape Google Trends (HTTP $HTTP_CODE)"
+            echo ""
+            echo "🔍 Debugging Information:"
+            echo "  - Check if APP_URL is accessible: ${APP_URL}"
+            echo "  - Verify CRON_SECRET is correct in GitHub Secrets"
+            echo "  - Check Vercel deployment status"
+            echo "  - Review API logs in Vercel dashboard"
             exit 1
           fi
 
