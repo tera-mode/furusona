@@ -33,13 +33,12 @@ export async function scrapeGoogleTrends(
   geo: string = 'JP',
   timeRange: string = 'now 1-d'
 ): Promise<TrendsResult> {
+  // 過去24時間のデータを取得
+  const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const endTime = new Date();
+
   try {
     console.log(`[Trends] Scraping related queries for keyword: "${keyword}", geo: ${geo}`);
-
-    // 関連する急上昇キーワードを取得（relatedQueries）
-    // 過去24時間のデータを取得
-    const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const endTime = new Date();
 
     const result = await googleTrends.relatedQueries({
       keyword,

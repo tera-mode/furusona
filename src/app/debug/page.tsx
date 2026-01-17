@@ -8,13 +8,14 @@ import RecommendationLogs from '@/components/debug/RecommendationLogs';
 import ArticleManager from '@/components/debug/ArticleManager';
 import AffiliateLinksGenerator from '@/components/debug/AffiliateLinksGenerator';
 import UserStatistics from '@/components/debug/UserStatistics';
+import TrendsHistory from '@/components/debug/TrendsHistory';
 
 export default function DebugPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [activeTab, setActiveTab] = useState<'algorithm' | 'logs' | 'articles' | 'affiliate' | 'email' | 'stats'>('algorithm');
+  const [activeTab, setActiveTab] = useState<'algorithm' | 'logs' | 'articles' | 'affiliate' | 'email' | 'stats' | 'trends'>('algorithm');
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -147,6 +148,16 @@ export default function DebugPage() {
             >
               ユーザー統計
             </button>
+            <button
+              onClick={() => setActiveTab('trends')}
+              className={`px-4 py-3 font-medium text-sm transition-colors border-b-2 ${
+                activeTab === 'trends'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+              }`}
+            >
+              Google Trends
+            </button>
           </div>
         </div>
       </div>
@@ -176,6 +187,7 @@ export default function DebugPage() {
         {activeTab === 'articles' && <ArticleManager />}
         {activeTab === 'affiliate' && <AffiliateLinksGenerator />}
         {activeTab === 'stats' && <UserStatistics />}
+        {activeTab === 'trends' && <TrendsHistory />}
       </main>
     </div>
   );

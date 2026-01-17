@@ -51,7 +51,16 @@
       "Bash(do sed -i 's/ふるそな/あなたのふるさと納税AI/g' \"$file\")",
       "Bash(done)",
       "Bash(grep:*)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(systeminfo:*)",
+      "Bash(findstr:*)",
+      "Bash(wmic cpu get:*)",
+      "Bash(dism.exe /online /enable-feature:*)",
+      "Bash(npx vercel --prod)",
+      "WebFetch(domain:github.com)",
+      "Bash(paste:*)",
+      "Bash(node test-trends-debug.js:*)"
     ],
     "deny": [],
     "ask": []

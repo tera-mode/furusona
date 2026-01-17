@@ -3,6 +3,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { scrapeGoogleTrends, filterSignificantKeywords } from '@/lib/trends/scraper';
 import { sendTrendsAlertEmail } from '@/lib/trends/email-sender';
+import { adminDb } from '@/lib/firebase-admin';
+import { formatDateForFirestore } from '@/lib/date-utils';
 import type { TrendsScrapeResponse } from '@/types/trends';
 
 /**
@@ -81,6 +83,24 @@ export async function GET(request: NextRequest) {
     console.log(
       `[Trends API] Found ${filteredRising.length} significant rising queries (filtered from ${trendsData.risingQueries.length})`
     );
+
+    // 4.5. Firestoreへの保存
+    try {
+      const dateStr = formatDateForFirestore(trendsData.scrapedAt);
+      await adminDb.collection('googleTrends').doc(dateStr).set({
+        scrapedAt: trendsData.scrapedAt,
+        keyword: trendsData.keyword,
+        geo: trendsData.geo,
+        risingQueries: trendsData.risingQueries,
+        topQueries: trendsData.topQueries,
+        significantCount: filteredRising.length,
+        breakoutCount: filteredRising.filter(k => k.value === 'Breakout').length,
+      }, { merge: true });
+      console.log(`[Trends API] Saved trends data to Firestore: ${dateStr}`);
+    } catch (firestoreError) {
+      console.error('[Trends API] Failed to save to Firestore:', firestoreError);
+      // Firestoreへの保存失敗はエラーとしない（メール送信は続行）
+    }
 
     // 5. メール送信（急上昇キーワードがある場合のみ）
     let emailSent = false;

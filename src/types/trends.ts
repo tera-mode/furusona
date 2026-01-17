@@ -22,3 +22,14 @@ export interface TrendsScrapeResponse {
   error?: string;
   emailSent?: boolean;
 }
+
+// Firestore document structure for stored trends data
+export interface GoogleTrendsDocument {
+  scrapedAt: Date;
+  keyword: string;
+  geo: string;
+  risingQueries: TrendingKeyword[];
+  topQueries: TrendingKeyword[];
+  significantCount: number;
+  breakoutCount: number;
+}
