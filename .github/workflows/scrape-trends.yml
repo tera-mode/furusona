@@ -1,12 +1,12 @@
 # Googleトレンド自動スクレイピング & メール送信
-# 毎日午前10時（JST）= 午前1時（UTC）に実行
+# 月・木・日の午前10時（JST）= 午前1時（UTC）に実行
 
-name: Daily Google Trends Scraping
+name: Google Trends Scraping
 
 on:
   schedule:
-    # 毎日午前1時（UTC）= 午前10時（JST）に実行
-    - cron: '0 1 * * *'
+    # 月曜・木曜・日曜の午前1時（UTC）= 午前10時（JST）に実行
+    - cron: '0 1 * * 0,1,4'
 
   # 手動実行も可能
   workflow_dispatch:
