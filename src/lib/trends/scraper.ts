@@ -21,6 +21,65 @@ interface TrendsApiResponse {
 }
 
 /**
+ * 指定時間待機する
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * リトライ付きでGoogle Trends APIを呼び出す
+ */
+async function fetchWithRetry(
+  keyword: string,
+  geo: string,
+  startTime: Date,
+  endTime: Date,
+  maxRetries: number = 3,
+  baseDelay: number = 2000
+): Promise<TrendsApiResponse> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`[Trends] Attempt ${attempt}/${maxRetries} for keyword: "${keyword}"`);
+
+      const result = await googleTrends.relatedQueries({
+        keyword,
+        geo,
+        hl: 'ja',
+        startTime,
+        endTime,
+      });
+
+      // HTMLレスポンスのチェック（Googleのブロックページ検出）
+      if (typeof result === 'string' && result.trim().startsWith('<')) {
+        const errorSnippet = result.substring(0, 200);
+        console.error(`[Trends] Received HTML instead of JSON (attempt ${attempt}):`, errorSnippet);
+        throw new Error(`Google returned HTML page instead of JSON. This usually indicates rate limiting or blocking. Response starts with: ${errorSnippet}`);
+      }
+
+      const data = JSON.parse(result) as TrendsApiResponse;
+      console.log('[Trends] Response structure:', JSON.stringify(data, null, 2).substring(0, 500));
+      return data;
+
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      console.error(`[Trends] Attempt ${attempt} failed:`, lastError.message);
+
+      if (attempt < maxRetries) {
+        // 指数バックオフ: 2秒, 4秒, 8秒...
+        const delay = baseDelay * Math.pow(2, attempt - 1);
+        console.log(`[Trends] Waiting ${delay}ms before retry...`);
+        await sleep(delay);
+      }
+    }
+  }
+
+  throw lastError || new Error('All retry attempts failed');
+}
+
+/**
  * 指定したキーワードの関連する急上昇クエリを取得
  *
  * @param keyword ベースキーワード（例: "ふるさと納税"）
@@ -31,7 +90,7 @@ interface TrendsApiResponse {
 export async function scrapeGoogleTrends(
   keyword: string = 'ふるさと納税',
   geo: string = 'JP',
-  timeRange: string = 'now 1-d'
+  _timeRange: string = 'now 1-d' // 将来の拡張用に保持
 ): Promise<TrendsResult> {
   // 過去24時間のデータを取得
   const startTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -40,16 +99,7 @@ export async function scrapeGoogleTrends(
   try {
     console.log(`[Trends] Scraping related queries for keyword: "${keyword}", geo: ${geo}`);
 
-    const result = await googleTrends.relatedQueries({
-      keyword,
-      geo,
-      hl: 'ja',
-      startTime,
-      endTime,
-    });
-
-    const data = JSON.parse(result) as TrendsApiResponse;
-    console.log('[Trends] Response structure:', JSON.stringify(data, null, 2).substring(0, 500));
+    const data = await fetchWithRetry(keyword, geo, startTime, endTime);
 
     // rankedList[0] = Top queries (人気)
     // rankedList[1] = Rising queries (注目 - 急上昇)
@@ -84,10 +134,14 @@ export async function scrapeGoogleTrends(
       geo,
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const isHtmlResponse = errorMessage.includes('HTML') || errorMessage.includes('<html');
+
     console.error('[Trends] Scraping error:', {
       error,
       errorType: error?.constructor?.name,
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message: errorMessage,
+      isHtmlResponse,
       stack: error instanceof Error ? error.stack : undefined,
       keyword,
       geo,
@@ -97,7 +151,9 @@ export async function scrapeGoogleTrends(
 
     // エラーメッセージを詳細化
     let detailedMessage = `Failed to scrape Google Trends for "${keyword}"`;
-    if (error instanceof Error) {
+    if (isHtmlResponse) {
+      detailedMessage += ': Google is blocking requests (rate limit or CAPTCHA). Try again later.';
+    } else if (error instanceof Error) {
       detailedMessage += `: ${error.message}`;
     }
 
