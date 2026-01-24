@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import AdBanner from '@/components/AdBanner';
 
 export default function BeginnerGuideArticle() {
   return (
@@ -41,6 +42,9 @@ export default function BeginnerGuideArticle() {
               <strong>この記事でわかること:</strong> ふるさと納税の基本的な仕組みから、実際の申し込み方法、控除を受けるための手続きまで、すべてを網羅的に解説します。
             </p>
           </div>
+
+          {/* 広告: 導入文後 */}
+          <AdBanner />
 
           {/* ふるさと納税とは */}
           <section className="mb-10">
@@ -324,6 +328,9 @@ export default function BeginnerGuideArticle() {
               </div>
             </div>
           </section>
+
+          {/* 広告: 記事末尾 */}
+          <AdBanner />
 
           {/* 関連記事 */}
           <section className="mb-10">

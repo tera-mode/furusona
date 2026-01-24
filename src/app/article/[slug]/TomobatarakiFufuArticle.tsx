@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 export default function TomobatarakiFufuArticle() {
   return (
@@ -26,6 +27,9 @@ export default function TomobatarakiFufuArticle() {
           夫婦それぞれの名義で寄付する際の注意点、合算限度額の計算、おすすめの配分戦略まで詳しく紹介します。
         </p>
       </div>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -442,6 +446,9 @@ export default function TomobatarakiFufuArticle() {
           </div>
         </div>
       </section>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 関連記事 */}
       <section className="mb-12">

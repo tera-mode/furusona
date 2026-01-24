@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 export default function ScheduleKigenArticle() {
   return (
@@ -26,6 +27,9 @@ export default function ScheduleKigenArticle() {
           12月の駆け込み寄付や1月のワンストップ申請など、忘れてはいけない重要な期限を詳しく解説します。
         </p>
       </div>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -629,6 +633,9 @@ export default function ScheduleKigenArticle() {
           </div>
         </div>
       </section>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 関連記事 */}
       <section className="mb-12">

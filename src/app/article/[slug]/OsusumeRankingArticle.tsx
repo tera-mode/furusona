@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 interface RankingProduct {
   rank: number;
@@ -120,6 +121,9 @@ export default function OsusumeRankingArticle() {
           肉、米、フルーツ、海鮮、日用品など、失敗しないおすすめ商品を還元率・レビューとともに詳しく解説します。
         </p>
       </div>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -711,6 +715,9 @@ export default function OsusumeRankingArticle() {
           </div>
         </div>
       </section>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 関連記事 */}
       <section className="mb-12">

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import AdBanner from '@/components/AdBanner';
 
 export default function OneStopArticle() {
   return (
@@ -41,6 +42,8 @@ export default function OneStopArticle() {
               <strong>この記事でわかること:</strong> ワンストップ特例制度の仕組み、利用条件、申請方法、注意点まで、すべてを詳しく解説します。
             </p>
           </div>
+
+          <AdBanner />
 
           {/* ワンストップ特例制度とは */}
           <section className="mb-10">
@@ -359,6 +362,8 @@ export default function OneStopArticle() {
               </div>
             </div>
           </section>
+
+          <AdBanner />
 
           {/* 関連記事 */}
           <section className="mb-10">

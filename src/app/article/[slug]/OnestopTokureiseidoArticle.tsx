@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 export default function OnestopTokureiseidoArticle() {
   return (
@@ -25,6 +26,9 @@ export default function OnestopTokureiseidoArticle() {
           この記事では、ワンストップ特例制度の<strong>申請方法・期限・必要書類・注意点</strong>を初めての方でも迷わず手続きできるよう、詳しく解説します。
         </p>
       </div>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -536,6 +540,9 @@ export default function OnestopTokureiseidoArticle() {
           </div>
         </div>
       </section>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 関連記事 */}
       <section className="mb-12">

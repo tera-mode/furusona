@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import AdBanner from '@/components/AdBanner';
 
 export default function MistakesArticle() {
   return (
@@ -41,6 +42,9 @@ export default function MistakesArticle() {
               <strong>この記事でわかること:</strong> ふるさと納税の代表的な失敗事例と、失敗を防ぐためのチェックリスト、トラブル発生時の対処法をすべて網羅しています。
             </p>
           </div>
+
+          {/* 広告 */}
+          <AdBanner />
 
           {/* よくある失敗の概要 */}
           <section className="mb-10">
@@ -673,6 +677,9 @@ export default function MistakesArticle() {
               </div>
             </div>
           </section>
+
+          {/* 広告 */}
+          <AdBanner />
 
           {/* 関連記事 */}
           <section className="mb-10">

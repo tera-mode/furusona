@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { calculateFurusatoLimit, roundToThousand } from '@/utils/furusatoCalculator';
+import AdBanner from '@/components/AdBanner';
 
 const STORAGE_KEY = 'furusato_simulation_state';
 
@@ -128,6 +129,8 @@ export default function SimulationArticle() {
               <strong>注意:</strong> この計算は目安です。実際の控除額は確定申告により変動する場合があります。
             </p>
           </div>
+
+          <AdBanner />
 
           {/* シミュレーションフォーム */}
           <section className="bg-gray-50 rounded-lg p-6 mb-10 border border-gray-200">
@@ -482,6 +485,8 @@ export default function SimulationArticle() {
             </div>
           </div>
         </section>
+
+        <AdBanner />
 
         {/* 関連記事 */}
         <section className="mb-10">

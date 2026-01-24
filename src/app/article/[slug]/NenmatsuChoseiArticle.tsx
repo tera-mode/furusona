@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 export default function NenmatsuChoseiArticle() {
   return (
@@ -26,6 +27,9 @@ export default function NenmatsuChoseiArticle() {
             ワンストップ特例制度と確定申告の違いまで詳しく解説します。
           </p>
         </div>
+
+        {/* 広告 */}
+        <AdBanner />
 
         {/* 目次 */}
         <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -599,6 +603,9 @@ export default function NenmatsuChoseiArticle() {
             </li>
           </ul>
         </section>
+
+        {/* 広告 */}
+        <AdBanner />
 
         {/* 関連記事 */}
         <section className="mb-12">

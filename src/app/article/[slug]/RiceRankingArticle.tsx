@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 export default function RiceRankingArticle() {
   return (
@@ -27,6 +28,7 @@ export default function RiceRankingArticle() {
         </p>
       </div>
 
+      <AdBanner />
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -666,6 +668,8 @@ export default function RiceRankingArticle() {
           </p>
         </div>
       </section>
+
+      <AdBanner />
 
       {/* 関連記事 */}
       <section className="mb-12">

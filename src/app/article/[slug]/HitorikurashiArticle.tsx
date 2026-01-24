@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 export default function HitorikurashiArticle() {
   return (
@@ -26,6 +27,9 @@ export default function HitorikurashiArticle() {
           保管スペースが少なくても選べる返礼品、少額でお得な商品、定期便の活用法を詳しく紹介します。
         </p>
       </div>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -580,6 +584,9 @@ export default function HitorikurashiArticle() {
           </div>
         </div>
       </section>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 関連記事 */}
       <section className="mb-12">

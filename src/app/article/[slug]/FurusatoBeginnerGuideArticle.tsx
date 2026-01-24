@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 export default function FurusatoBeginnerGuideArticle() {
   return (
@@ -25,6 +26,9 @@ export default function FurusatoBeginnerGuideArticle() {
           この記事では、<strong>初めての方でも理解できるように</strong>、ふるさと納税の仕組み・やり方・申請方法を図解付きでわかりやすく解説します。
         </p>
       </div>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -581,6 +585,9 @@ export default function FurusatoBeginnerGuideArticle() {
           </div>
         </div>
       </section>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 関連記事 */}
       <section className="mb-12">

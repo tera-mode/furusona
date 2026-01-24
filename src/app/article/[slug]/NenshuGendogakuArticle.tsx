@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 
 export default function NenshuGendogakuArticle() {
   return (
@@ -26,6 +27,9 @@ export default function NenshuGendogakuArticle() {
           あなたのケースに合わせた正確な限度額がすぐわかります。
         </p>
       </div>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 目次 */}
       <nav className="mb-12 p-6 bg-gray-50 rounded-lg">
@@ -502,6 +506,9 @@ export default function NenshuGendogakuArticle() {
           </div>
         </div>
       </section>
+
+      {/* 広告 */}
+      <AdBanner />
 
       {/* 関連記事 */}
       <section className="mb-12">

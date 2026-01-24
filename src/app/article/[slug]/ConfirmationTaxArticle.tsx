@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import AdBanner from '@/components/AdBanner';
 
 export default function ConfirmationTaxArticle() {
   return (
@@ -41,6 +42,9 @@ export default function ConfirmationTaxArticle() {
               <strong>この記事でわかること:</strong> 確定申告が必要なケース、必要書類の準備から提出まで、e-Taxでのオンライン申告方法まで、すべてを網羅的に解説します。
             </p>
           </div>
+
+          {/* 広告 */}
+          <AdBanner />
 
           {/* 確定申告とは */}
           <section className="mb-10">
@@ -585,6 +589,9 @@ export default function ConfirmationTaxArticle() {
               </div>
             </div>
           </section>
+
+          {/* 広告 */}
+          <AdBanner />
 
           {/* 関連記事 */}
           <section className="mb-10">

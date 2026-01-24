@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import AdBanner from '@/components/AdBanner';
 
 export default function RecommendedGiftsArticle() {
   return (
@@ -41,6 +42,8 @@ export default function RecommendedGiftsArticle() {
               <strong>この記事でわかること:</strong> 肉・海鮮・フルーツ・日用品など、カテゴリー別のおすすめ返礼品と選び方のポイントをご紹介します。
             </p>
           </div>
+
+          <AdBanner />
 
           {/* 返礼品の選び方 */}
           <section className="mb-10">
@@ -394,6 +397,8 @@ export default function RecommendedGiftsArticle() {
               </div>
             </div>
           </section>
+
+          <AdBanner />
 
           {/* 関連記事 */}
           <section className="mb-10">
