@@ -41,4 +41,9 @@ next-env.d.ts
 
 # SEO research and internal documentation (internal use only)
 SEOresearch.md
+README.md
+API.md
+ARCHITECTURE.md
+DEVELOPMENT.md
+SECURITY_GUIDELINES.md
 /docs
