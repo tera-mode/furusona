@@ -83,17 +83,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5781326713622626"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="antialiased bg-slate-50 dark:bg-slate-900">
         <GoogleAnalytics />
         <AuthProvider>
           {children}
         </AuthProvider>
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5781326713622626"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

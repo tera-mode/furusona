@@ -46,5 +46,14 @@ service cloud.firestore {
       // 書き込みは禁止（サーバーサイドのみ）
       allow write: if false;
     }
+
+    // ダッシュボードアクセスログ
+    match /dashboardAccess/{accessId} {
+      // 認証済みユーザーは自分のログを作成可能
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.userId;
+      // 読み取りは禁止（管理者のみサーバーサイドで閲覧）
+      allow read, update, delete: if false;
+    }
   }
 }
